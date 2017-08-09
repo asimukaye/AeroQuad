@@ -34,7 +34,7 @@
  * Calculate roll/pitch axis error with gyro/accel data to
  * compute motor command thrust so used command are executed
  */
-void calculateFlightError()
+void calculateFlightError()pos
 {
   #if defined (UseGPSNavigator)
     if (navigationState == ON || positionHoldState == ON) {
@@ -45,6 +45,15 @@ void calculateFlightError()
     }
     else
   #endif
+  #if defined (Hold_X) || defined(Hold_Y)
+    if (HokuyoHoldState == ON) {
+      float rollAttitudeCmd  = updatePID((receiverCommand[XAXIS] - receiverZero[XAXIS] - hokuyoHoldThrottleCorrection_X) * ATTITUDE_SCALING, kinematicsAngle[XAXIS], &PID[ATTITUDE_XAXIS_PID_IDX]);
+      float pitchAttitudeCmd = updatePID((receiverCommand[YAXIS] - receiverZero[YAXIS] - hokuyoHoldThrottleCorrection_Y) * ATTITUDE_SCALING, -kinematicsAngle[YAXIS], &PID[ATTITUDE_YAXIS_PID_IDX]);
+      motorAxisCommandRoll   = updatePID(rollAttitudeCmd, gyroRate[XAXIS], &PID[ATTITUDE_GYRO_XAXIS_PID_IDX]);
+      motorAxisCommandPitch  = updatePID(pitchAttitudeCmd, -gyroRate[YAXIS], &PID[ATTITUDE_GYRO_YAXIS_PID_IDX]);
+    }
+    else
+  #endif  
   if (flightMode == ATTITUDE_FLIGHT_MODE) {
     float rollAttitudeCmd  = updatePID((receiverCommand[XAXIS] - receiverZero[XAXIS]) * ATTITUDE_SCALING, kinematicsAngle[XAXIS], &PID[ATTITUDE_XAXIS_PID_IDX]);
     float pitchAttitudeCmd = updatePID((receiverCommand[YAXIS] - receiverZero[YAXIS]) * ATTITUDE_SCALING, -kinematicsAngle[YAXIS], &PID[ATTITUDE_YAXIS_PID_IDX]);
@@ -293,7 +302,7 @@ void processFlightControl() {
     #else
       throttle = receiverCommand[THROTTLE];
     #endif
-    
+
     // ********************** Process Battery monitor hold **************************
     #if defined BattMonitor && defined BattMonitorAutoDescent
       processBatteryMonitorThrottleAdjustment();
@@ -307,7 +316,15 @@ void processFlightControl() {
     // ********************** Process throttle correction ********************
     processThrottleCorrection();
   }
-
+  
+if (frameCounter % HOKUYO_TASK_SPEED == 0) {  // 10hz task   
+    // ********************** Process Hokuyo hold **************************
+    #if defined Lidar2D
+      processHokuyoHold();
+    #endif
+        
+  }
+  
   // ********************** Calculate Motor Commands *************************
   if (motorArmed && safetyCheck) {
     applyMotorCommand();

@@ -202,7 +202,8 @@ void initializeEEPROM() {
   }
   receiverSmoothFactor[ZAXIS] = 0.5;
 
-  flightMode = RATE_FLIGHT_MODE;
+  //flightMode = RATE_FLIGHT_MODE;
+  flightMode = ATTITUDE_FLIGHT_MODE;
   headingHoldConfig = ON;
   aref = 5.0; // Use 3.0 if using a v1.7 shield or use 2.8 for an AeroQuad Shield < v1.7
   
@@ -218,6 +219,18 @@ void initializeEEPROM() {
     maxRangeFinderRange = 4.5;
     minRangeFinderRange = 0.0;
   #endif
+
+  #if defined (Lidar2D)
+    PID[GPSROLL_PID_IDX].P = 0.8;
+    PID[GPSROLL_PID_IDX].I = 0.0;
+    PID[GPSROLL_PID_IDX].D = 0.0;
+    PID[GPSPITCH_PID_IDX].P = 0.8;
+    PID[GPSPITCH_PID_IDX].I = 0.0;
+    PID[GPSPITCH_PID_IDX].D = 0.0;
+    PID[GPSYAW_PID_IDX].P = 50.0;
+    PID[GPSYAW_PID_IDX].I = 0.0;
+    PID[GPSYAW_PID_IDX].D = 0.0;
+  #endif  
   
   #if defined (UseGPSNavigator)
     missionNbPoint = 0;
@@ -317,6 +330,12 @@ void readEEPROM() {
   flightMode = readFloat(FLIGHTMODE_ADR);
   accelOneG = readFloat(ACCEL_1G_ADR);
   headingHoldConfig = readFloat(HEADINGHOLD_ADR);
+
+  #if defined (Lidar2D)
+    readPID(GPSROLL_PID_IDX, GPSROLL_PID_GAIN_ADR);
+    readPID(GPSPITCH_PID_IDX, GPSPITCH_PID_GAIN_ADR);
+    readPID(GPSYAW_PID_IDX, GPSYAW_PID_GAIN_ADR);  
+  #endif
 
   #if defined (UseGPSNavigator)
     missionNbPoint = readFloat(GPS_MISSION_NB_POINT_ADR);
@@ -427,8 +446,14 @@ void writeEEPROM(){
     writeFloat(0, RANGE_FINDER_MAX_ADR);
     writeFloat(0, RANGE_FINDER_MIN_ADR);
   #endif
+
+  #if defined (Lidar2D)
+    writePID(GPSROLL_PID_IDX, GPSROLL_PID_GAIN_ADR);
+    writePID(GPSPITCH_PID_IDX, GPSPITCH_PID_GAIN_ADR);
+    writePID(GPSYAW_PID_IDX, GPSYAW_PID_GAIN_ADR);       
+  #endif
   
-  #if defined (UseGPSNavigator)
+  #if defined UseGPSNavigator
     writeFloat(missionNbPoint, GPS_MISSION_NB_POINT_ADR);
     writePID(GPSROLL_PID_IDX, GPSROLL_PID_GAIN_ADR);
     writePID(GPSPITCH_PID_IDX, GPSPITCH_PID_GAIN_ADR);

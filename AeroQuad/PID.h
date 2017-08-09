@@ -33,16 +33,16 @@ enum {
   #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
     BARO_ALTITUDE_HOLD_PID_IDX,
     ZDAMPENING_PID_IDX,
+    THROTTLE_ALTITUDE_HOLD_PID_IDX,
   #endif
   #if defined AltitudeHoldRangeFinder
     SONAR_ALTITUDE_HOLD_PID_IDX,
   #endif
-  #if defined UseGPSNavigator
+  //#if defined UseGPSNavigator
     GPSPITCH_PID_IDX,
     GPSROLL_PID_IDX,
     GPSYAW_PID_IDX,
-  #endif    
-
+ // #endif
   LAST_PID_IDX  // keep this definition at the end of this enum
 };
 
@@ -95,5 +95,4 @@ void zeroIntegralError() {
 }
 
 #endif // _AQ_PID_H_
-
 

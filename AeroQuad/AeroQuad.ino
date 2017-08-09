@@ -26,6 +26,31 @@
    or talk to us live on IRC #aeroquad
 *****************************************************************************/
 
+//***************************************************************************
+//***************Lidar Sensor variable for altitude hold*********************
+//***************************************************************************
+unsigned long pulseWidth;
+//signed long d;  //d for distance
+//signed long d_corr, d_filt;  //d corrected for for biass offset
+signed long kal_filt;
+//int t,t_1;
+float k = 0,out;
+float kX =0,kY=0;
+float est_val = 70,est_err = 90; // 70,90
+float est_valX = 70,est_errX = 90; // 70,90
+float est_valY = 70,est_errY = 90; // 70,90
+int pre_value;
+
+#define meas_err 10 // 10 
+#define meas_errX 10 // 10 
+#define meas_errY 10 // 10 
+#define q 0.5 //0.22 //0.25
+#define qX 4.5 //0.22 //0.25
+#define qY 4.5 //0.22 //0.25
+//#include "ultrasonic_sensor.h"
+float kal(signed long);
+//********************************************************************************
+
 #include "UserConfiguration.h" // Edit this file first before uploading to the AeroQuad
 
 //
@@ -68,990 +93,7 @@
 //********* PLATFORM SPECIFIC SECTION ********************
 //********************************************************
 //********************************************************
-#ifdef AeroQuad_v1
-  #define LED_Green 13
-  #define LED_Red 12
-  #define LED_Yellow 12
 
-  // Gyroscope declaration
-  #include <Gyroscope_IDG_IDZ500.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_ADXL500.h>
-
-  // Receiver declaration
-  #define RECEIVER_328P
-
-  // Motor declaration
-  #define MOTOR_PWM
-
-  // unsupported in v1
-  #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder
-  #undef HeadingMagHold
-  #undef BattMonitor
-  #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
-  #undef CameraControl
-  #undef OSD
-  #undef UseGPS
-  #undef UseGPSNavigator
-
-
-  /**
-   * Put AeroQuad_v1 specific initialization need here
-   */
-  void initPlatform() {
-    setGyroAref(aref);
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-  }
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    measureGyro();
-    measureAccel();
-  }
-#endif
-
-#ifdef AeroQuad_v1_IDG
-  #define LED_Green 13
-  #define LED_Red 12
-  #define LED_Yellow 12
-
-  // Gyroscope declaration
-  #include <Gyroscope_IDG_IDZ500.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_ADXL500.h>
-
-  // Receiver declaration
-  #define RECEIVER_328P
-
-  // Motor declaration
-  #define MOTOR_PWM
-
-  // unsupported in v1
-  #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder
-  #undef HeadingMagHold
-  #undef BattMonitor
-  #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
-  #undef CameraControl
-  #undef OSD
-  #undef UseGPS
-  #undef UseGPSNavigator
-
-  /**
-   * Put AeroQuad_v1_IDG specific initialization need here
-   */
-  void initPlatform() {
-    setGyroAref(aref);
-  }
-  
-    // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-  }
-
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    measureGyro();
-    measureAccel();
-  }
-#endif
-
-#ifdef AeroQuad_v18
-  #define LED_Green 13
-  #define LED_Red 12
-  #define LED_Yellow 12
-
-  #include <Device_I2C.h>
-
-  // Gyroscope declaration
-  #include <Gyroscope_ITG3200.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_BMA180.h>
-
-  // Receiver declaration
-  #define RECEIVER_328P
-
-  // Motor declaration
-  #define MOTOR_PWM_Timer
-
-  // heading mag hold declaration
-  #ifdef HeadingMagHold
-    #define HMC5843
-  #endif
-
-  // Battery Monitor declaration
-  #ifdef BattMonitor
-    #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15, 0.9, BM_NOPIN, 0, 0)
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-
-  #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder
-  #undef CameraControl
-  #undef OSD
-  #undef UseGPS
-  #undef UseGPSNavigator
-
-  /**
-   * Put AeroQuad_v18 specific initialization need here
-   */
-  void initPlatform() {
-
-    pinMode(LED_Red, OUTPUT);
-    digitalWrite(LED_Red, LOW);
-    pinMode(LED_Yellow, OUTPUT);
-    digitalWrite(LED_Yellow, LOW);
-
-    Wire.begin();
-    TWBR = 12;
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Kenny default value, a real accel calibration is strongly recommended
-    accelScaleFactor[XAXIS] = 0.0047340002;
-    accelScaleFactor[YAXIS] = -0.0046519994;
-    accelScaleFactor[ZAXIS] = -0.0046799998;
-  }
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    measureGyroSum();
-    measureAccelSum();
-  }
-
-#endif
-
-#ifdef AeroQuad_Mini
-  #define LED_Green 13
-  #define LED_Red 12
-  #define LED_Yellow 12
-
-  #include <Device_I2C.h>
-
-  // Gyroscope declaration
-  #define ITG3200_ADDRESS_ALTERNATE
-  #include <Gyroscope_ITG3200.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_ADXL345.h>
-
-  // Receiver declaration
-  #define RECEIVER_328P
-
-  // Motor declaration
-  #if defined(quadXConfig) || defined(quadPlusConfig) || defined(quadY4Config)
-    #define MOTOR_PWM_Timer
-  #else
-    #define MOTOR_PWM
-  #endif    
-
-  // heading mag hold declaration
-  #ifdef HeadingMagHold
-    #define HMC5843
-  #endif
-  
-  // Battery Monitor declaration
-  #ifdef BattMonitor
-    #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0.53, BM_NOPIN, 0, 0)
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-
-  // unsupported in mini
-  #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder  
-  #undef CameraControl
-  #undef OSD
-  #undef UseGPS
-  #undef UseGPSNavigator
-
-  /**
-   * Put AeroQuad_Mini specific initialization need here
-   */
-  void initPlatform() {
-
-    pinMode(LED_Red, OUTPUT);
-    digitalWrite(LED_Red, LOW);
-    pinMode(LED_Yellow, OUTPUT);
-    digitalWrite(LED_Yellow, LOW);
-
-    Wire.begin();
-    TWBR = 12;
-  }
-
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Kenny default value, a real accel calibration is strongly recommended
-    accelScaleFactor[XAXIS] = 0.0371299982;
-    accelScaleFactor[YAXIS] = -0.0374319982;
-    accelScaleFactor[ZAXIS] = -0.0385979986;
-  }
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    measureGyroSum();
-    measureAccelSum();
-  }
-#endif
-
-#ifdef AeroQuadMega_v1
-  #define LED_Green 13
-  #define LED_Red 4
-  #define LED_Yellow 31
-
-  // Special thanks to Wilafau for fixes for this setup
-  // http://aeroquad.com/showthread.php?991-AeroQuad-Flight-Software-v2.0&p=11466&viewfull=1#post11466
-  // Gyroscope declaration
-  #include <Gyroscope_IDG_IDZ500.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_ADXL500.h>
-
-  // Reveiver declaration
-  #define OLD_RECEIVER_PIN_ORDER
-  #define RECEIVER_MEGA
-
-  // Motor declaration
-  #define MOTOR_PWM
-
-  // unsupported on mega v1
-  #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder  
-  #undef HeadingMagHold
-  #undef BattMonitor
-  #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
-  #undef CameraControl
-  #undef OSD
-
-  /**
-   * Put AeroQuadMega_v1 specific initialization need here
-   */
-  void initPlatform() {
-    setGyroAref(aref);
-  }
-  
-    // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-  }
-
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    if (deltaTime >= 10000) {
-      measureGyro();
-      measureAccel();
-    }
-  }
-#endif
-
-#ifdef AeroQuadMega_v2
-  #define LED_Green 13
-  #define LED_Red 4
-  #define LED_Yellow 31
-
-  #include <Device_I2C.h>
-
-  // Gyroscope declaration
-  #include <Gyroscope_ITG3200.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_BMA180.h>
-
-  // Receiver Declaration
-  #define RECEIVER_MEGA
-
-  // Motor declaration
-  #define MOTOR_PWM_Timer
-
-  // heading mag hold declaration
-  #ifdef HeadingMagHold
-    #include <Compass.h>
-//    #define SPARKFUN_5883L_BOB
-    #define HMC5843
-  #endif
-
-  // Altitude declaration
-  #ifdef AltitudeHoldBaro    
-    #define BMP085 
-  #endif
-  #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
-  #endif
-
-  // Battery Monitor declaration
-  #ifdef BattMonitor
-    #ifdef POWERED_BY_VIN
-      #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0, BM_NOPIN, 0, 0) // v2 shield powered via VIN (no diode)
-    #else
-      #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0.82, BM_NOPIN, 0, 0) // v2 shield powered via power jack
-    #endif
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-
-  #ifdef OSD
-    #define MAX7456_OSD
-  #endif  
-  
-  #ifndef UseGPS
-    #undef UseGPSNavigator
-  #endif
-
-  /**
-   * Put AeroQuadMega_v2 specific initialization need here
-   */
-  void initPlatform() {
-
-    pinMode(LED_Red, OUTPUT);
-    digitalWrite(LED_Red, LOW);
-    pinMode(LED_Yellow, OUTPUT);
-    digitalWrite(LED_Yellow, LOW);
-
-    // pins set to INPUT for camera stabilization so won't interfere with new camera class
-    pinMode(33, INPUT); // disable SERVO 1, jumper D12 for roll
-    pinMode(34, INPUT); // disable SERVO 2, jumper D11 for pitch
-    pinMode(35, INPUT); // disable SERVO 3, jumper D13 for yaw
-    pinMode(43, OUTPUT); // LED 1
-    pinMode(44, OUTPUT); // LED 2
-    pinMode(45, OUTPUT); // LED 3
-    pinMode(46, OUTPUT); // LED 4
-    digitalWrite(43, HIGH); // LED 1 on
-    digitalWrite(44, HIGH); // LED 2 on
-    digitalWrite(45, HIGH); // LED 3 on
-    digitalWrite(46, HIGH); // LED 4 on
-
-    Wire.begin();
-    TWBR = 12;
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Kenny default value, a real accel calibration is strongly recommended
-    accelScaleFactor[XAXIS] = 0.0046449995;
-    accelScaleFactor[YAXIS] = -0.0047950000;
-    accelScaleFactor[ZAXIS] = -0.0047549996;
-    #ifdef HeadingMagHold
-      magBias[XAXIS]  = 60.000000;
-      magBias[YAXIS]  = -39.000000;
-      magBias[ZAXIS]  = -7.500000;
-    #endif
-  }
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    measureGyroSum();
-    measureAccelSum();
-  }
-#endif
-
-#ifdef AeroQuadMega_v21
-  #define LED_Green 13
-  #define LED_Red 4
-  #define LED_Yellow 31
-
-  #include <Device_I2C.h>
-
-  // Gyroscope declaration
-  #define ITG3200_ADDRESS_ALTERNATE
-  #include <Gyroscope_ITG3200_9DOF.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_ADXL345_9DOF.h>
-
-  // Receiver Declaration
-  #define RECEIVER_MEGA
-
-  // Motor declaration
-  #define MOTOR_PWM_Timer
-
-  // heading mag hold declaration
-  #ifdef HeadingMagHold
-    #include <Compass.h>
-    #define SPARKFUN_9DOF_5883L
-  #endif
-
-  // Altitude declaration
-  #ifdef AltitudeHoldBaro
-    #define BMP085
-  #endif
-  #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
-  #endif
-
-
-  // Battery Monitor declaration
-  #ifdef BattMonitor
-    #ifdef POWERED_BY_VIN
-      #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0, BM_NOPIN, 0, 0) // v2 shield powered via VIN (no diode)
-    #else
-      #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0.82, BM_NOPIN, 0, 0) // v2 shield powered via power jack
-    #endif
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-
-  #ifdef OSD
-    #define MAX7456_OSD
-  #endif  
-  
-  #ifndef UseGPS
-    #undef UseGPSNavigator
-  #endif
-
-
-  /**
-   * Put AeroQuadMega_v21 specific initialization need here
-   */
-  void initPlatform() {
-
-    pinMode(LED_Red, OUTPUT);
-    digitalWrite(LED_Red, LOW);
-    pinMode(LED_Yellow, OUTPUT);
-    digitalWrite(LED_Yellow, LOW);
-
-    // pins set to INPUT for camera stabilization so won't interfere with new camera class
-    pinMode(33, INPUT); // disable SERVO 1, jumper D12 for roll
-    pinMode(34, INPUT); // disable SERVO 2, jumper D11 for pitch
-    pinMode(35, INPUT); // disable SERVO 3, jumper D13 for yaw
-    pinMode(43, OUTPUT); // LED 1
-    pinMode(44, OUTPUT); // LED 2
-    pinMode(45, OUTPUT); // LED 3
-    pinMode(46, OUTPUT); // LED 4
-    digitalWrite(43, HIGH); // LED 1 on
-    digitalWrite(44, HIGH); // LED 2 on
-    digitalWrite(45, HIGH); // LED 3 on
-    digitalWrite(46, HIGH); // LED 4 on
-
-    Wire.begin();
-    TWBR = 12;
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Kenny default value, a real accel calibration is strongly recommended
-    accelScaleFactor[XAXIS] = 0.0365570020;
-    accelScaleFactor[YAXIS] = 0.0363000011;
-    accelScaleFactor[ZAXIS] = -0.0384629964;
-    #ifdef HeadingMagHold
-      magBias[XAXIS]  = 1.500000;
-      magBias[YAXIS]  = 205.500000;
-      magBias[ZAXIS]  = -33.000000;
-    #endif
-  }
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    measureGyroSum();
-    measureAccelSum();
-  }
-#endif
-
-#ifdef ArduCopter
-  #define LED_Green 37
-  #define LED_Red 35
-  #define LED_Yellow 36
-
-  #include <APM_ADC.h>
-  #include <APM_RC.h>
-  #include <Device_I2C.h>
-
-  // Gyroscope declaration
-  #include <Gyroscope_APM.h>
-
-  // Accelerometer Declaration
-  #include <Accelerometer_APM.h>
-
-  // Receiver Declaration
-  #define RECEIVER_APM
-
-  // Motor Declaration
-  #define MOTOR_APM
-
-  // heading mag hold declaration
-  #ifdef HeadingMagHold
-    #define HMC5843
-  #endif
-  #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
-  #endif
-
-
-  // Altitude declaration
-  #ifdef AltitudeHoldBaro
-    #define BMP085
-  #endif
-
-  // Battery monitor declaration
-  #ifdef BattMonitor
-    #define BattDefaultConfig DEFINE_BATTERY(0, 0, 13.35, 0.31, BM_NOPIN, 0, 0)
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-
-  #undef CameraControl
-  #undef OSD
-  #ifndef UseGPS
-    #undef UseGPSNavigator
-  #endif
-
-  
-  /**
-   * Put ArduCopter specific initialization need here
-   */
-  void initPlatform() {
-    pinMode(LED_Red, OUTPUT);
-    pinMode(LED_Yellow, OUTPUT);
-    pinMode(LED_Green, OUTPUT);
-
-    initializeADC();
-    initRC();
-
-    Wire.begin();
-    TWBR = 12;
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-    #ifdef HeadingMagHold
-      magBias[XAXIS]  = 0.0;
-      magBias[YAXIS]  = 0.0;
-      magBias[ZAXIS]  = 0.0;
-    #endif
-  }
-
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    evaluateADC();
-    measureGyroSum();
-    measureAccelSum();
-  }
-#endif
-
-#ifdef AeroQuad_Wii
-  #define LED_Green 13
-  #define LED_Red 12
-  #define LED_Yellow 12
-
-  #include <Device_I2C.h>
-
-  // Platform Wii declaration
-  #include <Platform_Wii.h>
-
-  // Gyroscope declaration
-  #include <Gyroscope_Wii.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_WII.h>
-
-  // Receiver declaration
-  #define RECEIVER_328P
-
-  // Motor declaration
-  #define MOTOR_PWM
-
-  // heading mag hold declaration
-  // unsupported on mega v1
-  #undef AltitudeHoldBaro
-  #undef AltitudeHoldRangeFinder  
-  #undef HeadingMagHold
-  #undef BattMonitor
-  #undef BattMonitorAutoDescent
-  #undef POWERED_BY_VIN        
-  #undef CameraControl
-  #undef OSD
-  #undef UseGPS
-  #undef UseGPSNavigator
-
-
-  /**
-   * Put AeroQuad_Wii specific initialization need here
-   */
-  void initPlatform() {
-     Wire.begin();
-
-     #if defined(AeroQuad_Paris_v3)
-       initializeWiiSensors(true);
-     #else
-       initializeWiiSensors();
-     #endif
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-  }
-
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    if (deltaTime >= 10000) {
-      readWiiSensors();
-      measureGyro();
-      measureAccel();
-    }
-  }
-#endif
-
-#ifdef AeroQuadMega_Wii
-  #define LED_Green 13
-  #define LED_Red 4
-  #define LED_Yellow 31
-
-  #include <Device_I2C.h>
-
-  // Platform Wii declaration
-  #include <Platform_Wii.h>
-
-  // Gyroscope declaration
-  #include <Gyroscope_Wii.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_WII.h>
-
-  // Receiver declaration
-  #define RECEIVER_MEGA
-
-  // Motor declaration
-  #define MOTOR_PWM
-
-  // heading mag hold declaration
-  #ifdef HeadingMagHold
-    #include <Compass.h>
-    #define HMC5843
-  #endif
-
-  // Altitude declaration
-  #ifdef AltitudeHoldBaro
-    #define BMP085
-  #endif
-  #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
-  #endif
-
-  // Battery monitor declaration
-  #ifdef BattMonitor
-    #define BattDefaultConfig DEFINE_BATTERY(0, 0, 15.0, 0.9, BM_NOPIN, 0, 0)
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-
-  #ifdef OSD
-    #define MAX7456_OSD
-  #endif
-  
-  #undef UseGPS        // Wii not enough stable to use gps
-  #undef UseGPSNavigator
-
-
-  /**
-   * Put AeroQuadMega_Wii specific initialization need here
-   */
-  void initPlatform() {
-    Wire.begin();
-
-    initializeWiiSensors();
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-    #ifdef HeadingMagHold
-      magBias[XAXIS]  = 0.0;
-      magBias[YAXIS]  = 0.0;
-      magBias[ZAXIS]  = 0.0;
-    #endif
-  }
-
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    if (deltaTime >= 10000) {
-      readWiiSensors();
-      measureGyro();
-      measureAccel();
-    }
-  }
-#endif
-
-#ifdef AeroQuadMega_CHR6DM
-  #define LED_Green 13
-  #define LED_Red 4
-  #define LED_Yellow 31
-
-  #include <Device_I2C.h>
-  #include <Platform_CHR6DM.h>
-  CHR6DM chr6dm;
-
-  // Gyroscope declaration
-  #include <Gyroscope_CHR6DM.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_CHR6DM.h>
-
-  // Receiver declaration
-  #define RECEIVER_MEGA
-
-  // Motor declaration
-  #define MOTOR_PWM
-
-  // Kinematics declaration
-  #include "Kinematics_CHR6DM.h"
-
-  // Compass declaration
-  #define HeadingMagHold
-  #define COMPASS_CHR6DM
-  #include <Magnetometer_CHR6DM.h>
-
-  #ifdef OSD
-    #define MAX7456_OSD
-  #endif
-
-  // Altitude declaration
-  #ifdef AltitudeHoldBaro
-    #define BMP085
-  #endif
-  #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
-  #endif
-
-  // Battery monitor declaration
-  #ifdef BattMonitor
-    #define BattDefaultConfig DEFINE_BATTERY(0, 0, 13.35, 0.9, BM_NOPIN, 0, 0)
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-  
-  #ifndef UseGPS
-    #undef UseGPSNavigator
-  #endif
-
-
-  /**
-   * Put AeroQuadMega_CHR6DM specific initialization need here
-   */
-  void initPlatform() {
-    Serial1.begin(BAUD);
-    PORTD = B00000100;
-
-    Wire.begin();
-
-    chr6dm.resetToFactory();
-    chr6dm.setListenMode();
-    chr6dm.setActiveChannels(CHANNEL_ALL_MASK);
-    chr6dm.requestPacket();
-
-    gyroChr6dm = &chr6dm;
-    accelChr6dm = &chr6dm;
-    kinematicsChr6dm = &chr6dm;
-    compassChr6dm = &chr6dm;
-  }
-  
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-  }
-
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    if (deltaTime >= 10000) {
-      chr6dm.read();
-      measureGyro();
-      measureAccel();
-    }
-  }
-#endif
-
-#ifdef APM_OP_CHR6DM
-  #define LED_Green 37
-  #define LED_Red 35
-  #define LED_Yellow 36
-
-  #include <Device_I2C.h>
-  #include <Platform_CHR6DM.h>
-  CHR6DM chr6dm;
-
-  // Gyroscope declaration
-  #include <Gyroscope_CHR6DM.h>
-
-  // Accelerometer declaration
-  #include <Accelerometer_CHR6DM.h>
-
-  // Receiver declaration
-  #define RECEIVER_APM
-
-  // Motor declaration
-  #define MOTOR_APM
-
-  // Kinematics declaration
-  #include "Kinematics_CHR6DM.h"
-
-  // Compass declaration
-  #define HeadingMagHold
-  #define COMPASS_CHR6DM
-  #include <Magnetometer_CHR6DM.h>
-
-  // Altitude declaration
-  #ifdef AltitudeHoldBaro
-    #define BMP085
-  #endif
-  #ifdef AltitudeHoldRangeFinder
-    #define XLMAXSONAR 
-  #endif
-  
-
-  // Battery monitor declaration
-  #ifdef BattMonitor
-    #define BattDefaultConfig DEFINE_BATTERY(0, 0, 13.35, 0.31, BM_NOPIN, 0, 0)
-  #else
-    #undef BattMonitorAutoDescent
-    #undef POWERED_BY_VIN        
-  #endif
-
-  #undef CameraControl
-  #undef OSD
-  
-  #ifndef UseGPS
-    #undef UseGPSNavigator
-  #endif
-
-
-  /**
-   * Put APM_OP_CHR6DM specific initialization need here
-   */
-  void initPlatform() {
-    pinMode(LED_Red, OUTPUT);
-    pinMode(LED_Yellow, OUTPUT);
-    pinMode(LED_Green, OUTPUT);
-
-    Serial1.begin(BAUD);
-    PORTD = B00000100;
-
-    Wire.begin();
-
-    chr6dm.resetToFactory();
-    chr6dm.setListenMode();
-    chr6dm.setActiveChannels(CHANNEL_ALL_MASK);
-    chr6dm.requestPacket();
-
-    gyroChr6dm = &chr6dm;
-    accelChr6dm = &chr6dm;
-    kinematicsChr6dm = &chr6dm;
-//    tempKinematics.setGyroscope(&gyroSpecific);
-    compassChr6dm = &chr6dm;
-  }
-
-  // called when eeprom is initialized
-  void initializePlatformSpecificAccelCalibration() {
-    // Accel Cal
-    accelScaleFactor[XAXIS] = 1.0;
-    runTimeAccelBias[XAXIS] = 0.0;
-    accelScaleFactor[YAXIS] = 1.0;
-    runTimeAccelBias[YAXIS] = 0.0;
-    accelScaleFactor[ZAXIS] = 1.0;
-    runTimeAccelBias[ZAXIS] = 0.0;
-  }
-
-
-  /**
-   * Measure critical sensors
-   */
-  void measureCriticalSensors() {
-    if (deltaTime >= 10000) {
-      chr6dm.read();
-      measureGyro();
-      measureAccel();
-    }
-  }
-#endif
 
 //********************************************************
 //********************************************************
@@ -1060,11 +102,11 @@
 //********************************************************
 
 #ifdef AeroQuadSTM32
-  #include "AeroQuad_STM32.h"
+  #include "AeroQuad_STM32.h" 
 #endif
 
 // default to 10bit ADC (AVR)
-#ifndef ADC_NUMBER_OF_BITS
+#ifndef ADC_NUMBER_OF_BITS		// for STM32 already defined = 12
 #define ADC_NUMBER_OF_BITS 10
 #endif
 
@@ -1116,22 +158,7 @@
 //********************************************************
 //********************** MOTORS DECLARATION **************
 //********************************************************
-#if defined(triConfig)
-  #if defined (MOTOR_STM32)
-    #define MOTORS_STM32_TRI
-    #include <Motors_STM32.h>    
-  #else
-    #include <Motors_Tri.h>
-  #endif
-#elif defined(MOTOR_PWM)
-  #include <Motors_PWM.h>
-#elif defined(MOTOR_PWM_Timer)
-  #include <Motors_PWM_Timer.h>
-#elif defined(MOTOR_APM)
-  #include <Motors_APM.h>
-#elif defined(MOTOR_I2C)
-  #include <Motors_I2C.h>
-#elif defined(MOTOR_STM32)
+#if defined(MOTOR_STM32)
   #include <Motors_STM32.h>    
 #endif
 
@@ -1158,6 +185,18 @@
 #if defined(XLMAXSONAR)
   #include <MaxSonarRangeFinder.h>
 #endif 
+
+//****************************************************************************
+//******** Define this when using Ultrasonic/Lidar Sensor *********************
+//****************************************************************************
+#if defined(AltitudeLidar)             
+    #include "lidar_lib.h" //LIDAR library
+   //#include "wiring_pulse.c"    
+#endif 
+#if defined(Lidar2D)
+  #include "Hokuyo.h"
+#endif
+
 //********************************************************
 //*************** BATTERY MONITOR DECLARATION ************
 //********************************************************
@@ -1269,6 +308,7 @@
 
 // Include this last as it contains objects from above declarations
 #include "AltitudeControlProcessor.h"
+#include "PositionControlProcessor.h"
 #include "FlightControlProcessor.h"
 #include "FlightCommandProcessor.h"
 #include "HeadingHoldProcessor.h"
@@ -1296,7 +336,7 @@ void setup() {
   pinMode(LED_Green, OUTPUT);
   digitalWrite(LED_Green, LOW);
 
-  initCommunication();
+  initCommunication();		// does nothing if Mavlink.h is not included 
   
   readEEPROM(); // defined in DataStorage.h
   boolean firstTimeBoot = false;
@@ -1310,11 +350,7 @@ void setup() {
   
   #if defined(quadXConfig) || defined(quadPlusConfig) || defined(quadY4Config) || defined(triConfig)
      initializeMotors(FOUR_Motors);
-  #elif defined(hexPlusConfig) || defined(hexXConfig) || defined(hexY6Config)
-     initializeMotors(SIX_Motors);
-  #elif defined(octoX8Config) || defined(octoXConfig) || defined(octoPlusConfig)
-     initializeMotors(EIGHT_Motors);
-  #endif
+  #endif	
 
   initializeReceiver(LASTCHANNEL);
   initReceiverFromEEPROM();
@@ -1394,7 +430,9 @@ void setup() {
   #if defined(UseGPS)
     initializeGps();
   #endif 
-
+  #if defined(Lidar2D)
+    Init_Hokuyo();
+  #endif
   #ifdef SlowTelemetry
      initSlowTelemetry();
   #endif
@@ -1402,14 +440,50 @@ void setup() {
   previousTime = micros();
   digitalWrite(LED_Green, HIGH);
   safetyCheck = 0;
-}
+  
+/********************************************************
+************** Lidar Sensor Pin declaration*************
+********************************************************/ 
+/*
+    begin(int configuration, bool fasti2c, char lidarliteAddress)
+    Starts the sensor and I2C.
+    Parameters
+    ----------------------------------------------------------------------------
+    configuration: Default 0. Selects one of several preset configurations.
+    fasti2c: Default 100 kHz. I2C base frequency.
+      If true I2C frequency is set to 400kHz.
+    lidarliteAddress: Default 0x62. Fill in new address here if changed. See
+      operating manual for instructions.
+  */
+  myLidarLite.begin(0, false); // Set configuration to default and I2C to 100 kHz
 
+  /*
+    configure(int configuration, char lidarliteAddress)
+    Selects one of several preset configurations.
+    Parameters
+    ----------------------------------------------------------------------------
+    configuration:  Default 0.
+      0: Default mode, balanced performance.
+      1: Short range, high speed. Uses 0x1d maximum acquisition count.
+      2: Default range, higher speed short range. Turns on quick termination
+          detection for faster measurements at short range (with decreased
+          accuracy)
+      3: Maximum range. Uses 0xff maximum acquisition count.
+      4: High sensitivity detection. Overrides default valid measurement detection
+          algorithm, and uses a threshold value for high sensitivity and noise.
+      5: Low sensitivity detection. Overrides default valid measurement detection
+          algorithm, and uses a threshold value for low sensitivity and noise.
+    lidarliteAddress: Default 0x62. Fill in new address here if changed. See
+      operating manual for instructions.
+  */
+myLidarLite.configure(0); // Change this number to try out alternate configurations
+}
 
 /*******************************************************************
  * 100Hz task
  ******************************************************************/
 void process100HzTask() {
-  
+  //SERIAL_PRINT("A");
   G_Dt = (currentTime - hundredHZpreviousTime) / 1000000.0;
   hundredHZpreviousTime = currentTime;
   
@@ -1432,7 +506,17 @@ void process100HzTask() {
     estimatedZVelocity = (velocityCompFilter1 * zVelocity) + (velocityCompFilter2 * estimatedZVelocity);
   #endif    
 
-  #if defined(AltitudeHoldBaro)
+   #if defined(AltitudeLidar) 
+        estimatedAltitude = alt_read();
+        //estimatedAltitude *= (cos(kinematicsAngle[YAXIS])*(cos(kinematicsAngle[XAXIS])));
+        if((estimatedAltitude-prevAltitude)>0){  //up motion
+          zDirection = 1;
+        }
+        else if ((estimatedAltitude-prevAltitude)<0){  //down motion
+          zDirection =0;
+        }
+        prevAltitude=estimatedAltitude;
+  #elif defined(AltitudeHoldBaro)
     measureBaroSum(); 
     if (frameCounter % THROTTLE_ADJUST_TASK_SPEED == 0) {  //  50 Hz tasks
       evaluateBaroAltitude();
@@ -1506,6 +590,60 @@ void process10HzTask1() {
     calculateHeading();
     
   #endif
+
+  #if defined(Lidar2D)
+  
+  Hokuyo_Read();
+  
+   //first check weather kinematicAngles are in rads or not    --CHECKED
+  //PrintValueComma(count);
+  //distance2D[plus_X] =int(float(distance2D[plus_X])*cos(kinematicsAngle[XAXIS]));  //roll angle
+  //distance2D[minus_X] =distance2D[minus_X]*cos(kinematicsAngle[XAXIS]); //roll angle
+  //distance2D[plus_Y] =int(float(distance2D[plus_Y])*cos(kinematicsAngle[YAXIS])); //pitch angle 
+  //PrintValueComma(distance2D[plus_X]);
+  //PrintValueComma(distance2D[plus_Y]);
+  hokuyo_XRaw = distance2D[plus_X];
+  hokuyo_YRaw = distance2D[plus_Y];
+  if(distance2D[plus_X] !=0){
+    LastNonZeroRoll = distance2D[plus_X];
+  }
+  else if(distance2D[plus_X] ==0){
+    distance2D[plus_X] =LastNonZeroRoll;
+  }
+
+  if(distance2D[plus_Y] !=0){
+    LastNonZeroPitch = distance2D[plus_Y];
+  }
+  else if(distance2D[plus_Y] ==0){
+    distance2D[plus_Y] =LastNonZeroPitch;
+  }  
+  distance2D[plus_X] =kal_hokuyoX(distance2D[plus_X]);  //roll
+  distance2D[plus_Y] =kal_hokuyoY(distance2D[plus_Y]);  //pitch
+  if((distance2D[plus_X] - prevRoll)>0){
+    RollVelocityDirection = 0;    //in -ve X(roll)
+  }
+  else{
+    RollVelocityDirection = 1;  //in +ve X
+  }
+  prevRoll = distance2D[plus_X];
+  
+  if((distance2D[plus_Y]-prevPitch)>0){
+    PitchVelocityDirection = 0;  //in  -ve Y(pitch)
+  }
+  else{
+    PitchVelocityDirection = 1;  // in +ver Y
+  }
+  prevPitch = distance2D[plus_Y];
+  
+
+  /*
+  PrintValueComma(kinematicsAngle[YAXIS]);
+  PrintValueComma(cos(kinematicsAngle[YAXIS]));
+  PrintValueComma(kinematicsAngle[XAXIS]);
+  SERIAL_PRINTLN(cos(kinematicsAngle[XAXIS])); */  
+  //SERIAL_PRINTLN(distance2D[plus_Y]);
+  #endif
+
 }
 
 /*******************************************************************
@@ -1556,7 +694,7 @@ void process1HzTask() {
     G_Dt = (currentTime - oneHZpreviousTime) / 1000000.0;
     oneHZpreviousTime = currentTime;
     
-    sendSerialHeartbeat();   
+    sendSerialHeartbeat();  
   #endif
 }
 
@@ -1564,7 +702,6 @@ void process1HzTask() {
  * Main loop funtions
  ******************************************************************/
 void loop () {
-  
   currentTime = micros();
   deltaTime = currentTime - previousTime;
 

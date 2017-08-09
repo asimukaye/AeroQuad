@@ -29,7 +29,6 @@
 
 // MavLink 1.0 DKP
 #include "../mavlink/include/mavlink/v1.0/common/mavlink.h"
-
 #include "AeroQuad.h"
 
 int systemType;

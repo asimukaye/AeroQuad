@@ -49,20 +49,26 @@
 byte calibrateESC = 0;
 int testCommand = 1000;
 //////////////////////////////////////////////////////
-
+//////////////////////////HOKUYO TESTING///////////////
+int hokuyo_XRaw =0;   //roll
+int hokuyo_YRaw =0;  //pitch
+int count =0;
 /**
  * Flight control global declaration
  */
 #define RATE_FLIGHT_MODE 0
 #define ATTITUDE_FLIGHT_MODE 1
-byte previousFlightMode = ATTITUDE_FLIGHT_MODE;
+//byte previousFlightMode = ATTITUDE_FLIGHT_MODE;
+byte previousFlightMode = RATE_FLIGHT_MODE;
 #define TASK_100HZ 1
 #define TASK_50HZ 2
 #define TASK_10HZ 10
 #define TASK_1HZ 100
 #define THROTTLE_ADJUST_TASK_SPEED TASK_50HZ
+#define HOKUYO_TASK_SPEED TASK_10HZ
 
-byte flightMode = RATE_FLIGHT_MODE;
+//byte flightMode = RATE_FLIGHT_MODE;
+byte flightMode = ATTITUDE_FLIGHT_MODE;
 unsigned long frameCounter = 0; // main loop executive frame counter
 int minArmedThrottle; // initial value configured by user
 
@@ -89,7 +95,9 @@ unsigned long fiftyHZpreviousTime = 0;
 unsigned long hundredHZpreviousTime = 0;
 
 
-
+//******************test Variables*****************
+int altitudeHoldThrottleCorrectionGLOBAL =0;
+//*************************************************
 //////////////////////////////////////////////////////
 
 
@@ -111,6 +119,37 @@ byte  headingHoldConfig   = 0;
 float headingHold         = 0; // calculated adjustment for quad to go to heading (PID output)
 float heading             = 0; // measured heading from yaw gyro (process variable)
 float relativeHeading     = 0; // current heading the quad is set to (set point)
+//////////////// Lidar-1D
+#define alt_buffer_size 50
+float alt_buffer[alt_buffer_size];
+int alt_buffer_pointer =0;
+uint8 meanFreqCount = 0;
+float alt_Sum =0;
+int meanAltitude;
+/////////////////////////////
+
+////////////////Lidar-2D
+#if defined (Lidar2D)
+  #define plus_X 0
+  #define plus_Y 1
+  #define minus_X 2
+  int distance2D[3];    //0 = +X; 1 = +Y; 2 = -X
+  int Hokuyo_str[9];
+  bool bit_array[18];
+  boolean isHokuyoHoldInitialized = false;
+  float HokuyoPositionToHoldTarget_X = 0;  //roll
+  float HokuyoPositionToHoldTarget_Y = 0;  //pitch
+  byte HokuyoHoldState = OFF;
+  int LastNonZeroRoll =0;
+  int LastNonZeroPitch =0;
+  int hokuyoHoldThrottleCorrection_Y =0, hokuyoHoldThrottleCorrection_X =0;
+  int temphokuyoHoldThrottleCorrection_XGLOBAL =0, temphokuyoHoldThrottleCorrection_YGLOBAL=0;
+  int RollVelocityDirection =0, PitchVelocityDirection =0;
+  float prevRoll =0, prevPitch=0;
+#endif
+////////////////////////////
+
+////////////////////////////
 byte  headingHoldState    = OFF;
 void  processHeading();
 //////////////////////////////////////////////////////
@@ -125,6 +164,7 @@ void  processHeading();
 #define SERIAL_READ       SERIAL_PORT.read
 #define SERIAL_FLUSH      SERIAL_PORT.flush
 #define SERIAL_BEGIN      SERIAL_PORT.begin
+#define SERIAL_READUNTIL SERIAL_PORT.readStringUntil
  
 //HardwareSerial *binaryPort;
 
@@ -176,7 +216,12 @@ void reportVehicleState();
   int maxThrottleAdjust = 50;
   int altitudeHoldThrottle = 1000;
   boolean isAltitudeHoldInitialized = false;
+  float estimatedAltitude = 0.0;
+  float prevAltitude = 0.0;
+  bool zDirection = 0;  //  1 = up & 0= Down
+
   
+  int LidarHoldThrottle = 0;
   
   float velocityCompFilter1 = 1.0 / (1.0 + 0.3);
   float velocityCompFilter2 = 1 - velocityCompFilter1;
@@ -193,6 +238,8 @@ void reportVehicleState();
   #if defined AltitudeHoldRangeFinder
     float sonarAltitudeToHoldTarget = 0.0;
   #endif
+    
+   
 #endif
 //////////////////////////////////////////////////////
 

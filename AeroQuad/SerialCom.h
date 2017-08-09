@@ -71,6 +71,7 @@ void readSerialCommand() {
   // Check for serial message
   if (SERIAL_AVAILABLE()) {
     queryType = SERIAL_READ();
+    //SERIAL_PRINTLN(queryType);
     switch (queryType) {
     case 'A': // Receive roll and pitch rate mode PID
       readSerialPID(RATE_XAXIS_PID_IDX);
@@ -240,7 +241,7 @@ void readSerialCommand() {
       break;
 
     case 'V': // GPS
-      #if defined (UseGPSNavigator)
+      #if defined UseGPSNavigator || defined Lidar2D
         readSerialPID(GPSROLL_PID_IDX);
         readSerialPID(GPSPITCH_PID_IDX);
         readSerialPID(GPSYAW_PID_IDX);
@@ -370,7 +371,7 @@ void sendSerialTelemetry() {
   switch (queryType) {
   case '=': // Reserved debug command to view any variable from Serial Monitor
     break;
-
+  
   case 'a': // Send roll and pitch rate mode PID values
     PrintPID(RATE_XAXIS_PID_IDX);
     PrintPID(RATE_YAXIS_PID_IDX);
@@ -613,7 +614,13 @@ void sendSerialTelemetry() {
     PrintValueComma(flightMode);
     SERIAL_PRINTLN();
     break;
-
+  case 'S':
+	for (byte motor = 0; motor < LASTMOTOR; motor++) {
+      PrintValueComma(motorCommand[motor]);
+    }
+	PrintDummyValues(8 - LASTMOTOR); // max of 8 motor outputs supported
+	SERIAL_PRINTLN();
+	break;
   case 't': // Send processed transmitter values
     for (byte axis = 0; axis < LASTCHANNEL; axis++) {
       PrintValueComma(receiverCommand[axis]);
@@ -625,15 +632,40 @@ void sendSerialTelemetry() {
     #if defined (AltitudeHoldRangeFinder)
       PrintValueComma(maxRangeFinderRange);
       SERIAL_PRINTLN(minRangeFinderRange);
-    #else
-      PrintValueComma(0);
-      SERIAL_PRINTLN(0);
+    /*
+    #elif defined (AltitudeLidar)
+      PrintValueComma(altitudeHoldState);
+      PrintValueComma(baroAltitudeToHoldTarget);
+      PrintValueComma(estimatedAltitude);
+      PrintValueComma(altitudeHoldThrottleCorrectionGLOBAL);
+      PrintValueComma(LidarHoldThrottle);
+      PrintValueComma(altitudeHoldThrottle);
+      SERIAL_PRINTLN(throttle);
+      //SERIAL_PRINTLN(zDirection);
+      //SERIAL_PRINTLN(meanAltitude);
+      //PrintValueComma(zDampeningThrottleCorrection);
+      //SERIAL_PRINTLN();    //Terminate CMD
+      */
+    #elif defined (Lidar2D)     
+      PrintValueComma(HokuyoHoldState);
+      PrintValueComma(hokuyo_YRaw);  //pitch
+      PrintValueComma(distance2D[plus_Y]);  //pitch
+      PrintValueComma(hokuyo_XRaw);  //roll
+      PrintValueComma(distance2D[plus_X]);  //roll
+      PrintValueComma(HokuyoPositionToHoldTarget_X); 
+      PrintValueComma(hokuyoHoldThrottleCorrection_X);
+      PrintValueComma(motorAxisCommandRoll);
+      SERIAL_PRINTLN(temphokuyoHoldThrottleCorrection_XGLOBAL);
+
+      #else  
+        PrintValueComma(0);
+        SERIAL_PRINTLN(0);
     #endif
-    queryType = 'X';
+    //queryType = 'X';
     break;
 
   case 'v': // Send GPS PIDs
-    #if defined (UseGPSNavigator)
+    #if defined (UseGPSNavigator) || defined (Lidar2D)
       PrintPID(GPSROLL_PID_IDX);
       PrintPID(GPSPITCH_PID_IDX);
       PrintPID(GPSYAW_PID_IDX);
@@ -728,6 +760,7 @@ void sendSerialTelemetry() {
     queryType = 'X';
     break;
 #endif
+//default : SERIAL_PRINTLN(queryType);break;
 
   }
 }
