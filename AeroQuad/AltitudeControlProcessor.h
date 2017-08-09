@@ -32,7 +32,24 @@
 
 #define INVALID_THROTTLE_CORRECTION -1000
 #define ALTITUDE_BUMP_SPEED 0.01
+#define G_Bias 17
 
+//************************************************************************************
+int movingAvg( int senValue)
+{
+  alt_Sum -=alt_buffer[alt_buffer_pointer];
+  alt_buffer[alt_buffer_pointer] = senValue;
+  alt_Sum +=alt_buffer[alt_buffer_pointer];
+  alt_buffer_pointer++;
+  if(alt_buffer_pointer>alt_buffer_size-1)
+  {
+    alt_buffer_pointer=0;
+  }
+  return(alt_Sum/(alt_buffer_size));
+
+
+}
+//***************************************************************************************
 
 
 /**
@@ -48,9 +65,12 @@ void processAltitudeHold()
   // http://aeroquad.com/showthread.php?792-Problems-with-BMP085-I2C-barometer
   // Thanks to Sherbakov for his work in Z Axis dampening
   // http://aeroquad.com/showthread.php?359-Stable-flight-logic...&p=10325&viewfull=1#post10325
-
+  //int temp_throttle, errorAltitude;
+  //errorAltitude = baroAltitudeToHoldTarget - estimatedAltitude;
+  
   if (altitudeHoldState == ON) {
     int altitudeHoldThrottleCorrection = INVALID_THROTTLE_CORRECTION;
+    
     // computer altitude error!
     #if defined AltitudeHoldRangeFinder
       if (isOnRangerRange(rangeFinderRange[ALTITUDE_RANGE_FINDER_INDEX])) {
@@ -58,10 +78,29 @@ void processAltitudeHold()
           sonarAltitudeToHoldTarget = rangeFinderRange[ALTITUDE_RANGE_FINDER_INDEX];
         }
         altitudeHoldThrottleCorrection = updatePID(sonarAltitudeToHoldTarget, rangeFinderRange[ALTITUDE_RANGE_FINDER_INDEX], &PID[SONAR_ALTITUDE_HOLD_PID_IDX]);
-        altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
+        altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);    
       }
     #endif
-    #if defined AltitudeHoldBaro
+    #if defined AltitudeLidar
+      int errorAltitude = (baroAltitudeToHoldTarget - estimatedAltitude);
+      altitudeHoldThrottleCorrection = updatePID(baroAltitudeToHoldTarget, estimatedAltitude, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);
+      if((errorAltitude<0)&&(-10<errorAltitude)){
+        altitudeHoldThrottleCorrection=0;
+      }
+      if(zDirection ==0){  // down motion
+        altitudeHoldThrottleCorrection +=G_Bias;
+      }
+    /*  else(zDirection ==1){  // up motion
+        altitudeHoldThrottleCorrection -=G_Bias;
+      }   */    
+      //altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection,minThrottleAdjust,maxThrottleAdjust); //uncomment it after tuning position hold
+      altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, -50, 50);
+      altitudeHoldThrottleCorrectionGLOBAL = altitudeHoldThrottleCorrection;  
+      LidarHoldThrottle = altitudeHoldThrottle + altitudeHoldThrottleCorrection;
+      //LidarHoldThrottle = constrain(LidarHoldThrottle, altitudeHoldThrottle-50, altitudeHoldThrottle + 50);
+      
+   
+   #elif defined AltitudeHoldBaro && !defined AltitudeLidar
       if (altitudeHoldThrottleCorrection == INVALID_THROTTLE_CORRECTION) {
         altitudeHoldThrottleCorrection = updatePID(baroAltitudeToHoldTarget, getBaroAltitude(), &PID[BARO_ALTITUDE_HOLD_PID_IDX]);
         altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
@@ -75,9 +114,8 @@ void processAltitudeHold()
     // ZDAMPENING COMPUTATIONS
     #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
       float zDampeningThrottleCorrection = -updatePID(0.0, estimatedZVelocity, &PID[ZDAMPENING_PID_IDX]);
-      zDampeningThrottleCorrection = constrain(zDampeningThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
+      zDampeningThrottleCorrection = constrain(zDampeningThrottleCorrection, -50, 50);
     #endif
-
     
     if (abs(altitudeHoldThrottle - receiverCommand[THROTTLE]) > altitudeHoldPanicStickMovement) {
       altitudeHoldState = ALTPANIC; // too rapid of stick movement so PANIC out of ALTHOLD
@@ -108,7 +146,12 @@ void processAltitudeHold()
         #endif
       }
     }
-    throttle = altitudeHoldThrottle + altitudeHoldThrottleCorrection + zDampeningThrottleCorrection;
+	
+	#if defined AltitudeLidar
+	     throttle = LidarHoldThrottle + zDampeningThrottleCorrection;
+	#else
+            throttle = altitudeHoldThrottle + altitudeHoldThrottleCorrection + zDampeningThrottleCorrection;
+	#endif
   }
   else {
     throttle = receiverCommand[THROTTLE];

@@ -25,6 +25,48 @@
 #define _AQ_FLIGHT_COMMAND_READER_
 
 
+#if defined (Lidar2D)
+  boolean isHokuyoHoldEnabledByUser() {
+    // add transmiter control code
+    if ((receiverCommand[AUX1] < 1750) && (receiverCommand[MODE] > 1500)) {
+      return true;
+     }
+      return false;
+  }
+#endif
+
+
+#if defined (Lidar2D)
+  void processHokuyoHoldStateFromReceiverCommand() {
+    if (isHokuyoHoldEnabledByUser()) {
+      if (altitudeHoldState != ALTPANIC ) {  // check for special condition with manditory override of Altitude hold
+        if (!isHokuyoHoldInitialized) {  //X and Y according to transmiter co-ordinate system
+            //roll position hold
+            #if defined (Hold_X)
+            HokuyoPositionToHoldTarget_X = distance2D[plus_X];                
+            PID[GPSROLL_PID_IDX].integratedError = 0;
+            PID[GPSROLL_PID_IDX].lastError = HokuyoPositionToHoldTarget_X;
+            #endif
+            
+            //pitch position hold
+            #if defined (Hold_Y)
+            HokuyoPositionToHoldTarget_Y = distance2D[plus_Y];                
+            PID[GPSPITCH_PID_IDX].integratedError = 0;
+            PID[GPSPITCH_PID_IDX].lastError = HokuyoPositionToHoldTarget_Y; 
+            #endif           
+            isHokuyoHoldInitialized = true;
+        }
+        HokuyoHoldState = ON;
+      }
+    } 
+    else {
+      isHokuyoHoldInitialized = false;
+      HokuyoHoldState = OFF;
+    }
+  }
+#endif
+
+
 
 
 #if defined (AltitudeHoldBaro) || defined (AltitudeHoldRangeFinder)
@@ -48,7 +90,15 @@
     if (isPositionHoldEnabledByUser()) {
       if (altitudeHoldState != ALTPANIC ) {  // check for special condition with manditory override of Altitude hold
         if (!isAltitudeHoldInitialized) {
-          #if defined AltitudeHoldBaro
+          #if defined(AltitudeLidar)
+            baroAltitudeToHoldTarget = alt_read();                // Lidar sensor -----> Altitude hold Setpoint
+            for(int i=0;i<alt_buffer_size;i++){    // for moving avg of altitude
+              alt_buffer[i] = baroAltitudeToHoldTarget;
+            }
+            alt_Sum = baroAltitudeToHoldTarget*alt_buffer_size;
+            PID[BARO_ALTITUDE_HOLD_PID_IDX].integratedError = 0;
+            PID[BARO_ALTITUDE_HOLD_PID_IDX].lastError = baroAltitudeToHoldTarget;
+          #elif defined AltitudeHoldBaro
             baroAltitudeToHoldTarget = getBaroAltitude();
             PID[BARO_ALTITUDE_HOLD_PID_IDX].integratedError = 0;
             PID[BARO_ALTITUDE_HOLD_PID_IDX].lastError = baroAltitudeToHoldTarget;
@@ -59,6 +109,7 @@
             PID[SONAR_ALTITUDE_HOLD_PID_IDX].lastError = sonarAltitudeToHoldTarget;
           #endif
           altitudeHoldThrottle = receiverCommand[THROTTLE];
+          LidarHoldThrottle = altitudeHoldThrottle;
           isAltitudeHoldInitialized = true;
         }
         altitudeHoldState = ON;
@@ -255,21 +306,25 @@ void readPilotCommands() {
   }
 
     // Check Mode switch for Acro or Stable
-    if (receiverCommand[MODE] > 1500) {
-        flightMode = ATTITUDE_FLIGHT_MODE;
-    }
-    else {
+    //if (receiverCommand[MODE] > 1500) {
+	flightMode = ATTITUDE_FLIGHT_MODE;
+    //}
+    /*else {
         flightMode = RATE_FLIGHT_MODE;
-    }
+    }*/
     
     if (previousFlightMode != flightMode) {
       zeroIntegralError();
       previousFlightMode = flightMode;
     }
-
+  
 
   #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
     processAltitudeHoldStateFromReceiverCommand();
+  #endif
+  
+  #if defined (Lidar2D)
+    processHokuyoHoldStateFromReceiverCommand();
   #endif
   
   #if defined (AutoLanding)

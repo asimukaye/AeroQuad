@@ -51,12 +51,12 @@
 int motorMaxCommand[4] = {0,0,0,0};
 int motorMinCommand[4] = {0,0,0,0};
 int motorConfiguratorCommand[4] = {0,0,0,0};
-
+#define MotorOffset_Roll 0
 void applyMotorCommand() {
   motorCommand[FRONT] = throttle - motorAxisCommandPitch - (YAW_DIRECTION * motorAxisCommandYaw);
   motorCommand[REAR] =  throttle + motorAxisCommandPitch - (YAW_DIRECTION * motorAxisCommandYaw);
-  motorCommand[RIGHT] = throttle - motorAxisCommandRoll  + (YAW_DIRECTION * motorAxisCommandYaw);
-  motorCommand[LEFT] =  throttle + motorAxisCommandRoll  + (YAW_DIRECTION * motorAxisCommandYaw);
+  motorCommand[RIGHT] = throttle - motorAxisCommandRoll  + (YAW_DIRECTION * motorAxisCommandYaw) + MotorOffset_Roll;
+  motorCommand[LEFT] =  throttle + motorAxisCommandRoll  + (YAW_DIRECTION * motorAxisCommandYaw) - MotorOffset_Roll;
 }
 
 #endif // #define _AQ_PROCESS_FLIGHT_CONTROL_PLUS_MODE_H_
