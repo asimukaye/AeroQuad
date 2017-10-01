@@ -1,0 +1,778 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 1
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 4
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"flash_stm32.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.FLASH_GetStatus,"ax",%progbits
+  20              		.align	1
+  21              		.global	FLASH_GetStatus
+  22              		.thumb
+  23              		.thumb_func
+  25              	FLASH_GetStatus:
+  26              	.LFB3:
+  27              		.file 1 "/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c"
+   1:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #include "libmaple.h"
+   2:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #include "util.h"
+   3:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** //#include "flash.h"
+   4:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #include "flash_stm32.h"
+   5:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+   6:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+   7:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+   8:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** typedef struct
+   9:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+  10:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   __io uint32 ACR;      /*!< FLASH access control register, Address offset: 0x00 */
+  11:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   __io uint32 KEYR;     /*!< FLASH key register,            Address offset: 0x04 */
+  12:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   __io uint32 OPTKEYR;  /*!< FLASH option key register,     Address offset: 0x08 */
+  13:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   __io uint32 SR;       /*!< FLASH status register,         Address offset: 0x0C */
+  14:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   __io uint32 CR;       /*!< FLASH control register,        Address offset: 0x10 */
+  15:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   __io uint32 OPTCR;    /*!< FLASH option control register, Address offset: 0x14 */
+  16:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** } FLASH_TypeDef;
+  17:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  18:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define PERIPH_BASE           ((uint32)0x40000000) /*!< Peripheral base address in the alias region
+  19:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define AHB1PERIPH_BASE       (PERIPH_BASE + 0x00020000)
+  20:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_R_BASE          (AHB1PERIPH_BASE + 0x3C00)
+  21:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH                 ((FLASH_TypeDef *) FLASH_R_BASE)
+  22:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  23:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_FLAG_EOP                 ((uint32)0x00000001)  /*!< FLASH End of Operation flag */
+  24:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_FLAG_OPERR               ((uint32)0x00000002)  /*!< FLASH operation Error flag */
+  25:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_FLAG_WRPERR              ((uint32)0x00000010)  /*!< FLASH Write protected error flag 
+  26:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_FLAG_PGAERR              ((uint32)0x00000020)  /*!< FLASH Programming Alignment error
+  27:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_FLAG_PGPERR              ((uint32)0x00000040)  /*!< FLASH Programming Parallelism err
+  28:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_FLAG_PGSERR              ((uint32)0x00000080)  /*!< FLASH Programming Sequence error 
+  29:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_FLAG_BSY                 ((uint32)0x00010000)  /*!< FLASH Busy flag */ 
+  30:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  31:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_PSIZE_BYTE           ((uint32)0x00000000)
+  32:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_PSIZE_HALF_WORD      ((uint32)0x00000100)
+  33:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_PSIZE_WORD           ((uint32)0x00000200)
+  34:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_PSIZE_DOUBLE_WORD    ((uint32)0x00000300)
+  35:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define CR_PSIZE_MASK              ((uint32)0xFFFFFCFF)
+  36:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  37:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define SECTOR_MASK                ((uint32)0xFFFFFF07)
+  38:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  39:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /*******************  Bits definition for FLASH_CR register  ******************/
+  40:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_PG                          ((uint32)0x00000001)
+  41:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_SER                         ((uint32)0x00000002)
+  42:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_MER                         ((uint32)0x00000004)
+  43:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_SNB_0                       ((uint32)0x00000008)
+  44:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_SNB_1                       ((uint32)0x00000010)
+  45:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_SNB_2                       ((uint32)0x00000020)
+  46:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_SNB_3                       ((uint32)0x00000040)
+  47:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_PSIZE_0                     ((uint32)0x00000100)
+  48:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_PSIZE_1                     ((uint32)0x00000200)
+  49:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_STRT                        ((uint32)0x00010000)
+  50:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_EOPIE                       ((uint32)0x01000000)
+  51:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_CR_LOCK                        ((uint32)0x80000000)
+  52:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  53:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_KEY1			((uint32)0x45670123)
+  54:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define FLASH_KEY2			((uint32)0xCDEF89AB)
+  55:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  56:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /* Delay definition */
+  57:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define EraseTimeout		((uint32)0x00000FFF)
+  58:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define ProgramTimeout		((uint32)0x0000001F)
+  59:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  60:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define VoltageRange_1        ((uint8)0x00)  /*!< Device operating range: 1.8V to 2.1V */
+  61:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define VoltageRange_2        ((uint8)0x01)  /*!<Device operating range: 2.1V to 2.7V */
+  62:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define VoltageRange_3        ((uint8)0x02)  /*!<Device operating range: 2.7V to 3.6V */
+  63:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define VoltageRange_4        ((uint8)0x03)  /*!<Device operating range: 2.7V to 3.6V + External Vp
+  64:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  65:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** #define IS_VOLTAGERANGE(RANGE)(((RANGE) == VoltageRange_1) || \
+  66:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****                                ((RANGE) == VoltageRange_2) || \
+  67:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****                                ((RANGE) == VoltageRange_3) || \
+  68:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****                                ((RANGE) == VoltageRange_4))                                        
+  69:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  70:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+  71:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Inserts a time delay.
+  72:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  None
+  73:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval None
+  74:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+  75:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** static void delay(void)
+  76:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+  77:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	__io uint32 i = 0;
+  78:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	for(i = 0xFF; i != 0; i--) { }
+  79:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+  80:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  81:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+  82:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Returns the FLASH Status.
+  83:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  None
+  84:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PROGRAM,
+  85:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *                       FLASH_ERROR_WRP, FLASH_ERROR_OPERATION or FLASH_COMPLETE.
+  86:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+  87:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** FLASH_Status FLASH_GetStatus(void)
+  88:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+  28              		.loc 1 88 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+  89:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   FLASH_Status flashstatus = FLASH_COMPLETE;
+  90:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+  91:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   if((FLASH->SR & FLASH_FLAG_BSY) == FLASH_FLAG_BSY)
+  34              		.loc 1 91 0
+  35 0000 0B4B     		ldr	r3, .L8
+  36 0002 DA68     		ldr	r2, [r3, #12]
+  37 0004 D103     		lsls	r1, r2, #15
+  38 0006 0DD4     		bmi	.L3
+  92:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+  93:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     flashstatus = FLASH_BUSY;
+  94:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+  95:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   else
+  96:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+  97:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     if((FLASH->SR & FLASH_FLAG_WRPERR) != 0)
+  39              		.loc 1 97 0
+  40 0008 DA68     		ldr	r2, [r3, #12]
+  41 000a D206     		lsls	r2, r2, #27
+  42 000c 0CD4     		bmi	.L4
+  98:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     {
+  99:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       flashstatus = FLASH_ERROR_WRP;
+ 100:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     }
+ 101:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     else
+ 102:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     {
+ 103:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       if((FLASH->SR & 0xEF) != 0)
+  43              		.loc 1 103 0
+  44 000e DA68     		ldr	r2, [r3, #12]
+  45 0010 12F0EF0F 		tst	r2, #239
+  46 0014 0AD1     		bne	.L5
+  47              	.LBB4:
+  48              	.LBB5:
+ 104:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       {
+ 105:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****         flashstatus = FLASH_ERROR_PROGRAM;
+ 106:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       }
+ 107:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       else
+ 108:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       {
+ 109:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****         if((FLASH->SR & FLASH_FLAG_OPERR) != 0)
+  49              		.loc 1 109 0
+  50 0016 DB68     		ldr	r3, [r3, #12]
+  51 0018 13F0020F 		tst	r3, #2
+ 110:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****         {
+ 111:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****           flashstatus = FLASH_ERROR_OPERATION;
+ 112:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****         }
+ 113:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****         else
+ 114:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****         {
+ 115:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****           flashstatus = FLASH_COMPLETE;
+  52              		.loc 1 115 0
+  53 001c 14BF     		ite	ne
+  54 001e 0C20     		movne	r0, #12
+  55 0020 0520     		moveq	r0, #5
+  56 0022 7047     		bx	lr
+  57              	.L3:
+  58              	.LBE5:
+  59              	.LBE4:
+  93:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+  60              		.loc 1 93 0
+  61 0024 0120     		movs	r0, #1
+  62 0026 7047     		bx	lr
+  63              	.L4:
+  99:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     }
+  64              		.loc 1 99 0
+  65 0028 0320     		movs	r0, #3
+  66 002a 7047     		bx	lr
+  67              	.L5:
+ 105:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       }
+  68              		.loc 1 105 0
+  69 002c 0B20     		movs	r0, #11
+  70              	.LVL1:
+ 116:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****         }
+ 117:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****       }
+ 118:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     }
+ 119:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 120:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   /* Return the FLASH Status */
+ 121:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   return flashstatus;
+ 122:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+  71              		.loc 1 122 0
+  72 002e 7047     		bx	lr
+  73              	.L9:
+  74              		.align	2
+  75              	.L8:
+  76 0030 003C0240 		.word	1073888256
+  77              		.cfi_endproc
+  78              	.LFE3:
+  80              		.section	.text.FLASH_WaitForLastOperation,"ax",%progbits
+  81              		.align	1
+  82              		.global	FLASH_WaitForLastOperation
+  83              		.thumb
+  84              		.thumb_func
+  86              	FLASH_WaitForLastOperation:
+  87              	.LFB4:
+ 123:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 124:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 125:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+ 126:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Waits for a Flash operation to complete or a TIMEOUT to occur.
+ 127:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  Timeout: FLASH progamming Timeout
+ 128:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval FLASH Status: The returned value can be: FLASH_ERROR_PG,
+ 129:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *   FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+ 130:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+ 131:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** FLASH_Status FLASH_WaitForLastOperation(uint32 Timeout)
+ 132:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+  88              		.loc 1 132 0
+  89              		.cfi_startproc
+  90              		@ args = 0, pretend = 0, frame = 8
+  91              		@ frame_needed = 0, uses_anonymous_args = 0
+  92              	.LVL2:
+  93 0000 13B5     		push	{r0, r1, r4, lr}
+  94              	.LCFI0:
+  95              		.cfi_def_cfa_offset 16
+  96              		.cfi_offset 4, -8
+  97              		.cfi_offset 14, -4
+  98              		.loc 1 132 0
+  99 0002 0446     		mov	r4, r0
+ 133:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	FLASH_Status status;
+ 134:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 135:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	/* Check for the Flash Status */
+ 136:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	status = FLASH_GetStatus();
+ 100              		.loc 1 136 0
+ 101 0004 FFF7FEFF 		bl	FLASH_GetStatus
+ 102              	.LVL3:
+ 103              	.L11:
+ 137:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	/* Wait for a Flash operation to complete or a TIMEOUT to occur */
+ 138:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	while((status == FLASH_BUSY) && (Timeout != 0x00))
+ 104              		.loc 1 138 0
+ 105 0008 0128     		cmp	r0, #1
+ 106 000a 0FD1     		bne	.L14
+ 107              		.loc 1 138 0 is_stmt 0 discriminator 1
+ 108 000c 64B1     		cbz	r4, .L18
+ 109              	.LBB8:
+ 110              	.LBB9:
+  77:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	for(i = 0xFF; i != 0; i--) { }
+ 111              		.loc 1 77 0 is_stmt 1
+ 112 000e 0023     		movs	r3, #0
+ 113 0010 0193     		str	r3, [sp, #4]
+  78:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+ 114              		.loc 1 78 0
+ 115 0012 FF23     		movs	r3, #255
+ 116              	.L17:
+ 117 0014 0193     		str	r3, [sp, #4]
+ 118 0016 019B     		ldr	r3, [sp, #4]
+ 119 0018 13B1     		cbz	r3, .L19
+ 120 001a 019B     		ldr	r3, [sp, #4]
+ 121 001c 013B     		subs	r3, r3, #1
+ 122 001e F9E7     		b	.L17
+ 123              	.L19:
+ 124              	.LBE9:
+ 125              	.LBE8:
+ 139:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	{
+ 140:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		delay();
+ 141:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		status = FLASH_GetStatus();
+ 126              		.loc 1 141 0
+ 127 0020 FFF7FEFF 		bl	FLASH_GetStatus
+ 128              	.LVL4:
+ 142:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		Timeout--;
+ 129              		.loc 1 142 0
+ 130 0024 013C     		subs	r4, r4, #1
+ 131              	.LVL5:
+ 132 0026 EFE7     		b	.L11
+ 133              	.L18:
+ 143:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	}
+ 144:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	if (Timeout == 0)
+ 145:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		status = FLASH_TIMEOUT;
+ 134              		.loc 1 145 0
+ 135 0028 0620     		movs	r0, #6
+ 136              	.LVL6:
+ 137 002a 02E0     		b	.L16
+ 138              	.LVL7:
+ 139              	.L14:
+ 140 002c 002C     		cmp	r4, #0
+ 141 002e 08BF     		it	eq
+ 142 0030 0620     		moveq	r0, #6
+ 143              	.LVL8:
+ 144              	.L16:
+ 146:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	/* Return the operation status */
+ 147:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	return status;
+ 148:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+ 145              		.loc 1 148 0
+ 146 0032 02B0     		add	sp, sp, #8
+ 147              	.LCFI1:
+ 148              		.cfi_def_cfa_offset 8
+ 149              		@ sp needed
+ 150 0034 10BD     		pop	{r4, pc}
+ 151              		.cfi_endproc
+ 152              	.LFE4:
+ 154              		.section	.text.FLASH_EraseSector,"ax",%progbits
+ 155              		.align	1
+ 156              		.global	FLASH_EraseSector
+ 157              		.thumb
+ 158              		.thumb_func
+ 160              	FLASH_EraseSector:
+ 161              	.LFB5:
+ 149:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 150:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 151:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 152:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+ 153:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Erases a specified FLASH Sector.
+ 154:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *
+ 155:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  FLASH_Sector: The Sector number to be erased.
+ 156:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *          This parameter can be a value between FLASH_Sector_0 and FLASH_Sector_11
+ 157:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *
+ 158:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  VoltageRange: The device voltage range which defines the erase parallelism.
+ 159:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *          This parameter can be one of the following values:
+ 160:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *            @arg VoltageRange_1: when the device voltage range is 1.8V to 2.1V,
+ 161:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *                                  the operation will be done by byte (8-bit)
+ 162:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *            @arg VoltageRange_2: when the device voltage range is 2.1V to 2.7V,
+ 163:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *                                  the operation will be done by half word (16-bit)
+ 164:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *            @arg VoltageRange_3: when the device voltage range is 2.7V to 3.6V,
+ 165:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *                                  the operation will be done by word (32-bit)
+ 166:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *            @arg VoltageRange_4: when the device voltage range is 2.7V to 3.6V + External Vpp,
+ 167:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *                                  the operation will be done by double word (64-bit)
+ 168:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *
+ 169:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PROGRAM,
+ 170:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *                       FLASH_ERROR_WRP, FLASH_ERROR_OPERATION or FLASH_COMPLETE.
+ 171:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+ 172:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** FLASH_Status FLASH_EraseSector(uint32 FLASH_Sector, uint8 VoltageRange)
+ 173:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+ 162              		.loc 1 173 0
+ 163              		.cfi_startproc
+ 164              		@ args = 0, pretend = 0, frame = 0
+ 165              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166              	.LVL9:
+ 167 0000 70B5     		push	{r4, r5, r6, lr}
+ 168              	.LCFI2:
+ 169              		.cfi_def_cfa_offset 16
+ 170              		.cfi_offset 4, -16
+ 171              		.cfi_offset 5, -12
+ 172              		.cfi_offset 6, -8
+ 173              		.cfi_offset 14, -4
+ 174              		.loc 1 173 0
+ 175 0002 0646     		mov	r6, r0
+ 174:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   uint32 tmp_psize = 0x0;
+ 175:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   FLASH_Status status = FLASH_COMPLETE;
+ 176:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 177:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   /* Check the parameters */
+ 178:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   //assert_param(IS_FLASH_SECTOR(FLASH_Sector));
+ 179:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   //assert_param(IS_VOLTAGERANGE(VoltageRange));
+ 180:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 181:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   if(VoltageRange == VoltageRange_1)
+ 176              		.loc 1 181 0
+ 177 0004 41B1     		cbz	r1, .L23
+ 182:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+ 183:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****      tmp_psize = FLASH_PSIZE_BYTE;
+ 184:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 185:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   else if(VoltageRange == VoltageRange_2)
+ 178              		.loc 1 185 0
+ 179 0006 0129     		cmp	r1, #1
+ 180 0008 08D0     		beq	.L24
+ 186:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+ 187:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     tmp_psize = FLASH_PSIZE_HALF_WORD;
+ 188:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 189:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   else if(VoltageRange == VoltageRange_3)
+ 181              		.loc 1 189 0
+ 182 000a 0229     		cmp	r1, #2
+ 190:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+ 191:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     tmp_psize = FLASH_PSIZE_WORD;
+ 192:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 193:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   else
+ 194:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+ 195:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     tmp_psize = FLASH_PSIZE_DOUBLE_WORD;
+ 183              		.loc 1 195 0
+ 184 000c 0CBF     		ite	eq
+ 185 000e 4FF40075 		moveq	r5, #512
+ 186 0012 4FF44075 		movne	r5, #768
+ 187 0016 03E0     		b	.L21
+ 188              	.L23:
+ 183:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 189              		.loc 1 183 0
+ 190 0018 0D46     		mov	r5, r1
+ 191 001a 01E0     		b	.L21
+ 192              	.L24:
+ 187:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 193              		.loc 1 187 0
+ 194 001c 4FF48075 		mov	r5, #256
+ 195              	.L21:
+ 196              	.LVL10:
+ 196:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 197:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   /* Wait for last operation to be completed */
+ 198:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   status = FLASH_WaitForLastOperation(EraseTimeout);
+ 197              		.loc 1 198 0
+ 198 0020 40F6FF70 		movw	r0, #4095
+ 199              	.LVL11:
+ 200 0024 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 201              	.LVL12:
+ 199:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 200:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   if(status == FLASH_COMPLETE)
+ 202              		.loc 1 200 0
+ 203 0028 0528     		cmp	r0, #5
+ 204 002a 20D1     		bne	.L22
+ 201:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+ 202:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     /* if the previous operation is completed, proceed to erase the sector */
+ 203:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->CR &= CR_PSIZE_MASK;
+ 205              		.loc 1 203 0
+ 206 002c 104C     		ldr	r4, .L26
+ 207 002e 2369     		ldr	r3, [r4, #16]
+ 208 0030 23F44073 		bic	r3, r3, #768
+ 209 0034 2361     		str	r3, [r4, #16]
+ 204:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->CR |= tmp_psize;
+ 210              		.loc 1 204 0
+ 211 0036 2169     		ldr	r1, [r4, #16]
+ 212 0038 2943     		orrs	r1, r1, r5
+ 213 003a 2161     		str	r1, [r4, #16]
+ 205:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->CR &= SECTOR_MASK;
+ 214              		.loc 1 205 0
+ 215 003c 2369     		ldr	r3, [r4, #16]
+ 216 003e 23F0F803 		bic	r3, r3, #248
+ 217 0042 2361     		str	r3, [r4, #16]
+ 206:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->CR |= FLASH_CR_SER | FLASH_Sector;
+ 218              		.loc 1 206 0
+ 219 0044 2369     		ldr	r3, [r4, #16]
+ 220 0046 43F00203 		orr	r3, r3, #2
+ 221 004a 1E43     		orrs	r6, r6, r3
+ 222              	.LVL13:
+ 223 004c 2661     		str	r6, [r4, #16]
+ 207:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->CR |= FLASH_CR_STRT;
+ 224              		.loc 1 207 0
+ 225 004e 2369     		ldr	r3, [r4, #16]
+ 226 0050 43F48033 		orr	r3, r3, #65536
+ 227 0054 2361     		str	r3, [r4, #16]
+ 208:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 209:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     /* Wait for last operation to be completed */
+ 210:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     status = FLASH_WaitForLastOperation(EraseTimeout);
+ 228              		.loc 1 210 0
+ 229 0056 40F6FF70 		movw	r0, #4095
+ 230              	.LVL14:
+ 231 005a FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 232              	.LVL15:
+ 211:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 212:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     /* if the erase operation is completed, disable the SER Bit */
+ 213:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->CR &= (~FLASH_CR_SER);
+ 233              		.loc 1 213 0
+ 234 005e 2369     		ldr	r3, [r4, #16]
+ 235 0060 23F00203 		bic	r3, r3, #2
+ 236 0064 2361     		str	r3, [r4, #16]
+ 214:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->CR &= SECTOR_MASK;
+ 237              		.loc 1 214 0
+ 238 0066 2369     		ldr	r3, [r4, #16]
+ 239 0068 23F0F803 		bic	r3, r3, #248
+ 240 006c 2361     		str	r3, [r4, #16]
+ 241              	.L22:
+ 215:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }
+ 216:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   /* Return the Erase Status */
+ 217:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   return status;
+ 218:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+ 242              		.loc 1 218 0
+ 243 006e 70BD     		pop	{r4, r5, r6, pc}
+ 244              	.LVL16:
+ 245              	.L27:
+ 246              		.align	2
+ 247              	.L26:
+ 248 0070 003C0240 		.word	1073888256
+ 249              		.cfi_endproc
+ 250              	.LFE5:
+ 252              		.section	.text.FLASH_ErasePage,"ax",%progbits
+ 253              		.align	1
+ 254              		.global	FLASH_ErasePage
+ 255              		.thumb
+ 256              		.thumb_func
+ 258              	FLASH_ErasePage:
+ 259              	.LFB6:
+ 219:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 220:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+ 221:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Erases a specified FLASH page.
+ 222:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  Page_Address: The page address to be erased.
+ 223:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PG,
+ 224:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *   FLASH_ERROR_WRP, FLASH_COMPLETE or FLASH_TIMEOUT.
+ 225:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+ 226:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** FLASH_Status FLASH_ErasePage(uint32 Page_Address)
+ 227:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+ 260              		.loc 1 227 0
+ 261              		.cfi_startproc
+ 262              		@ args = 0, pretend = 0, frame = 0
+ 263              		@ frame_needed = 0, uses_anonymous_args = 0
+ 264              		@ link register save eliminated.
+ 265              	.LVL17:
+ 228:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	int Page_Offset = Page_Address - 0x08000000;
+ 266              		.loc 1 228 0
+ 267 0000 00F17840 		add	r0, r0, #-134217728
+ 268              	.LVL18:
+ 229:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	uint32 FLASH_Sector;
+ 230:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 231:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	if(Page_Offset < 0x10000) {
+ 269              		.loc 1 231 0
+ 270 0004 B0F5803F 		cmp	r0, #65536
+ 271 0008 04DA     		bge	.L29
+ 232:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		FLASH_Sector = Page_Offset / 0x4000;
+ 272              		.loc 1 232 0
+ 273 000a 4FF48043 		mov	r3, #16384
+ 274 000e 90FBF3F0 		sdiv	r0, r0, r3
+ 275              	.LVL19:
+ 276 0012 05E0     		b	.L30
+ 277              	.LVL20:
+ 278              	.L29:
+ 233:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	} else if(Page_Offset < 0x20000) {
+ 279              		.loc 1 233 0
+ 280 0014 B0F5003F 		cmp	r0, #131072
+ 234:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		FLASH_Sector = 4;
+ 235:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	} else {
+ 236:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		FLASH_Sector = 4 + Page_Offset / 0x20000;
+ 281              		.loc 1 236 0
+ 282 0018 A6BF     		itte	ge
+ 283 001a 4014     		asrge	r0, r0, #17
+ 284              	.LVL21:
+ 285 001c 0430     		addge	r0, r0, #4
+ 286              	.LVL22:
+ 234:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		FLASH_Sector = 4;
+ 287              		.loc 1 234 0
+ 288 001e 0420     		movlt	r0, #4
+ 289              	.LVL23:
+ 290              	.L30:
+ 237:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	}
+ 238:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	
+ 239:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	return FLASH_EraseSector(8 * FLASH_Sector, VoltageRange_4);
+ 291              		.loc 1 239 0
+ 292 0020 C000     		lsls	r0, r0, #3
+ 293              	.LVL24:
+ 294 0022 0321     		movs	r1, #3
+ 295 0024 FFF7FEBF 		b	FLASH_EraseSector
+ 296              	.LVL25:
+ 297              		.cfi_endproc
+ 298              	.LFE6:
+ 300              		.section	.text.FLASH_ProgramHalfWord,"ax",%progbits
+ 301              		.align	1
+ 302              		.global	FLASH_ProgramHalfWord
+ 303              		.thumb
+ 304              		.thumb_func
+ 306              	FLASH_ProgramHalfWord:
+ 307              	.LFB7:
+ 240:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+ 241:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 242:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 243:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 244:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+ 245:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Programs a half word (16-bit) at a specified address.
+ 246:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @note   This function must be used when the device voltage range is from 2.1V to 3.6V.
+ 247:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  Address: specifies the address to be programmed.
+ 248:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *         This parameter can be any address in Program memory zone or in OTP zone.
+ 249:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  Data: specifies the data to be programmed.
+ 250:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval FLASH Status: The returned value can be: FLASH_BUSY, FLASH_ERROR_PROGRAM,
+ 251:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   *                       FLASH_ERROR_WRP, FLASH_ERROR_OPERATION or FLASH_COMPLETE.
+ 252:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+ 253:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** FLASH_Status FLASH_ProgramHalfWord(uint32 Address, uint16 Data)
+ 254:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+ 308              		.loc 1 254 0
+ 309              		.cfi_startproc
+ 310              		@ args = 0, pretend = 0, frame = 0
+ 311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 312              	.LVL26:
+ 255:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   FLASH_Status status = FLASH_BAD_ADDRESS;
+ 256:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 257:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	if (IS_FLASH_ADDRESS(Address))
+ 313              		.loc 1 257 0
+ 314 0000 134B     		ldr	r3, .L38
+ 315 0002 00F17842 		add	r2, r0, #-134217728
+ 316 0006 9A42     		cmp	r2, r3
+ 254:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   FLASH_Status status = FLASH_BAD_ADDRESS;
+ 317              		.loc 1 254 0
+ 318 0008 70B5     		push	{r4, r5, r6, lr}
+ 319              	.LCFI3:
+ 320              		.cfi_def_cfa_offset 16
+ 321              		.cfi_offset 4, -16
+ 322              		.cfi_offset 5, -12
+ 323              		.cfi_offset 6, -8
+ 324              		.cfi_offset 14, -4
+ 254:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   FLASH_Status status = FLASH_BAD_ADDRESS;
+ 325              		.loc 1 254 0
+ 326 000a 0546     		mov	r5, r0
+ 327 000c 0E46     		mov	r6, r1
+ 328              		.loc 1 257 0
+ 329 000e 1CD8     		bhi	.L34
+ 258:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	{
+ 259:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		/* Wait for last operation to be completed */
+ 260:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		status = FLASH_WaitForLastOperation(ProgramTimeout);
+ 330              		.loc 1 260 0
+ 331 0010 1F20     		movs	r0, #31
+ 332              	.LVL27:
+ 333 0012 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 334              	.LVL28:
+ 261:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 262:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		if(status == FLASH_COMPLETE)
+ 335              		.loc 1 262 0
+ 336 0016 0528     		cmp	r0, #5
+ 337 0018 18D1     		bne	.L33
+ 263:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		{
+ 264:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			/* if the previous operation is completed, proceed to program the new data */
+ 265:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			FLASH->CR &= CR_PSIZE_MASK;
+ 338              		.loc 1 265 0
+ 339 001a 0E4C     		ldr	r4, .L38+4
+ 340 001c 2369     		ldr	r3, [r4, #16]
+ 341 001e 23F44073 		bic	r3, r3, #768
+ 342 0022 2361     		str	r3, [r4, #16]
+ 266:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			FLASH->CR |= FLASH_PSIZE_HALF_WORD;
+ 343              		.loc 1 266 0
+ 344 0024 2369     		ldr	r3, [r4, #16]
+ 345 0026 43F48073 		orr	r3, r3, #256
+ 346 002a 2361     		str	r3, [r4, #16]
+ 267:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			FLASH->CR |= FLASH_CR_PG;
+ 347              		.loc 1 267 0
+ 348 002c 2369     		ldr	r3, [r4, #16]
+ 349 002e 43F00103 		orr	r3, r3, #1
+ 350 0032 2361     		str	r3, [r4, #16]
+ 268:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 269:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			*(__io uint16*)Address = Data;
+ 270:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 271:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			/* Wait for last operation to be completed */
+ 272:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   		status = FLASH_WaitForLastOperation(ProgramTimeout);
+ 351              		.loc 1 272 0
+ 352 0034 1F20     		movs	r0, #31
+ 353              	.LVL29:
+ 269:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 354              		.loc 1 269 0
+ 355 0036 2E80     		strh	r6, [r5]	@ movhi
+ 356              		.loc 1 272 0
+ 357 0038 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 358              	.LVL30:
+ 273:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 274:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			if(status != FLASH_TIMEOUT)
+ 359              		.loc 1 274 0
+ 360 003c 0628     		cmp	r0, #6
+ 361 003e 05D0     		beq	.L33
+ 275:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			{
+ 276:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			  /* if the program operation is completed, disable the PG Bit */
+ 277:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			  FLASH->CR &= (~FLASH_CR_PG);
+ 362              		.loc 1 277 0
+ 363 0040 2369     		ldr	r3, [r4, #16]
+ 364 0042 23F00103 		bic	r3, r3, #1
+ 365 0046 2361     		str	r3, [r4, #16]
+ 366 0048 70BD     		pop	{r4, r5, r6, pc}
+ 367              	.LVL31:
+ 368              	.L34:
+ 255:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 369              		.loc 1 255 0
+ 370 004a 0720     		movs	r0, #7
+ 371              	.LVL32:
+ 372              	.L33:
+ 278:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 			}
+ 279:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 		}
+ 280:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 	}
+ 281:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 282:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   /* Return the Program Status */
+ 283:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   return status;
+ 284:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+ 373              		.loc 1 284 0
+ 374 004c 70BD     		pop	{r4, r5, r6, pc}
+ 375              	.LVL33:
+ 376              	.L39:
+ 377 004e 00BF     		.align	2
+ 378              	.L38:
+ 379 0050 FEFF0700 		.word	524286
+ 380 0054 003C0240 		.word	1073888256
+ 381              		.cfi_endproc
+ 382              	.LFE7:
+ 384              		.section	.text.FLASH_Unlock,"ax",%progbits
+ 385              		.align	1
+ 386              		.global	FLASH_Unlock
+ 387              		.thumb
+ 388              		.thumb_func
+ 390              	FLASH_Unlock:
+ 391              	.LFB8:
+ 285:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 286:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 287:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+ 288:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Unlocks the FLASH control register access
+ 289:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  None
+ 290:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval None
+ 291:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+ 292:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** void FLASH_Unlock(void)
+ 293:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+ 392              		.loc 1 293 0
+ 393              		.cfi_startproc
+ 394              		@ args = 0, pretend = 0, frame = 0
+ 395              		@ frame_needed = 0, uses_anonymous_args = 0
+ 396              		@ link register save eliminated.
+ 294:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   if((FLASH->CR & FLASH_CR_LOCK) != 0)
+ 397              		.loc 1 294 0
+ 398 0000 044B     		ldr	r3, .L42
+ 399 0002 1A69     		ldr	r2, [r3, #16]
+ 400 0004 002A     		cmp	r2, #0
+ 295:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   {
+ 296:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     /* Authorize the FLASH Registers access */
+ 297:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->KEYR = FLASH_KEY1;
+ 401              		.loc 1 297 0
+ 402 0006 BFBF     		itttt	lt
+ 403 0008 034A     		ldrlt	r2, .L42+4
+ 404 000a 5A60     		strlt	r2, [r3, #4]
+ 298:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****     FLASH->KEYR = FLASH_KEY2;
+ 405              		.loc 1 298 0
+ 406 000c 02F18832 		addlt	r2, r2, #-2004318072
+ 407 0010 5A60     		strlt	r2, [r3, #4]
+ 408 0012 7047     		bx	lr
+ 409              	.L43:
+ 410              		.align	2
+ 411              	.L42:
+ 412 0014 003C0240 		.word	1073888256
+ 413 0018 23016745 		.word	1164378403
+ 414              		.cfi_endproc
+ 415              	.LFE8:
+ 417              		.section	.text.FLASH_Lock,"ax",%progbits
+ 418              		.align	1
+ 419              		.global	FLASH_Lock
+ 420              		.thumb
+ 421              		.thumb_func
+ 423              	FLASH_Lock:
+ 424              	.LFB9:
+ 299:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   }  
+ 300:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** }
+ 301:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** 
+ 302:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** /**
+ 303:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @brief  Locks the FLASH control register access
+ 304:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @param  None
+ 305:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   * @retval None
+ 306:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   */
+ 307:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** void FLASH_Lock(void)
+ 308:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c **** {
+ 425              		.loc 1 308 0
+ 426              		.cfi_startproc
+ 427              		@ args = 0, pretend = 0, frame = 0
+ 428              		@ frame_needed = 0, uses_anonymous_args = 0
+ 429              		@ link register save eliminated.
+ 309:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   /* Set the LOCK Bit to lock the FLASH Registers access */
+ 310:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32F2.c ****   FLASH->CR |= FLASH_CR_LOCK;
+ 430              		.loc 1 310 0
+ 431 0000 024A     		ldr	r2, .L45
+ 432 0002 1369     		ldr	r3, [r2, #16]
+ 433 0004 43F00043 		orr	r3, r3, #-2147483648
+ 434 0008 1361     		str	r3, [r2, #16]
+ 435 000a 7047     		bx	lr
+ 436              	.L46:
+ 437              		.align	2
+ 438              	.L45:
+ 439 000c 003C0240 		.word	1073888256
+ 440              		.cfi_endproc
+ 441              	.LFE9:
+ 443              		.text
+ 444              	.Letext0:
+ 445              		.file 2 "../Libmaple/libmaple/libmaple/libmaple_types.h"
+ 446              		.file 3 "/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 flash_stm32.c
+     /tmp/ccViJeiK.s:20     .text.FLASH_GetStatus:0000000000000000 $t
+     /tmp/ccViJeiK.s:25     .text.FLASH_GetStatus:0000000000000000 FLASH_GetStatus
+     /tmp/ccViJeiK.s:76     .text.FLASH_GetStatus:0000000000000030 $d
+     /tmp/ccViJeiK.s:81     .text.FLASH_WaitForLastOperation:0000000000000000 $t
+     /tmp/ccViJeiK.s:86     .text.FLASH_WaitForLastOperation:0000000000000000 FLASH_WaitForLastOperation
+     /tmp/ccViJeiK.s:155    .text.FLASH_EraseSector:0000000000000000 $t
+     /tmp/ccViJeiK.s:160    .text.FLASH_EraseSector:0000000000000000 FLASH_EraseSector
+     /tmp/ccViJeiK.s:248    .text.FLASH_EraseSector:0000000000000070 $d
+     /tmp/ccViJeiK.s:253    .text.FLASH_ErasePage:0000000000000000 $t
+     /tmp/ccViJeiK.s:258    .text.FLASH_ErasePage:0000000000000000 FLASH_ErasePage
+     /tmp/ccViJeiK.s:301    .text.FLASH_ProgramHalfWord:0000000000000000 $t
+     /tmp/ccViJeiK.s:306    .text.FLASH_ProgramHalfWord:0000000000000000 FLASH_ProgramHalfWord
+     /tmp/ccViJeiK.s:379    .text.FLASH_ProgramHalfWord:0000000000000050 $d
+     /tmp/ccViJeiK.s:385    .text.FLASH_Unlock:0000000000000000 $t
+     /tmp/ccViJeiK.s:390    .text.FLASH_Unlock:0000000000000000 FLASH_Unlock
+     /tmp/ccViJeiK.s:412    .text.FLASH_Unlock:0000000000000014 $d
+     /tmp/ccViJeiK.s:418    .text.FLASH_Lock:0000000000000000 $t
+     /tmp/ccViJeiK.s:423    .text.FLASH_Lock:0000000000000000 FLASH_Lock
+     /tmp/ccViJeiK.s:439    .text.FLASH_Lock:000000000000000c $d
+                     .debug_frame:0000000000000010 $d
+
+NO UNDEFINED SYMBOLS

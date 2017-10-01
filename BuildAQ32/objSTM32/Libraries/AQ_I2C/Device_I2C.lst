@@ -1,0 +1,767 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 4
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"Device_I2C.cpp"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text._ZN7TwoWire4readEv.constprop.0,"ax",%progbits
+  20              		.align	1
+  21              		.thumb
+  22              		.thumb_func
+  24              	_ZN7TwoWire4readEv.constprop.0:
+  25              	.LFB132:
+  26              		.file 1 "../Libmaple/libmaple/libraries/Wire/Wire.h"
+   1:../Libmaple/libmaple/libraries/Wire/Wire.h **** /* *****************************************************************************
+   2:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * The MIT License
+   3:../Libmaple/libmaple/libraries/Wire/Wire.h ****  *
+   4:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * Copyright (c) 2010 LeafLabs LLC.
+   5:../Libmaple/libmaple/libraries/Wire/Wire.h ****  *
+   6:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * Permission is hereby granted, free of charge, to any person obtaining a copy
+   7:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * of this software and associated documentation files (the "Software"), to deal
+   8:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * in the Software without restriction, including without limitation the rights
+   9:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  10:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * copies of the Software, and to permit persons to whom the Software is
+  11:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * furnished to do so, subject to the following conditions:
+  12:../Libmaple/libmaple/libraries/Wire/Wire.h ****  *
+  13:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * The above copyright notice and this permission notice shall be included in
+  14:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * all copies or substantial portions of the Software.
+  15:../Libmaple/libmaple/libraries/Wire/Wire.h ****  *
+  16:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  17:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  18:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  19:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  20:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  21:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  22:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * THE SOFTWARE.
+  23:../Libmaple/libmaple/libraries/Wire/Wire.h ****  * ****************************************************************************/
+  24:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  25:../Libmaple/libmaple/libraries/Wire/Wire.h **** /**
+  26:../Libmaple/libmaple/libraries/Wire/Wire.h ****  *  @brief Wire library, ported from Arduino. Provides a lean
+  27:../Libmaple/libmaple/libraries/Wire/Wire.h ****  *  interface to I2C (two-wire) communication.
+  28:../Libmaple/libmaple/libraries/Wire/Wire.h ****  */
+  29:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  30:../Libmaple/libmaple/libraries/Wire/Wire.h **** #include "wirish.h"
+  31:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  32:../Libmaple/libmaple/libraries/Wire/Wire.h **** #ifndef _WIRE_H_
+  33:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define _WIRE_H_
+  34:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  35:../Libmaple/libmaple/libraries/Wire/Wire.h **** typedef struct {
+  36:../Libmaple/libmaple/libraries/Wire/Wire.h ****   uint8 scl;
+  37:../Libmaple/libmaple/libraries/Wire/Wire.h ****   uint8 sda;
+  38:../Libmaple/libmaple/libraries/Wire/Wire.h **** } Port;
+  39:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  40:../Libmaple/libmaple/libraries/Wire/Wire.h **** /* You must update the online docs if you change this value. */
+  41:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define WIRE_BUFSIZ 32
+  42:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  43:../Libmaple/libmaple/libraries/Wire/Wire.h **** /* return codes from endTransmission() */
+  44:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define SUCCESS   0        /* transmission was successful */
+  45:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define EDATA     1        /* too much data */
+  46:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define ENACKADDR 2        /* received nack on transmit of address */
+  47:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define ENACKTRNS 3        /* received nack on transmit of data */
+  48:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define EOTHER    4        /* other error */
+  49:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  50:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define SDA 20
+  51:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define SCL 21
+  52:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  53:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define I2C_WRITE 0
+  54:../Libmaple/libmaple/libraries/Wire/Wire.h **** #define I2C_READ  1
+  55:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  56:../Libmaple/libmaple/libraries/Wire/Wire.h **** #if (F_CPU == 168000000)
+  57:../Libmaple/libmaple/libraries/Wire/Wire.h **** 	#define I2C_DELAY_SCL delay_ns100(6) 
+  58:../Libmaple/libmaple/libraries/Wire/Wire.h **** 	#define I2C_DELAY_SDA delay_ns100(2)
+  59:../Libmaple/libmaple/libraries/Wire/Wire.h **** #else
+  60:../Libmaple/libmaple/libraries/Wire/Wire.h **** 	#define I2C_DELAY_SCL
+  61:../Libmaple/libmaple/libraries/Wire/Wire.h **** 	#define I2C_DELAY_SDA
+  62:../Libmaple/libmaple/libraries/Wire/Wire.h **** #endif
+  63:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  64:../Libmaple/libmaple/libraries/Wire/Wire.h **** class TwoWire {
+  65:../Libmaple/libmaple/libraries/Wire/Wire.h ****  private:
+  66:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 rx_buf[WIRE_BUFSIZ];      /* receive buffer */
+  67:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 rx_buf_idx;               /* first unread idx in rx_buf */
+  68:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 rx_buf_len;               /* number of bytes read */
+  69:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  70:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 tx_addr;                  /* address transmitting to */
+  71:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 tx_buf[WIRE_BUFSIZ];      /* transmit buffer */
+  72:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 tx_buf_idx;               /* next idx available in tx_buf, -1 overflow */
+  73:../Libmaple/libmaple/libraries/Wire/Wire.h ****     boolean tx_buf_overflow;
+  74:../Libmaple/libmaple/libraries/Wire/Wire.h ****     Port port;
+  75:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 writeOneByte(uint8);
+  76:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 readOneByte(uint8, uint8*);
+  77:../Libmaple/libmaple/libraries/Wire/Wire.h ****  public:
+  78:../Libmaple/libmaple/libraries/Wire/Wire.h ****     TwoWire();
+  79:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void begin();
+  80:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void begin(uint8, uint8);
+  81:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void beginTransmission(uint8);
+  82:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void beginTransmission(int);
+  83:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 endTransmission(void);
+  84:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 requestFrom(uint8, int);
+  85:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 requestFrom(int, int);
+  86:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void send(uint8);
+  87:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void send(uint8*, int);
+  88:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void send(int);
+  89:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void send(int*, int);
+  90:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void send(char*);
+  91:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 available();
+  92:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 receive();
+  93:../Libmaple/libmaple/libraries/Wire/Wire.h **** 
+  94:../Libmaple/libmaple/libraries/Wire/Wire.h ****     uint8 read() { return receive(); };
+  27              		.loc 1 94 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              	.LVL0:
+  33              		.loc 1 94 0
+  34 0000 0148     		ldr	r0, .L2
+  35 0002 FFF7FEBF 		b	_ZN7TwoWire7receiveEv
+  36              	.L3:
+  37 0006 00BF     		.align	2
+  38              	.L2:
+  39 0008 00000000 		.word	Wire
+  40              		.cfi_endproc
+  41              	.LFE132:
+  43              		.section	.text._ZN7TwoWire5writeEh,"axG",%progbits,_ZN7TwoWire5writeEh,comdat
+  44              		.align	1
+  45              		.weak	_ZN7TwoWire5writeEh
+  46              		.thumb
+  47              		.thumb_func
+  49              	_ZN7TwoWire5writeEh:
+  50              	.LFB115:
+  95:../Libmaple/libmaple/libraries/Wire/Wire.h ****     void write(uint8 data) { send(data); };
+  51              		.loc 1 95 0
+  52              		.cfi_startproc
+  53              		@ args = 0, pretend = 0, frame = 0
+  54              		@ frame_needed = 0, uses_anonymous_args = 0
+  55              		@ link register save eliminated.
+  56              	.LVL1:
+  57              		.loc 1 95 0
+  58 0000 FFF7FEBF 		b	_ZN7TwoWire4sendEh
+  59              	.LVL2:
+  60              	.LVL3:
+  61              		.cfi_endproc
+  62              	.LFE115:
+  64              		.section	.text._Z11sendByteI2Cih,"ax",%progbits
+  65              		.align	1
+  66              		.global	_Z11sendByteI2Cih
+  67              		.thumb
+  68              		.thumb_func
+  70              	_Z11sendByteI2Cih:
+  71              	.LFB120:
+  72              		.file 2 "/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp"
+   1:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** /*
+   2:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   AeroQuad v3.0.1 - February 2012
+   3:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   www.AeroQuad.com
+   4:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Copyright (c) 2012 Ted Carancho.  All rights reserved.
+   5:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   An Open Source Arduino based multicopter.
+   6:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****  
+   7:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   This program is free software: you can redistribute it and/or modify 
+   8:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   it under the terms of the GNU General Public License as published by 
+   9:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   the Free Software Foundation, either version 3 of the License, or 
+  10:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   (at your option) any later version. 
+  11:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  12:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   This program is distributed in the hope that it will be useful, 
+  13:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   but WITHOUT ANY WARRANTY; without even the implied warranty of 
+  14:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+  15:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   GNU General Public License for more details. 
+  16:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  17:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   You should have received a copy of the GNU General Public License 
+  18:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   along with this program. If not, see <http://www.gnu.org/licenses/>. 
+  19:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** */
+  20:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  21:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** // I2C functions
+  22:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** #include "Device_I2C.h"
+  23:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  24:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** void sendByteI2C(int deviceAddress, byte dataValue) {
+  73              		.loc 2 24 0
+  74              		.cfi_startproc
+  75              		@ args = 0, pretend = 0, frame = 0
+  76              		@ frame_needed = 0, uses_anonymous_args = 0
+  77              	.LVL4:
+  78 0000 0346     		mov	r3, r0
+  79 0002 10B5     		push	{r4, lr}
+  80              	.LCFI0:
+  81              		.cfi_def_cfa_offset 8
+  82              		.cfi_offset 14, -4
+  83              		.cfi_offset 4, -8
+  25:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  26:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.beginTransmission(deviceAddress);
+  84              		.loc 2 26 0
+  85 0004 0648     		ldr	r0, .L6
+  86              	.LVL5:
+  24:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** void sendByteI2C(int deviceAddress, byte dataValue) {
+  87              		.loc 2 24 0
+  88 0006 0C46     		mov	r4, r1
+  89              		.loc 2 26 0
+  90 0008 1946     		mov	r1, r3
+  91              	.LVL6:
+  92 000a FFF7FEFF 		bl	_ZN7TwoWire17beginTransmissionEi
+  93              	.LVL7:
+  27:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.write(dataValue);
+  94              		.loc 2 27 0
+  95 000e 0448     		ldr	r0, .L6
+  96 0010 2146     		mov	r1, r4
+  97 0012 FFF7FEFF 		bl	_ZN7TwoWire5writeEh
+  28:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.endTransmission();
+  98              		.loc 2 28 0
+  99 0016 0248     		ldr	r0, .L6
+  29:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 100              		.loc 2 29 0
+ 101 0018 BDE81040 		pop	{r4, lr}
+  28:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.endTransmission();
+ 102              		.loc 2 28 0
+ 103 001c FFF7FEBF 		b	_ZN7TwoWire15endTransmissionEv
+ 104              	.L7:
+ 105              		.align	2
+ 106              	.L6:
+ 107 0020 00000000 		.word	Wire
+ 108              		.cfi_endproc
+ 109              	.LFE120:
+ 111              		.section	.text._Z11readByteI2Cv,"ax",%progbits
+ 112              		.align	1
+ 113              		.global	_Z11readByteI2Cv
+ 114              		.thumb
+ 115              		.thumb_func
+ 117              	_Z11readByteI2Cv:
+ 118              	.LFB121:
+  30:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  31:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** byte readByteI2C() {
+ 119              		.loc 2 31 0
+ 120              		.cfi_startproc
+ 121              		@ args = 0, pretend = 0, frame = 0
+ 122              		@ frame_needed = 0, uses_anonymous_args = 0
+ 123              		@ link register save eliminated.
+  32:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****     return Wire.read();
+  33:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 124              		.loc 2 33 0
+  32:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****     return Wire.read();
+ 125              		.loc 2 32 0
+ 126 0000 FFF7FEBF 		b	_ZN7TwoWire4readEv.constprop.0
+ 127              		.cfi_endproc
+ 128              	.LFE121:
+ 130              		.section	.text._Z11readByteI2Ci,"ax",%progbits
+ 131              		.align	1
+ 132              		.global	_Z11readByteI2Ci
+ 133              		.thumb
+ 134              		.thumb_func
+ 136              	_Z11readByteI2Ci:
+ 137              	.LFB122:
+  34:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  35:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** byte readByteI2C(int deviceAddress) {
+ 138              		.loc 2 35 0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142              	.LVL8:
+ 143 0000 08B5     		push	{r3, lr}
+ 144              	.LCFI1:
+ 145              		.cfi_def_cfa_offset 8
+ 146              		.cfi_offset 14, -4
+ 147              		.cfi_offset 3, -8
+ 148              		.loc 2 35 0
+ 149 0002 0146     		mov	r1, r0
+  36:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  37:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****     Wire.requestFrom(deviceAddress, 1);
+ 150              		.loc 2 37 0
+ 151 0004 0122     		movs	r2, #1
+ 152 0006 0348     		ldr	r0, .L10
+ 153              	.LVL9:
+ 154 0008 FFF7FEFF 		bl	_ZN7TwoWire11requestFromEii
+ 155              	.LVL10:
+  38:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****     return Wire.read();
+  39:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 156              		.loc 2 39 0
+ 157 000c BDE80840 		pop	{r3, lr}
+  38:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****     return Wire.read();
+ 158              		.loc 2 38 0
+ 159 0010 FFF7FEBF 		b	_ZN7TwoWire4readEv.constprop.0
+ 160              	.L11:
+ 161              		.align	2
+ 162              	.L10:
+ 163 0014 00000000 		.word	Wire
+ 164              		.cfi_endproc
+ 165              	.LFE122:
+ 167              		.section	.text._Z11readWordI2Ci,"ax",%progbits
+ 168              		.align	1
+ 169              		.global	_Z11readWordI2Ci
+ 170              		.thumb
+ 171              		.thumb_func
+ 173              	_Z11readWordI2Ci:
+ 174              	.LFB123:
+  40:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  41:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readWordI2C(int deviceAddress) {
+ 175              		.loc 2 41 0
+ 176              		.cfi_startproc
+ 177              		@ args = 0, pretend = 0, frame = 0
+ 178              		@ frame_needed = 0, uses_anonymous_args = 0
+ 179              	.LVL11:
+ 180 0000 10B5     		push	{r4, lr}
+ 181              	.LCFI2:
+ 182              		.cfi_def_cfa_offset 8
+ 183              		.cfi_offset 14, -4
+ 184              		.cfi_offset 4, -8
+ 185              		.loc 2 41 0
+ 186 0002 0146     		mov	r1, r0
+  42:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  43:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.requestFrom(deviceAddress, 2);
+ 187              		.loc 2 43 0
+ 188 0004 0222     		movs	r2, #2
+ 189 0006 0548     		ldr	r0, .L13
+ 190              	.LVL12:
+ 191 0008 FFF7FEFF 		bl	_ZN7TwoWire11requestFromEii
+ 192              	.LVL13:
+  44:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return (Wire.read() << 8) | Wire.read();
+ 193              		.loc 2 44 0
+ 194 000c FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 195 0010 0446     		mov	r4, r0
+ 196 0012 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+  45:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 197              		.loc 2 45 0
+ 198 0016 40EA0420 		orr	r0, r0, r4, lsl #8
+ 199 001a 10BD     		pop	{r4, pc}
+ 200              	.L14:
+ 201              		.align	2
+ 202              	.L13:
+ 203 001c 00000000 		.word	Wire
+ 204              		.cfi_endproc
+ 205              	.LFE123:
+ 207              		.section	.text._Z11readWordI2Cv,"ax",%progbits
+ 208              		.align	1
+ 209              		.global	_Z11readWordI2Cv
+ 210              		.thumb
+ 211              		.thumb_func
+ 213              	_Z11readWordI2Cv:
+ 214              	.LFB124:
+  46:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  47:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readWordI2C() {
+ 215              		.loc 2 47 0
+ 216              		.cfi_startproc
+ 217              		@ args = 0, pretend = 0, frame = 0
+ 218              		@ frame_needed = 0, uses_anonymous_args = 0
+ 219 0000 10B5     		push	{r4, lr}
+ 220              	.LCFI3:
+ 221              		.cfi_def_cfa_offset 8
+ 222              		.cfi_offset 14, -4
+ 223              		.cfi_offset 4, -8
+  48:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  49:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return (Wire.read() << 8) | Wire.read();
+ 224              		.loc 2 49 0
+ 225 0002 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 226 0006 0446     		mov	r4, r0
+ 227 0008 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+  50:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 228              		.loc 2 50 0
+ 229 000c 40EA0420 		orr	r0, r0, r4, lsl #8
+ 230 0010 10BD     		pop	{r4, pc}
+ 231              		.cfi_endproc
+ 232              	.LFE124:
+ 234              		.section	.text._Z12readShortI2Cv,"ax",%progbits
+ 235              		.align	1
+ 236              		.global	_Z12readShortI2Cv
+ 237              		.thumb
+ 238              		.thumb_func
+ 240              	_Z12readShortI2Cv:
+ 241              	.LFB126:
+  51:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  52:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readShortI2C(int deviceAddress) {
+  53:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  54:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****  Wire.requestFrom(deviceAddress, 2);
+  55:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****  return readShortI2C();
+  56:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+  57:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  58:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readShortI2C() {
+ 242              		.loc 2 58 0
+ 243              		.cfi_startproc
+ 244              		@ args = 0, pretend = 0, frame = 0
+ 245              		@ frame_needed = 0, uses_anonymous_args = 0
+ 246 0000 08B5     		push	{r3, lr}
+ 247              	.LCFI4:
+ 248              		.cfi_def_cfa_offset 8
+ 249              		.cfi_offset 14, -4
+ 250              		.cfi_offset 3, -8
+  59:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  60:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return (signed short)readWordI2C();
+ 251              		.loc 2 60 0
+ 252 0002 FFF7FEFF 		bl	_Z11readWordI2Cv
+  61:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 253              		.loc 2 61 0
+ 254 0006 00B2     		sxth	r0, r0
+ 255 0008 08BD     		pop	{r3, pc}
+ 256              		.cfi_endproc
+ 257              	.LFE126:
+ 259              		.section	.text._Z12readShortI2Ci,"ax",%progbits
+ 260              		.align	1
+ 261              		.global	_Z12readShortI2Ci
+ 262              		.thumb
+ 263              		.thumb_func
+ 265              	_Z12readShortI2Ci:
+ 266              	.LFB125:
+  52:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readShortI2C(int deviceAddress) {
+ 267              		.loc 2 52 0
+ 268              		.cfi_startproc
+ 269              		@ args = 0, pretend = 0, frame = 0
+ 270              		@ frame_needed = 0, uses_anonymous_args = 0
+ 271              	.LVL14:
+ 272 0000 08B5     		push	{r3, lr}
+ 273              	.LCFI5:
+ 274              		.cfi_def_cfa_offset 8
+ 275              		.cfi_offset 14, -4
+ 276              		.cfi_offset 3, -8
+  52:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readShortI2C(int deviceAddress) {
+ 277              		.loc 2 52 0
+ 278 0002 0146     		mov	r1, r0
+  54:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****  Wire.requestFrom(deviceAddress, 2);
+ 279              		.loc 2 54 0
+ 280 0004 0222     		movs	r2, #2
+ 281 0006 0348     		ldr	r0, .L18
+ 282              	.LVL15:
+ 283 0008 FFF7FEFF 		bl	_ZN7TwoWire11requestFromEii
+ 284              	.LVL16:
+  56:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 285              		.loc 2 56 0
+ 286 000c BDE80840 		pop	{r3, lr}
+  55:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****  return readShortI2C();
+ 287              		.loc 2 55 0
+ 288 0010 FFF7FEBF 		b	_Z12readShortI2Cv
+ 289              	.L19:
+ 290              		.align	2
+ 291              	.L18:
+ 292 0014 00000000 		.word	Wire
+ 293              		.cfi_endproc
+ 294              	.LFE125:
+ 296              		.section	.text._Z19readReverseShortI2Cv,"ax",%progbits
+ 297              		.align	1
+ 298              		.global	_Z19readReverseShortI2Cv
+ 299              		.thumb
+ 300              		.thumb_func
+ 302              	_Z19readReverseShortI2Cv:
+ 303              	.LFB127:
+  62:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  63:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readReverseShortI2C() {
+ 304              		.loc 2 63 0
+ 305              		.cfi_startproc
+ 306              		@ args = 0, pretend = 0, frame = 0
+ 307              		@ frame_needed = 0, uses_anonymous_args = 0
+ 308 0000 10B5     		push	{r4, lr}
+ 309              	.LCFI6:
+ 310              		.cfi_def_cfa_offset 8
+ 311              		.cfi_offset 14, -4
+ 312              		.cfi_offset 4, -8
+  64:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  65:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return (signed short)( Wire.read() | (Wire.read() << 8));
+ 313              		.loc 2 65 0
+ 314 0002 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 315 0006 0446     		mov	r4, r0
+ 316 0008 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 317 000c 44EA0020 		orr	r0, r4, r0, lsl #8
+  66:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 318              		.loc 2 66 0
+ 319 0010 00B2     		sxth	r0, r0
+ 320 0012 10BD     		pop	{r4, pc}
+ 321              		.cfi_endproc
+ 322              	.LFE127:
+ 324              		.section	.text._Z15readWordWaitI2Ci,"ax",%progbits
+ 325              		.align	1
+ 326              		.global	_Z15readWordWaitI2Ci
+ 327              		.thumb
+ 328              		.thumb_func
+ 330              	_Z15readWordWaitI2Ci:
+ 331              	.LFB128:
+  67:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  68:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readWordWaitI2C(int deviceAddress) {
+ 332              		.loc 2 68 0
+ 333              		.cfi_startproc
+ 334              		@ args = 0, pretend = 0, frame = 0
+ 335              		@ frame_needed = 0, uses_anonymous_args = 0
+ 336              	.LVL17:
+ 337 0000 0146     		mov	r1, r0
+ 338 0002 10B5     		push	{r4, lr}
+ 339              	.LCFI7:
+ 340              		.cfi_def_cfa_offset 8
+ 341              		.cfi_offset 14, -4
+ 342              		.cfi_offset 4, -8
+ 343              	.LBB2:
+  69:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  70:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.requestFrom(deviceAddress, 2); // request two bytes
+ 344              		.loc 2 70 0
+ 345 0004 0A48     		ldr	r0, .L26
+ 346              	.LVL18:
+ 347 0006 0222     		movs	r2, #2
+ 348 0008 FFF7FEFF 		bl	_ZN7TwoWire11requestFromEii
+ 349              	.LVL19:
+ 350              	.L22:
+  71:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   while(!Wire.available()); // wait until data available
+ 351              		.loc 2 71 0 discriminator 1
+ 352 000c 0848     		ldr	r0, .L26
+ 353 000e FFF7FEFF 		bl	_ZN7TwoWire9availableEv
+ 354 0012 0028     		cmp	r0, #0
+ 355 0014 FAD0     		beq	.L22
+  72:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   unsigned char msb = Wire.read();
+ 356              		.loc 2 72 0
+ 357 0016 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 358 001a 0446     		mov	r4, r0
+ 359              	.LVL20:
+ 360              	.L23:
+  73:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   while(!Wire.available()); // wait until data available
+ 361              		.loc 2 73 0 discriminator 1
+ 362 001c 0448     		ldr	r0, .L26
+ 363 001e FFF7FEFF 		bl	_ZN7TwoWire9availableEv
+ 364 0022 0028     		cmp	r0, #0
+ 365 0024 FAD0     		beq	.L23
+  74:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   unsigned char lsb = Wire.read();
+ 366              		.loc 2 74 0
+ 367 0026 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 368              	.LVL21:
+ 369              	.LBE2:
+  75:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return (((int)msb<<8) | ((int)lsb));
+  76:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 370              		.loc 2 76 0
+ 371 002a 40EA0420 		orr	r0, r0, r4, lsl #8
+ 372              	.LVL22:
+ 373 002e 10BD     		pop	{r4, pc}
+ 374              	.L27:
+ 375              		.align	2
+ 376              	.L26:
+ 377 0030 00000000 		.word	Wire
+ 378              		.cfi_endproc
+ 379              	.LFE128:
+ 381              		.section	.text._Z18readReverseWordI2Ci,"ax",%progbits
+ 382              		.align	1
+ 383              		.global	_Z18readReverseWordI2Ci
+ 384              		.thumb
+ 385              		.thumb_func
+ 387              	_Z18readReverseWordI2Ci:
+ 388              	.LFB129:
+  77:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  78:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** int readReverseWordI2C(int deviceAddress) {
+ 389              		.loc 2 78 0
+ 390              		.cfi_startproc
+ 391              		@ args = 0, pretend = 0, frame = 0
+ 392              		@ frame_needed = 0, uses_anonymous_args = 0
+ 393              	.LVL23:
+ 394 0000 10B5     		push	{r4, lr}
+ 395              	.LCFI8:
+ 396              		.cfi_def_cfa_offset 8
+ 397              		.cfi_offset 14, -4
+ 398              		.cfi_offset 4, -8
+ 399              		.loc 2 78 0
+ 400 0002 0146     		mov	r1, r0
+ 401              	.LBB3:
+  79:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  80:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.requestFrom(deviceAddress, 2);
+ 402              		.loc 2 80 0
+ 403 0004 0222     		movs	r2, #2
+ 404 0006 0548     		ldr	r0, .L29
+ 405              	.LVL24:
+ 406 0008 FFF7FEFF 		bl	_ZN7TwoWire11requestFromEii
+ 407              	.LVL25:
+  81:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   byte lowerByte = Wire.read();
+ 408              		.loc 2 81 0
+ 409 000c FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 410 0010 0446     		mov	r4, r0
+ 411              	.LVL26:
+  82:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return (Wire.read() << 8) | lowerByte;
+ 412              		.loc 2 82 0
+ 413 0012 FFF7FEFF 		bl	_ZN7TwoWire4readEv.constprop.0
+ 414              	.LVL27:
+ 415              	.LBE3:
+  83:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 416              		.loc 2 83 0
+ 417 0016 44EA0020 		orr	r0, r4, r0, lsl #8
+ 418 001a 10BD     		pop	{r4, pc}
+ 419              	.L30:
+ 420              		.align	2
+ 421              	.L29:
+ 422 001c 00000000 		.word	Wire
+ 423              		.cfi_endproc
+ 424              	.LFE129:
+ 426              		.section	.text._Z10readWhoI2Ci,"ax",%progbits
+ 427              		.align	1
+ 428              		.global	_Z10readWhoI2Ci
+ 429              		.thumb
+ 430              		.thumb_func
+ 432              	_Z10readWhoI2Ci:
+ 433              	.LFB130:
+  84:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  85:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** byte readWhoI2C(int deviceAddress) {
+ 434              		.loc 2 85 0
+ 435              		.cfi_startproc
+ 436              		@ args = 0, pretend = 0, frame = 0
+ 437              		@ frame_needed = 0, uses_anonymous_args = 0
+ 438              	.LVL28:
+ 439 0000 10B5     		push	{r4, lr}
+ 440              	.LCFI9:
+ 441              		.cfi_def_cfa_offset 8
+ 442              		.cfi_offset 14, -4
+ 443              		.cfi_offset 4, -8
+ 444              		.loc 2 85 0
+ 445 0002 0446     		mov	r4, r0
+  86:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  87:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   // read the ID of the I2C device
+  88:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.beginTransmission(deviceAddress);
+ 446              		.loc 2 88 0
+ 447 0004 2146     		mov	r1, r4
+ 448 0006 0B48     		ldr	r0, .L32
+ 449              	.LVL29:
+ 450 0008 FFF7FEFF 		bl	_ZN7TwoWire17beginTransmissionEi
+ 451              	.LVL30:
+  89:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.write((byte)0);
+ 452              		.loc 2 89 0
+ 453 000c 0021     		movs	r1, #0
+ 454 000e 0948     		ldr	r0, .L32
+ 455 0010 FFF7FEFF 		bl	_ZN7TwoWire5writeEh
+  90:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.endTransmission();
+ 456              		.loc 2 90 0
+ 457 0014 0748     		ldr	r0, .L32
+ 458 0016 FFF7FEFF 		bl	_ZN7TwoWire15endTransmissionEv
+  91:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   delay(100);
+ 459              		.loc 2 91 0
+ 460 001a 6420     		movs	r0, #100
+ 461 001c FFF7FEFF 		bl	_Z5delaym
+  92:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.requestFrom(deviceAddress, 1);
+ 462              		.loc 2 92 0
+ 463 0020 2146     		mov	r1, r4
+ 464 0022 0122     		movs	r2, #1
+ 465 0024 0348     		ldr	r0, .L32
+ 466 0026 FFF7FEFF 		bl	_ZN7TwoWire11requestFromEii
+  93:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return Wire.read();
+  94:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }
+ 467              		.loc 2 94 0
+ 468 002a BDE81040 		pop	{r4, lr}
+  93:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   return Wire.read();
+ 469              		.loc 2 93 0
+ 470 002e FFF7FEBF 		b	_ZN7TwoWire4readEv.constprop.0
+ 471              	.L33:
+ 472 0032 00BF     		.align	2
+ 473              	.L32:
+ 474 0034 00000000 		.word	Wire
+ 475              		.cfi_endproc
+ 476              	.LFE130:
+ 478              		.section	.text._Z17updateRegisterI2Cihh,"ax",%progbits
+ 479              		.align	1
+ 480              		.global	_Z17updateRegisterI2Cihh
+ 481              		.thumb
+ 482              		.thumb_func
+ 484              	_Z17updateRegisterI2Cihh:
+ 485              	.LFB131:
+  95:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  96:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue) {
+ 486              		.loc 2 96 0
+ 487              		.cfi_startproc
+ 488              		@ args = 0, pretend = 0, frame = 0
+ 489              		@ frame_needed = 0, uses_anonymous_args = 0
+ 490              	.LVL31:
+ 491 0000 38B5     		push	{r3, r4, r5, lr}
+ 492              	.LCFI10:
+ 493              		.cfi_def_cfa_offset 16
+ 494              		.cfi_offset 14, -4
+ 495              		.cfi_offset 5, -8
+ 496              		.cfi_offset 4, -12
+ 497              		.cfi_offset 3, -16
+ 498              		.loc 2 96 0
+ 499 0002 0346     		mov	r3, r0
+ 500 0004 0C46     		mov	r4, r1
+  97:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** 
+  98:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.beginTransmission(deviceAddress);
+ 501              		.loc 2 98 0
+ 502 0006 0948     		ldr	r0, .L35
+ 503              	.LVL32:
+ 504 0008 1946     		mov	r1, r3
+ 505              	.LVL33:
+  96:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** void updateRegisterI2C(int deviceAddress, byte dataAddress, byte dataValue) {
+ 506              		.loc 2 96 0
+ 507 000a 1546     		mov	r5, r2
+ 508              		.loc 2 98 0
+ 509 000c FFF7FEFF 		bl	_ZN7TwoWire17beginTransmissionEi
+ 510              	.LVL34:
+  99:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.write(dataAddress);
+ 511              		.loc 2 99 0
+ 512 0010 2146     		mov	r1, r4
+ 513 0012 0648     		ldr	r0, .L35
+ 514 0014 FFF7FEFF 		bl	_ZN7TwoWire5writeEh
+ 100:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.write(dataValue);
+ 515              		.loc 2 100 0
+ 516 0018 0448     		ldr	r0, .L35
+ 517 001a 2946     		mov	r1, r5
+ 518 001c FFF7FEFF 		bl	_ZN7TwoWire5writeEh
+ 101:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.endTransmission();
+ 519              		.loc 2 101 0
+ 520 0020 0248     		ldr	r0, .L35
+ 102:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp **** }  
+ 521              		.loc 2 102 0
+ 522 0022 BDE83840 		pop	{r3, r4, r5, lr}
+ 101:/home/asim/AeroQuad/Libraries/AQ_I2C/Device_I2C.cpp ****   Wire.endTransmission();
+ 523              		.loc 2 101 0
+ 524 0026 FFF7FEBF 		b	_ZN7TwoWire15endTransmissionEv
+ 525              	.L36:
+ 526 002a 00BF     		.align	2
+ 527              	.L35:
+ 528 002c 00000000 		.word	Wire
+ 529              		.cfi_endproc
+ 530              	.LFE131:
+ 532              		.text
+ 533              	.Letext0:
+ 534              		.file 3 "../Libmaple/libmaple/libmaple/libmaple_types.h"
+ 535              		.file 4 "../Libmaple/libmaple/wirish/wirish.h"
+ 536              		.file 5 "../Libmaple/libmaple/libmaple/systick.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 Device_I2C.cpp
+     /tmp/cceYhf6I.s:20     .text._ZN7TwoWire4readEv.constprop.0:00000000 $t
+     /tmp/cceYhf6I.s:24     .text._ZN7TwoWire4readEv.constprop.0:00000000 _ZN7TwoWire4readEv.constprop.0
+     /tmp/cceYhf6I.s:39     .text._ZN7TwoWire4readEv.constprop.0:00000008 $d
+     /tmp/cceYhf6I.s:44     .text._ZN7TwoWire5writeEh:00000000 $t
+     /tmp/cceYhf6I.s:49     .text._ZN7TwoWire5writeEh:00000000 _ZN7TwoWire5writeEh
+     /tmp/cceYhf6I.s:65     .text._Z11sendByteI2Cih:00000000 $t
+     /tmp/cceYhf6I.s:70     .text._Z11sendByteI2Cih:00000000 _Z11sendByteI2Cih
+     /tmp/cceYhf6I.s:107    .text._Z11sendByteI2Cih:00000020 $d
+     /tmp/cceYhf6I.s:112    .text._Z11readByteI2Cv:00000000 $t
+     /tmp/cceYhf6I.s:117    .text._Z11readByteI2Cv:00000000 _Z11readByteI2Cv
+     /tmp/cceYhf6I.s:131    .text._Z11readByteI2Ci:00000000 $t
+     /tmp/cceYhf6I.s:136    .text._Z11readByteI2Ci:00000000 _Z11readByteI2Ci
+     /tmp/cceYhf6I.s:163    .text._Z11readByteI2Ci:00000014 $d
+     /tmp/cceYhf6I.s:168    .text._Z11readWordI2Ci:00000000 $t
+     /tmp/cceYhf6I.s:173    .text._Z11readWordI2Ci:00000000 _Z11readWordI2Ci
+     /tmp/cceYhf6I.s:203    .text._Z11readWordI2Ci:0000001c $d
+     /tmp/cceYhf6I.s:208    .text._Z11readWordI2Cv:00000000 $t
+     /tmp/cceYhf6I.s:213    .text._Z11readWordI2Cv:00000000 _Z11readWordI2Cv
+     /tmp/cceYhf6I.s:235    .text._Z12readShortI2Cv:00000000 $t
+     /tmp/cceYhf6I.s:240    .text._Z12readShortI2Cv:00000000 _Z12readShortI2Cv
+     /tmp/cceYhf6I.s:260    .text._Z12readShortI2Ci:00000000 $t
+     /tmp/cceYhf6I.s:265    .text._Z12readShortI2Ci:00000000 _Z12readShortI2Ci
+     /tmp/cceYhf6I.s:292    .text._Z12readShortI2Ci:00000014 $d
+     /tmp/cceYhf6I.s:297    .text._Z19readReverseShortI2Cv:00000000 $t
+     /tmp/cceYhf6I.s:302    .text._Z19readReverseShortI2Cv:00000000 _Z19readReverseShortI2Cv
+     /tmp/cceYhf6I.s:325    .text._Z15readWordWaitI2Ci:00000000 $t
+     /tmp/cceYhf6I.s:330    .text._Z15readWordWaitI2Ci:00000000 _Z15readWordWaitI2Ci
+     /tmp/cceYhf6I.s:377    .text._Z15readWordWaitI2Ci:00000030 $d
+     /tmp/cceYhf6I.s:382    .text._Z18readReverseWordI2Ci:00000000 $t
+     /tmp/cceYhf6I.s:387    .text._Z18readReverseWordI2Ci:00000000 _Z18readReverseWordI2Ci
+     /tmp/cceYhf6I.s:422    .text._Z18readReverseWordI2Ci:0000001c $d
+     /tmp/cceYhf6I.s:427    .text._Z10readWhoI2Ci:00000000 $t
+     /tmp/cceYhf6I.s:432    .text._Z10readWhoI2Ci:00000000 _Z10readWhoI2Ci
+     /tmp/cceYhf6I.s:474    .text._Z10readWhoI2Ci:00000034 $d
+     /tmp/cceYhf6I.s:479    .text._Z17updateRegisterI2Cihh:00000000 $t
+     /tmp/cceYhf6I.s:484    .text._Z17updateRegisterI2Cihh:00000000 _Z17updateRegisterI2Cihh
+     /tmp/cceYhf6I.s:528    .text._Z17updateRegisterI2Cihh:0000002c $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+_ZN7TwoWire7receiveEv
+Wire
+_ZN7TwoWire4sendEh
+_ZN7TwoWire17beginTransmissionEi
+_ZN7TwoWire15endTransmissionEv
+_ZN7TwoWire11requestFromEii
+_ZN7TwoWire9availableEv
+_Z5delaym

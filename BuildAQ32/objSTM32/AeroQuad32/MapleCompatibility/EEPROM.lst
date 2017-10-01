@@ -1,0 +1,2164 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 4
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"EEPROM.cpp"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text._ZN11EEPROMClass12EE_CheckPageEjt,"ax",%progbits
+  20              		.align	1
+  21              		.global	_ZN11EEPROMClass12EE_CheckPageEjt
+  22              		.thumb
+  23              		.thumb_func
+  25              	_ZN11EEPROMClass12EE_CheckPageEjt:
+  26              	.LFB114:
+  27              		.file 1 "/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp"
+   1:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** #include "wirish.h"
+   2:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** #include "EEPROM.h"
+   3:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+   4:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+   5:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Check page for blank
+   6:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  page base address
+   7:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error
+   8:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *		EEPROM_BAD_FLASH:	page not empty after erase
+   9:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *		EEPROM_OK:			page blank
+  10:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+  11:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::EE_CheckPage(uint32 pageBase, uint16 status)
+  12:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+  28              		.loc 1 12 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              	.LVL0:
+  33 0000 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 14, -4
+  37              		.cfi_offset 4, -8
+  38              	.LBB2:
+  13:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageEnd = pageBase + (uint32)PageSize;
+  14:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  15:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Page Status not EEPROM_ERASED and not a "state"
+  16:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if ((*(__io uint16*)pageBase) != EEPROM_ERASED && (*(__io uint16*)pageBase) != status)
+  39              		.loc 1 16 0
+  40 0002 0C88     		ldrh	r4, [r1, #0]
+  13:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageEnd = pageBase + (uint32)PageSize;
+  41              		.loc 1 13 0
+  42 0004 8368     		ldr	r3, [r0, #8]
+  43              		.loc 1 16 0
+  44 0006 A4B2     		uxth	r4, r4
+  45 0008 4FF6FF70 		movw	r0, #65535
+  46              	.LVL1:
+  47 000c 8442     		cmp	r4, r0
+  13:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageEnd = pageBase + (uint32)PageSize;
+  48              		.loc 1 13 0
+  49 000e 0B44     		add	r3, r1, r3
+  50              	.LVL2:
+  51              		.loc 1 16 0
+  52 0010 08D0     		beq	.L8
+  53              		.loc 1 16 0 is_stmt 0 discriminator 1
+  54 0012 0888     		ldrh	r0, [r1, #0]
+  55 0014 1FFA80FC 		uxth	ip, r0
+  56 0018 9445     		cmp	ip, r2
+  57 001a 08D1     		bne	.L6
+  58 001c 02E0     		b	.L8
+  59              	.LVL3:
+  60              	.L4:
+  17:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_BAD_FLASH;
+  18:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for(pageBase += 4; pageBase < pageEnd; pageBase += 4)
+  19:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if ((*(__io uint32*)pageBase) != 0xFFFFFFFF)	// Verify if slot is empty
+  61              		.loc 1 19 0 is_stmt 1
+  62 001e 0A68     		ldr	r2, [r1, #0]
+  63 0020 0132     		adds	r2, r2, #1
+  64 0022 06D1     		bne	.L7
+  65              	.L8:
+  18:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for(pageBase += 4; pageBase < pageEnd; pageBase += 4)
+  66              		.loc 1 18 0
+  67 0024 0431     		adds	r1, r1, #4
+  68              	.LVL4:
+  69 0026 9942     		cmp	r1, r3
+  70 0028 F9D3     		bcc	.L4
+  20:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return EEPROM_BAD_FLASH;
+  21:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EEPROM_OK;
+  71              		.loc 1 21 0
+  72 002a 0020     		movs	r0, #0
+  73 002c 10BD     		pop	{r4, pc}
+  74              	.LVL5:
+  75              	.L6:
+  17:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_BAD_FLASH;
+  76              		.loc 1 17 0
+  77 002e 8320     		movs	r0, #131
+  78 0030 10BD     		pop	{r4, pc}
+  79              	.LVL6:
+  80              	.L7:
+  20:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return EEPROM_BAD_FLASH;
+  81              		.loc 1 20 0
+  82 0032 8320     		movs	r0, #131
+  83              	.LBE2:
+  22:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+  84              		.loc 1 22 0
+  85 0034 10BD     		pop	{r4, pc}
+  86              		.cfi_endproc
+  87              	.LFE114:
+  89              		.section	.text._ZN11EEPROMClass12EE_ErasePageEj,"ax",%progbits
+  90              		.align	1
+  91              		.global	_ZN11EEPROMClass12EE_ErasePageEj
+  92              		.thumb
+  93              		.thumb_func
+  95              	_ZN11EEPROMClass12EE_ErasePageEj:
+  96              	.LFB115:
+  23:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  24:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+  25:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Erase page with increment erase counter (page + 2)
+  26:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  page base address
+  27:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error
+  28:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			FLASH_COMPLETE: success erase
+  29:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- Flash error code: on write Flash error
+  30:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+  31:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** FLASH_Status EEPROMClass::EE_ErasePage(uint32 pageBase)
+  32:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+  97              		.loc 1 32 0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 0
+ 100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 101              	.LVL7:
+ 102 0000 38B5     		push	{r3, r4, r5, lr}
+ 103              	.LCFI1:
+ 104              		.cfi_def_cfa_offset 16
+ 105              		.cfi_offset 14, -4
+ 106              		.cfi_offset 5, -8
+ 107              		.cfi_offset 4, -12
+ 108              		.cfi_offset 3, -16
+ 109              	.LBB3:
+  33:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Status FlashStatus;
+  34:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 data = (*(__io uint16*)(pageBase));
+ 110              		.loc 1 34 0
+ 111 0002 0B88     		ldrh	r3, [r1, #0]
+ 112 0004 9BB2     		uxth	r3, r3
+ 113              	.LVL8:
+  35:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if ((data == EEPROM_ERASED) || (data == EEPROM_VALID_PAGE) || (data == EEPROM_RECEIVE_DATA))
+ 114              		.loc 1 35 0
+ 115 0006 581E     		subs	r0, r3, #1
+ 116              	.LVL9:
+ 117              	.LBE3:
+  32:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 118              		.loc 1 32 0
+ 119 0008 0C46     		mov	r4, r1
+ 120              	.LBB4:
+ 121              		.loc 1 35 0
+ 122 000a 4FF6FD72 		movw	r2, #65533
+ 123 000e 81B2     		uxth	r1, r0
+ 124              	.LVL10:
+ 125 0010 9142     		cmp	r1, r2
+ 126 0012 03D8     		bhi	.L10
+ 127              		.loc 1 35 0 is_stmt 0 discriminator 1
+ 128 0014 4EF6EE65 		movw	r5, #61166
+ 129 0018 AB42     		cmp	r3, r5
+ 130 001a 03D1     		bne	.L13
+ 131              	.L10:
+  36:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		data = (*(__io uint16*)(pageBase + 2)) + 1;
+ 132              		.loc 1 36 0 is_stmt 1
+ 133 001c 6288     		ldrh	r2, [r4, #2]
+ 134 001e 511C     		adds	r1, r2, #1
+ 135 0020 8DB2     		uxth	r5, r1
+ 136              	.LVL11:
+ 137 0022 00E0     		b	.L11
+ 138              	.LVL12:
+ 139              	.L13:
+  37:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	else
+  38:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		data = 0;
+ 140              		.loc 1 38 0
+ 141 0024 0025     		movs	r5, #0
+ 142              	.LVL13:
+ 143              	.L11:
+  39:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  40:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FlashStatus = FLASH_ErasePage(pageBase);
+ 144              		.loc 1 40 0
+ 145 0026 2046     		mov	r0, r4
+ 146 0028 FFF7FEFF 		bl	FLASH_ErasePage
+ 147              	.LVL14:
+  41:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (FlashStatus == FLASH_COMPLETE)
+ 148              		.loc 1 41 0
+ 149 002c 0528     		cmp	r0, #5
+ 150 002e 05D1     		bne	.L12
+  42:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		FlashStatus = FLASH_ProgramHalfWord(pageBase + 2, data);
+ 151              		.loc 1 42 0
+ 152 0030 A01C     		adds	r0, r4, #2
+ 153              	.LVL15:
+ 154 0032 2946     		mov	r1, r5
+ 155              	.LBE4:
+  43:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  44:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return FlashStatus;
+  45:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 156              		.loc 1 45 0
+ 157 0034 BDE83840 		pop	{r3, r4, r5, lr}
+ 158              	.LBB5:
+  42:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		FlashStatus = FLASH_ProgramHalfWord(pageBase + 2, data);
+ 159              		.loc 1 42 0
+ 160 0038 FFF7FEBF 		b	FLASH_ProgramHalfWord
+ 161              	.LVL16:
+ 162              	.L12:
+ 163              	.LBE5:
+ 164              		.loc 1 45 0
+ 165 003c 38BD     		pop	{r3, r4, r5, pc}
+ 166              		.cfi_endproc
+ 167              	.LFE115:
+ 169              		.section	.text._ZN11EEPROMClass17EE_CheckErasePageEjt,"ax",%progbits
+ 170              		.align	1
+ 171              		.global	_ZN11EEPROMClass17EE_CheckErasePageEjt
+ 172              		.thumb
+ 173              		.thumb_func
+ 175              	_ZN11EEPROMClass17EE_CheckErasePageEjt:
+ 176              	.LFB116:
+  46:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  47:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+  48:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Check page for blank and erase it
+  49:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  page base address
+  50:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error
+  51:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- Flash error code: on write Flash error
+  52:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_BAD_FLASH:	page not empty after erase
+  53:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_OK:			page blank
+  54:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+  55:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::EE_CheckErasePage(uint32 pageBase, uint16 status)
+  56:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 177              		.loc 1 56 0
+ 178              		.cfi_startproc
+ 179              		@ args = 0, pretend = 0, frame = 0
+ 180              		@ frame_needed = 0, uses_anonymous_args = 0
+ 181              	.LVL17:
+ 182 0000 70B5     		push	{r4, r5, r6, lr}
+ 183              	.LCFI2:
+ 184              		.cfi_def_cfa_offset 16
+ 185              		.cfi_offset 14, -4
+ 186              		.cfi_offset 6, -8
+ 187              		.cfi_offset 5, -12
+ 188              		.cfi_offset 4, -16
+ 189              		.loc 1 56 0
+ 190 0002 0546     		mov	r5, r0
+ 191 0004 0C46     		mov	r4, r1
+ 192 0006 1646     		mov	r6, r2
+ 193              	.LBB6:
+  57:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 FlashStatus;
+  58:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (EE_CheckPage(pageBase, status) != EEPROM_OK)
+ 194              		.loc 1 58 0
+ 195 0008 FFF7FEFF 		bl	_ZN11EEPROMClass12EE_CheckPageEjt
+ 196              	.LVL18:
+ 197 000c 60B1     		cbz	r0, .L15
+  59:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	{
+  60:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		FlashStatus = EE_ErasePage(pageBase);
+ 198              		.loc 1 60 0
+ 199 000e 2846     		mov	r0, r5
+ 200 0010 2146     		mov	r1, r4
+ 201 0012 FFF7FEFF 		bl	_ZN11EEPROMClass12EE_ErasePageEj
+ 202              	.LVL19:
+  61:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (FlashStatus != FLASH_COMPLETE)
+ 203              		.loc 1 61 0
+ 204 0016 0528     		cmp	r0, #5
+ 205 0018 06D1     		bne	.L15
+  62:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return FlashStatus;
+  63:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EE_CheckPage(pageBase, status);
+ 206              		.loc 1 63 0
+ 207 001a 2846     		mov	r0, r5
+ 208              	.LVL20:
+ 209 001c 2146     		mov	r1, r4
+ 210 001e 3246     		mov	r2, r6
+ 211              	.LBE6:
+  64:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	}
+  65:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EEPROM_OK;
+  66:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 212              		.loc 1 66 0
+ 213 0020 BDE87040 		pop	{r4, r5, r6, lr}
+ 214              	.LBB7:
+  63:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EE_CheckPage(pageBase, status);
+ 215              		.loc 1 63 0
+ 216 0024 FFF7FEBF 		b	_ZN11EEPROMClass12EE_CheckPageEjt
+ 217              	.L15:
+ 218              	.LBE7:
+ 219              		.loc 1 66 0
+ 220 0028 70BD     		pop	{r4, r5, r6, pc}
+ 221              		.cfi_endproc
+ 222              	.LFE116:
+ 224              		.section	.text._ZN11EEPROMClass16EE_FindValidPageEv,"ax",%progbits
+ 225              		.align	1
+ 226              		.global	_ZN11EEPROMClass16EE_FindValidPageEv
+ 227              		.thumb
+ 228              		.thumb_func
+ 230              	_ZN11EEPROMClass16EE_FindValidPageEv:
+ 231              	.LFB117:
+  67:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  68:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+  69:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Find valid Page for write or read operation
+  70:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param	Page0: Page0 base address
+  71:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			Page1: Page1 base address
+  72:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Valid page address (PAGE0 or PAGE1) or NULL in case of no valid page was found
+  73:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+  74:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint32 EEPROMClass::EE_FindValidPage(void)
+  75:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 232              		.loc 1 75 0
+ 233              		.cfi_startproc
+ 234              		@ args = 0, pretend = 0, frame = 0
+ 235              		@ frame_needed = 0, uses_anonymous_args = 0
+ 236              	.LVL21:
+ 237              	.LBB8:
+  76:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status0 = (*(__io uint16*)PageBase0);		// Get Page0 actual status
+ 238              		.loc 1 76 0
+ 239 0000 0368     		ldr	r3, [r0, #0]
+  77:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status1 = (*(__io uint16*)PageBase1);		// Get Page1 actual status
+ 240              		.loc 1 77 0
+ 241 0002 4268     		ldr	r2, [r0, #4]
+  76:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status0 = (*(__io uint16*)PageBase0);		// Get Page0 actual status
+ 242              		.loc 1 76 0
+ 243 0004 1988     		ldrh	r1, [r3, #0]
+ 244              		.loc 1 77 0
+ 245 0006 1088     		ldrh	r0, [r2, #0]
+ 246              	.LVL22:
+  76:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status0 = (*(__io uint16*)PageBase0);		// Get Page0 actual status
+ 247              		.loc 1 76 0
+ 248 0008 89B2     		uxth	r1, r1
+ 249              	.LVL23:
+ 250              	.LBE8:
+  75:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 251              		.loc 1 75 0
+ 252 000a 10B5     		push	{r4, lr}
+ 253              	.LCFI3:
+ 254              		.cfi_def_cfa_offset 8
+ 255              		.cfi_offset 14, -4
+ 256              		.cfi_offset 4, -8
+ 257              	.LBB9:
+ 258              		.loc 1 77 0
+ 259 000c 80B2     		uxth	r0, r0
+ 260              	.LVL24:
+  78:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  79:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (status0 == EEPROM_VALID_PAGE && status1 == EEPROM_ERASED)
+ 261              		.loc 1 79 0
+ 262 000e 19B9     		cbnz	r1, .L18
+ 263              		.loc 1 79 0 is_stmt 0 discriminator 1
+ 264 0010 4FF6FF74 		movw	r4, #65535
+ 265 0014 A042     		cmp	r0, r4
+ 266 0016 07D0     		beq	.L20
+ 267              	.L18:
+  80:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return PageBase0;
+  81:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (status1 == EEPROM_VALID_PAGE && status0 == EEPROM_ERASED)
+ 268              		.loc 1 81 0 is_stmt 1
+ 269 0018 40B9     		cbnz	r0, .L21
+  82:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return PageBase1;
+  83:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  84:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return 0;
+ 270              		.loc 1 84 0 discriminator 1
+ 271 001a 4FF6FF73 		movw	r3, #65535
+ 272 001e 9942     		cmp	r1, r3
+ 273 0020 0CBF     		ite	eq
+ 274 0022 1046     		moveq	r0, r2
+ 275 0024 0020     		movne	r0, #0
+ 276              	.LVL25:
+ 277 0026 10BD     		pop	{r4, pc}
+ 278              	.LVL26:
+ 279              	.L20:
+  80:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return PageBase0;
+ 280              		.loc 1 80 0
+ 281 0028 1846     		mov	r0, r3
+ 282              	.LVL27:
+ 283 002a 10BD     		pop	{r4, pc}
+ 284              	.LVL28:
+ 285              	.L21:
+ 286              		.loc 1 84 0
+ 287 002c 0020     		movs	r0, #0
+ 288              	.LVL29:
+ 289              	.LBE9:
+  85:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 290              		.loc 1 85 0
+ 291 002e 10BD     		pop	{r4, pc}
+ 292              		.cfi_endproc
+ 293              	.LFE117:
+ 295              		.section	.text._ZN11EEPROMClass20EE_GetVariablesCountEjt,"ax",%progbits
+ 296              		.align	1
+ 297              		.global	_ZN11EEPROMClass20EE_GetVariablesCountEjt
+ 298              		.thumb
+ 299              		.thumb_func
+ 301              	_ZN11EEPROMClass20EE_GetVariablesCountEjt:
+ 302              	.LFB118:
+  86:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+  87:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+  88:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Calculate unique variables in EEPROM
+  89:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  start: address of first slot to check (page + 4)
+  90:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param	end: page end address
+  91:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param	address: 16 bit virtual address of the variable to excluse (or 0XFFFF)
+  92:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval count of variables
+  93:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+  94:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::EE_GetVariablesCount(uint32 pageBase, uint16 skipAddress)
+  95:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 303              		.loc 1 95 0
+ 304              		.cfi_startproc
+ 305              		@ args = 0, pretend = 0, frame = 0
+ 306              		@ frame_needed = 0, uses_anonymous_args = 0
+ 307              	.LVL30:
+ 308 0000 70B5     		push	{r4, r5, r6, lr}
+ 309              	.LCFI4:
+ 310              		.cfi_def_cfa_offset 16
+ 311              		.cfi_offset 14, -4
+ 312              		.cfi_offset 6, -8
+ 313              		.cfi_offset 5, -12
+ 314              		.cfi_offset 4, -16
+ 315              	.LBB10:
+  96:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 varAddress, nextAddress;
+  97:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 idx;
+  98:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageEnd = pageBase + (uint32)PageSize;
+ 316              		.loc 1 98 0
+ 317 0002 8568     		ldr	r5, [r0, #8]
+  99:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 count = 0;
+ 318              		.loc 1 99 0
+ 319 0004 0020     		movs	r0, #0
+ 320              	.LVL31:
+  98:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageEnd = pageBase + (uint32)PageSize;
+ 321              		.loc 1 98 0
+ 322 0006 4D19     		adds	r5, r1, r5
+ 323              	.LVL32:
+ 100:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 101:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (pageBase += 6; pageBase < pageEnd; pageBase += 4)
+ 324              		.loc 1 101 0
+ 325 0008 0631     		adds	r1, r1, #6
+ 326              	.LVL33:
+ 327 000a 13E0     		b	.L23
+ 328              	.LVL34:
+ 329              	.L27:
+ 102:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	{
+ 103:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		varAddress = (*(__io uint16*)pageBase);
+ 330              		.loc 1 103 0
+ 331 000c 0C88     		ldrh	r4, [r1, #0]
+ 104:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (varAddress == 0xFFFF || varAddress == skipAddress)
+ 332              		.loc 1 104 0
+ 333 000e 4FF6FF73 		movw	r3, #65535
+ 103:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		varAddress = (*(__io uint16*)pageBase);
+ 334              		.loc 1 103 0
+ 335 0012 A4B2     		uxth	r4, r4
+ 336              	.LVL35:
+ 337              		.loc 1 104 0
+ 338 0014 9C42     		cmp	r4, r3
+ 339 0016 0CD0     		beq	.L24
+ 340              		.loc 1 104 0 is_stmt 0 discriminator 1
+ 341 0018 9442     		cmp	r4, r2
+ 342 001a 0AD0     		beq	.L24
+ 343              	.LVL36:
+ 105:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			continue;
+ 106:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 107:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		count++;
+ 108:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		for(idx = pageBase + 4; idx < pageEnd; idx += 4)
+ 344              		.loc 1 108 0 is_stmt 1
+ 345 001c 0B1D     		adds	r3, r1, #4
+ 346              	.LVL37:
+ 347 001e 04E0     		b	.L25
+ 348              	.L26:
+ 109:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{
+ 110:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			nextAddress = (*(__io uint16*)idx);
+ 349              		.loc 1 110 0
+ 350 0020 1E88     		ldrh	r6, [r3, #0]
+ 351 0022 B6B2     		uxth	r6, r6
+ 352              	.LVL38:
+ 111:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (nextAddress == varAddress)
+ 353              		.loc 1 111 0
+ 354 0024 A642     		cmp	r6, r4
+ 355 0026 04D0     		beq	.L24
+ 108:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		for(idx = pageBase + 4; idx < pageEnd; idx += 4)
+ 356              		.loc 1 108 0
+ 357 0028 0433     		adds	r3, r3, #4
+ 358              	.LVL39:
+ 359              	.L25:
+ 108:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		for(idx = pageBase + 4; idx < pageEnd; idx += 4)
+ 360              		.loc 1 108 0 is_stmt 0 discriminator 1
+ 361 002a AB42     		cmp	r3, r5
+ 362 002c F8D3     		bcc	.L26
+ 107:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		count++;
+ 363              		.loc 1 107 0 is_stmt 1
+ 364 002e 0130     		adds	r0, r0, #1
+ 365              	.LVL40:
+ 366 0030 80B2     		uxth	r0, r0
+ 367              	.LVL41:
+ 368              	.L24:
+ 101:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (pageBase += 6; pageBase < pageEnd; pageBase += 4)
+ 369              		.loc 1 101 0
+ 370 0032 0431     		adds	r1, r1, #4
+ 371              	.LVL42:
+ 372              	.L23:
+ 101:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (pageBase += 6; pageBase < pageEnd; pageBase += 4)
+ 373              		.loc 1 101 0 is_stmt 0 discriminator 1
+ 374 0034 A942     		cmp	r1, r5
+ 375 0036 E9D3     		bcc	.L27
+ 376              	.LBE10:
+ 112:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			{
+ 113:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				count--;
+ 114:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				break;
+ 115:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			}
+ 116:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 117:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	}
+ 118:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return count;
+ 119:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 377              		.loc 1 119 0 is_stmt 1
+ 378 0038 70BD     		pop	{r4, r5, r6, pc}
+ 379              		.cfi_endproc
+ 380              	.LFE118:
+ 382              		.section	.text._ZN11EEPROMClass15EE_PageTransferEjjt,"ax",%progbits
+ 383              		.align	1
+ 384              		.global	_ZN11EEPROMClass15EE_PageTransferEjjt
+ 385              		.thumb
+ 386              		.thumb_func
+ 388              	_ZN11EEPROMClass15EE_PageTransferEjjt:
+ 389              	.LFB119:
+ 120:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 121:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 122:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Transfers last updated variables data from the full Page to an empty one.
+ 123:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  newPage: new page base address
+ 124:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param	oldPage: old page base address
+ 125:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *	@param	SkipAddress: 16 bit virtual address of the variable (or 0xFFFF)
+ 126:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error status:
+ 127:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - FLASH_COMPLETE: on success
+ 128:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - EEPROM_OUT_SIZE: if valid new page is full
+ 129:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - Flash error code: on write Flash error
+ 130:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 131:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::EE_PageTransfer(uint32 newPage, uint32 oldPage, uint16 SkipAddress)
+ 132:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 390              		.loc 1 132 0
+ 391              		.cfi_startproc
+ 392              		@ args = 0, pretend = 0, frame = 8
+ 393              		@ frame_needed = 0, uses_anonymous_args = 0
+ 394              	.LVL43:
+ 395 0000 2DE9F74F 		push	{r0, r1, r2, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 396              	.LCFI5:
+ 397              		.cfi_def_cfa_offset 48
+ 398              		.cfi_offset 14, -4
+ 399              		.cfi_offset 11, -8
+ 400              		.cfi_offset 10, -12
+ 401              		.cfi_offset 9, -16
+ 402              		.cfi_offset 8, -20
+ 403              		.cfi_offset 7, -24
+ 404              		.cfi_offset 6, -28
+ 405              		.cfi_offset 5, -32
+ 406              		.cfi_offset 4, -36
+ 407              		.cfi_offset 2, -40
+ 408              		.cfi_offset 1, -44
+ 409              		.cfi_offset 0, -48
+ 410              		.loc 1 132 0
+ 411 0004 9B46     		mov	fp, r3
+ 412              	.LBB11:
+ 133:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 oldEnd, newEnd;
+ 134:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 oldIdx, newIdx, idx;
+ 135:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 address, data, found;
+ 136:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Status FlashStatus;
+ 137:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 138:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Transfer process: transfer variables from old to the new active page
+ 139:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	newEnd = newPage + ((uint32)PageSize);
+ 413              		.loc 1 139 0
+ 414 0006 8368     		ldr	r3, [r0, #8]
+ 415              	.LVL44:
+ 416              	.LBE11:
+ 132:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 417              		.loc 1 132 0
+ 418 0008 0546     		mov	r5, r0
+ 419 000a 0C46     		mov	r4, r1
+ 420 000c 1646     		mov	r6, r2
+ 421              	.LBB12:
+ 422              		.loc 1 139 0
+ 423 000e 01EB030A 		add	sl, r1, r3
+ 424              	.LVL45:
+ 140:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 141:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Find first free element in new page
+ 142:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (newIdx = newPage + 4; newIdx < newEnd; newIdx += 4)
+ 425              		.loc 1 142 0
+ 426 0012 0F1D     		adds	r7, r1, #4
+ 427              	.LVL46:
+ 428 0014 03E0     		b	.L29
+ 429              	.LVL47:
+ 430              	.L31:
+ 143:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if ((*(__io uint32*)newIdx) == 0xFFFFFFFF)	// Verify if element
+ 431              		.loc 1 143 0
+ 432 0016 3A68     		ldr	r2, [r7, #0]
+ 433 0018 0132     		adds	r2, r2, #1
+ 434 001a 03D0     		beq	.L30
+ 142:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (newIdx = newPage + 4; newIdx < newEnd; newIdx += 4)
+ 435              		.loc 1 142 0
+ 436 001c 0437     		adds	r7, r7, #4
+ 437              	.LVL48:
+ 438              	.L29:
+ 142:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (newIdx = newPage + 4; newIdx < newEnd; newIdx += 4)
+ 439              		.loc 1 142 0 is_stmt 0 discriminator 1
+ 440 001e 5745     		cmp	r7, sl
+ 441 0020 F9D3     		bcc	.L31
+ 442 0022 44E0     		b	.L43
+ 443              	.L30:
+ 144:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			break;									//  contents are 0xFFFFFFFF
+ 145:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (newIdx >= newEnd)
+ 146:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_OUT_SIZE;
+ 147:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 148:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	oldEnd = oldPage + 4;
+ 444              		.loc 1 148 0 is_stmt 1
+ 445 0024 301D     		adds	r0, r6, #4
+ 446              	.LVL49:
+ 149:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	oldIdx = oldPage + (uint32)(PageSize - 2);
+ 447              		.loc 1 149 0
+ 448 0026 A3F10208 		sub	r8, r3, #2
+ 148:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	oldEnd = oldPage + 4;
+ 449              		.loc 1 148 0
+ 450 002a 0190     		str	r0, [sp, #4]
+ 451              	.LVL50:
+ 452              		.loc 1 149 0
+ 453 002c B044     		add	r8, r8, r6
+ 454              	.LVL51:
+ 150:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 151:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (; oldIdx > oldEnd; oldIdx -= 4)
+ 455              		.loc 1 151 0
+ 456 002e 27E0     		b	.L33
+ 457              	.LVL52:
+ 458              	.L40:
+ 152:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	{
+ 153:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		address = *(__io uint16*)oldIdx;
+ 459              		.loc 1 153 0
+ 460 0030 B8F80010 		ldrh	r1, [r8, #0]
+ 154:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (address == 0xFFFF || address == SkipAddress)
+ 461              		.loc 1 154 0
+ 462 0034 4FF6FF73 		movw	r3, #65535
+ 153:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		address = *(__io uint16*)oldIdx;
+ 463              		.loc 1 153 0
+ 464 0038 1FFA81F9 		uxth	r9, r1
+ 465              	.LVL53:
+ 466              		.loc 1 154 0
+ 467 003c 9945     		cmp	r9, r3
+ 468 003e 1DD0     		beq	.L34
+ 469              		.loc 1 154 0 is_stmt 0 discriminator 1
+ 470 0040 D945     		cmp	r9, fp
+ 471 0042 1BD0     		beq	.L34
+ 472              	.LVL54:
+ 155:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			continue;						// it's means that power off after write data
+ 156:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 157:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		found = 0;
+ 158:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		for (idx = newPage + 6; idx < newIdx; idx += 4)
+ 473              		.loc 1 158 0 is_stmt 1
+ 474 0044 A31D     		adds	r3, r4, #6
+ 475              	.LVL55:
+ 476 0046 05E0     		b	.L35
+ 477              	.L36:
+ 159:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if ((*(__io uint16*)(idx)) == address)
+ 478              		.loc 1 159 0
+ 479 0048 1A88     		ldrh	r2, [r3, #0]
+ 480 004a 1FFA82FC 		uxth	ip, r2
+ 481 004e CC45     		cmp	ip, r9
+ 482 0050 14D0     		beq	.L34
+ 158:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		for (idx = newPage + 6; idx < newIdx; idx += 4)
+ 483              		.loc 1 158 0
+ 484 0052 0433     		adds	r3, r3, #4
+ 485              	.LVL56:
+ 486              	.L35:
+ 158:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		for (idx = newPage + 6; idx < newIdx; idx += 4)
+ 487              		.loc 1 158 0 is_stmt 0 discriminator 1
+ 488 0054 BB42     		cmp	r3, r7
+ 489 0056 F7D3     		bcc	.L36
+ 490 0058 27E0     		b	.L45
+ 491              	.L41:
+ 160:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			{
+ 161:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				found = 1;
+ 162:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				break;
+ 163:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			}
+ 164:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 165:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (found)
+ 166:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			continue;
+ 167:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 168:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (newIdx < newEnd)
+ 169:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{
+ 170:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			data = (*(__io uint16*)(oldIdx - 2));
+ 492              		.loc 1 170 0 is_stmt 1
+ 493 005a 38F8023C 		ldrh	r3, [r8, #-2]
+ 494              	.LVL57:
+ 171:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 172:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(newIdx, data);
+ 495              		.loc 1 172 0
+ 496 005e 3846     		mov	r0, r7
+ 497 0060 99B2     		uxth	r1, r3
+ 498 0062 FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 499              	.LVL58:
+ 173:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 500              		.loc 1 173 0
+ 501 0066 0528     		cmp	r0, #5
+ 502 0068 05D1     		bne	.L44
+ 503              	.L38:
+ 174:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				return FlashStatus;
+ 175:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 176:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(newIdx + 2, address);
+ 504              		.loc 1 176 0
+ 505 006a B81C     		adds	r0, r7, #2
+ 506              	.LVL59:
+ 507 006c 4946     		mov	r1, r9
+ 508 006e FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 509              	.LVL60:
+ 177:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 510              		.loc 1 177 0
+ 511 0072 0528     		cmp	r0, #5
+ 512 0074 01D0     		beq	.L39
+ 513              	.LVL61:
+ 514              	.L44:
+ 178:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				return FlashStatus;
+ 515              		.loc 1 178 0
+ 516 0076 0546     		mov	r5, r0
+ 517              	.LVL62:
+ 518 0078 14E0     		b	.L32
+ 519              	.LVL63:
+ 520              	.L39:
+ 179:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 180:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			newIdx += 4;
+ 521              		.loc 1 180 0
+ 522 007a 0437     		adds	r7, r7, #4
+ 523              	.LVL64:
+ 524              	.L34:
+ 151:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (; oldIdx > oldEnd; oldIdx -= 4)
+ 525              		.loc 1 151 0
+ 526 007c A8F10408 		sub	r8, r8, #4
+ 527              	.LVL65:
+ 528              	.L33:
+ 151:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (; oldIdx > oldEnd; oldIdx -= 4)
+ 529              		.loc 1 151 0 is_stmt 0 discriminator 1
+ 530 0080 0198     		ldr	r0, [sp, #4]
+ 531 0082 8045     		cmp	r8, r0
+ 532 0084 D4D8     		bhi	.L40
+ 181:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 182:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else
+ 183:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return EEPROM_OUT_SIZE;
+ 184:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	}
+ 185:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 186:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Erase the old Page: Set old Page status to EEPROM_EEPROM_ERASED status
+ 187:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	data = EE_CheckErasePage(oldPage, EEPROM_ERASED);
+ 533              		.loc 1 187 0 is_stmt 1
+ 534 0086 2846     		mov	r0, r5
+ 535 0088 3146     		mov	r1, r6
+ 536 008a 4FF6FF72 		movw	r2, #65535
+ 537 008e FFF7FEFF 		bl	_ZN11EEPROMClass17EE_CheckErasePageEjt
+ 538              	.LVL66:
+ 188:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (data != EEPROM_OK)
+ 539              		.loc 1 188 0
+ 540 0092 0546     		mov	r5, r0
+ 541              	.LVL67:
+ 542 0094 30B9     		cbnz	r0, .L32
+ 189:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return data;
+ 190:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 191:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Set new Page status
+ 192:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FlashStatus = FLASH_ProgramHalfWord(newPage, EEPROM_VALID_PAGE);
+ 543              		.loc 1 192 0
+ 544 0096 2946     		mov	r1, r5
+ 545 0098 2046     		mov	r0, r4
+ 546              	.LVL68:
+ 547 009a FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 548              	.LVL69:
+ 193:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (FlashStatus != FLASH_COMPLETE)
+ 194:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return FlashStatus;
+ 549              		.loc 1 194 0
+ 550 009e 0528     		cmp	r0, #5
+ 551 00a0 18BF     		it	ne
+ 552 00a2 0546     		movne	r5, r0
+ 553              	.LVL70:
+ 554              	.L32:
+ 555              	.LBE12:
+ 195:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 196:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EEPROM_OK;
+ 197:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 556              		.loc 1 197 0
+ 557 00a4 2846     		mov	r0, r5
+ 558 00a6 BDE8FE8F 		pop	{r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 559              	.LVL71:
+ 560              	.L45:
+ 561              	.LBB13:
+ 168:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (newIdx < newEnd)
+ 562              		.loc 1 168 0
+ 563 00aa 5745     		cmp	r7, sl
+ 564 00ac D5D3     		bcc	.L41
+ 565              	.LVL72:
+ 566              	.L43:
+ 183:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return EEPROM_OUT_SIZE;
+ 567              		.loc 1 183 0
+ 568 00ae 8125     		movs	r5, #129
+ 569              	.LVL73:
+ 570 00b0 F8E7     		b	.L32
+ 571              	.LBE13:
+ 572              		.cfi_endproc
+ 573              	.LFE119:
+ 575              		.section	.text._ZN11EEPROMClass30EE_VerifyPageFullWriteVariableEtt,"ax",%progbits
+ 576              		.align	1
+ 577              		.global	_ZN11EEPROMClass30EE_VerifyPageFullWriteVariableEtt
+ 578              		.thumb
+ 579              		.thumb_func
+ 581              	_ZN11EEPROMClass30EE_VerifyPageFullWriteVariableEtt:
+ 582              	.LFB120:
+ 198:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 199:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 200:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Verify if active page is full and Writes variable in EEPROM.
+ 201:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  Address: 16 bit virtual address of the variable
+ 202:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  Data: 16 bit data to be written as variable value
+ 203:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error status:
+ 204:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - FLASH_COMPLETE: on success
+ 205:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - EEPROM_PAGE_FULL: if valid page is full (need page transfer)
+ 206:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - EEPROM_NO_VALID_PAGE: if no valid page was found
+ 207:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - EEPROM_OUT_SIZE: if EEPROM size exceeded
+ 208:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - Flash error code: on write Flash error
+ 209:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 210:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::EE_VerifyPageFullWriteVariable(uint16 Address, uint16 Data)
+ 211:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 583              		.loc 1 211 0
+ 584              		.cfi_startproc
+ 585              		@ args = 0, pretend = 0, frame = 0
+ 586              		@ frame_needed = 0, uses_anonymous_args = 0
+ 587              	.LVL74:
+ 588 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, sl, lr}
+ 589              	.LCFI6:
+ 590              		.cfi_def_cfa_offset 32
+ 591              		.cfi_offset 14, -4
+ 592              		.cfi_offset 10, -8
+ 593              		.cfi_offset 9, -12
+ 594              		.cfi_offset 8, -16
+ 595              		.cfi_offset 7, -20
+ 596              		.cfi_offset 6, -24
+ 597              		.cfi_offset 5, -28
+ 598              		.cfi_offset 4, -32
+ 599              		.loc 1 211 0
+ 600 0004 0546     		mov	r5, r0
+ 601 0006 0E46     		mov	r6, r1
+ 602 0008 1746     		mov	r7, r2
+ 603              	.LBB14:
+ 212:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Status FlashStatus;
+ 213:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 idx, pageBase, pageEnd, newPage;
+ 214:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 count;
+ 215:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 216:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Get valid Page for write operation
+ 217:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	pageBase = EE_FindValidPage();
+ 604              		.loc 1 217 0
+ 605 000a FFF7FEFF 		bl	_ZN11EEPROMClass16EE_FindValidPageEv
+ 606              	.LVL75:
+ 218:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (pageBase == 0)
+ 607              		.loc 1 218 0
+ 608 000e 0446     		mov	r4, r0
+ 609 0010 0028     		cmp	r0, #0
+ 610 0012 66D0     		beq	.L60
+ 219:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return  EEPROM_NO_VALID_PAGE;
+ 220:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 221:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Get the valid Page end Address
+ 222:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	pageEnd = pageBase + PageSize;			// Set end of page
+ 611              		.loc 1 222 0
+ 612 0014 AB68     		ldr	r3, [r5, #8]
+ 613 0016 00EB0309 		add	r9, r0, r3
+ 614              	.LVL76:
+ 223:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 224:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (idx = pageEnd - 2; idx > pageBase; idx -= 4)
+ 615              		.loc 1 224 0
+ 616 001a A9F10203 		sub	r3, r9, #2
+ 617              	.LVL77:
+ 618 001e 14E0     		b	.L48
+ 619              	.LVL78:
+ 620              	.L51:
+ 225:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	{
+ 226:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if ((*(__io uint16*)idx) == Address)		// Find last value for address
+ 621              		.loc 1 226 0
+ 622 0020 1888     		ldrh	r0, [r3, #0]
+ 623 0022 82B2     		uxth	r2, r0
+ 624 0024 B242     		cmp	r2, r6
+ 625 0026 0FD1     		bne	.L49
+ 227:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{
+ 228:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			count = (*(__io uint16*)(idx - 2));	// Read last data
+ 626              		.loc 1 228 0
+ 627 0028 33F8021C 		ldrh	r1, [r3, #-2]
+ 628 002c 981E     		subs	r0, r3, #2
+ 629 002e 8BB2     		uxth	r3, r1
+ 630              	.LVL79:
+ 229:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (count == Data)
+ 631              		.loc 1 229 0
+ 632 0030 BB42     		cmp	r3, r7
+ 633 0032 59D0     		beq	.L62
+ 230:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				return EEPROM_OK;
+ 231:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (count == 0xFFFF)
+ 634              		.loc 1 231 0
+ 635 0034 4FF6FF7C 		movw	ip, #65535
+ 636 0038 6345     		cmp	r3, ip
+ 637 003a 08D1     		bne	.L50
+ 232:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			{
+ 233:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				FlashStatus = FLASH_ProgramHalfWord(idx - 2, Data);	// Set variable data
+ 638              		.loc 1 233 0
+ 639 003c 3946     		mov	r1, r7
+ 640 003e FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 641              	.LVL80:
+ 234:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				if (FlashStatus == FLASH_COMPLETE)
+ 642              		.loc 1 234 0
+ 643 0042 0528     		cmp	r0, #5
+ 644 0044 03D1     		bne	.L50
+ 645 0046 4FE0     		b	.L62
+ 646              	.LVL81:
+ 647              	.L49:
+ 224:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (idx = pageEnd - 2; idx > pageBase; idx -= 4)
+ 648              		.loc 1 224 0
+ 649 0048 043B     		subs	r3, r3, #4
+ 650              	.LVL82:
+ 651              	.L48:
+ 224:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (idx = pageEnd - 2; idx > pageBase; idx -= 4)
+ 652              		.loc 1 224 0 is_stmt 0 discriminator 1
+ 653 004a A342     		cmp	r3, r4
+ 654 004c E8D8     		bhi	.L51
+ 655              	.LVL83:
+ 656              	.L50:
+ 235:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 					return EEPROM_OK;
+ 236:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			}
+ 237:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			break;
+ 238:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 239:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	}
+ 240:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 241:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Check each active page address starting from begining
+ 242:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (idx = pageBase + 4; idx < pageEnd; idx += 4)
+ 657              		.loc 1 242 0 is_stmt 1
+ 658 004e 04F10408 		add	r8, r4, #4
+ 659              	.LVL84:
+ 660 0052 15E0     		b	.L52
+ 661              	.L55:
+ 243:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if ((*(__io uint32*)idx) == 0xFFFFFFFF)				// Verify if element 
+ 662              		.loc 1 243 0
+ 663 0054 D8F80030 		ldr	r3, [r8, #0]
+ 664 0058 0133     		adds	r3, r3, #1
+ 665 005a 0FD1     		bne	.L53
+ 244:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{													//  contents are 0xFFFFFFFF
+ 245:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(idx, Data);	// Set variable data
+ 666              		.loc 1 245 0
+ 667 005c 4046     		mov	r0, r8
+ 668 005e 3946     		mov	r1, r7
+ 669 0060 FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 670              	.LVL85:
+ 246:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 671              		.loc 1 246 0
+ 672 0064 0528     		cmp	r0, #5
+ 673 0066 43D1     		bne	.L47
+ 247:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				return FlashStatus;
+ 248:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(idx + 2, Address);	// Set variable virtual address
+ 674              		.loc 1 248 0
+ 675 0068 08F10200 		add	r0, r8, #2
+ 676              	.LVL86:
+ 677 006c 3146     		mov	r1, r6
+ 678 006e FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 679              	.LVL87:
+ 249:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 250:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				return FlashStatus;
+ 680              		.loc 1 250 0
+ 681 0072 0528     		cmp	r0, #5
+ 682 0074 08BF     		it	eq
+ 683 0076 0020     		moveq	r0, #0
+ 684              	.LVL88:
+ 685 0078 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, sl, pc}
+ 686              	.L53:
+ 242:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (idx = pageBase + 4; idx < pageEnd; idx += 4)
+ 687              		.loc 1 242 0
+ 688 007c 08F10408 		add	r8, r8, #4
+ 689              	.LVL89:
+ 690              	.L52:
+ 242:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (idx = pageBase + 4; idx < pageEnd; idx += 4)
+ 691              		.loc 1 242 0 is_stmt 0 discriminator 1
+ 692 0080 C845     		cmp	r8, r9
+ 693 0082 E7D3     		bcc	.L55
+ 251:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return EEPROM_OK;
+ 252:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 253:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 254:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Empty slot not found, need page transfer
+ 255:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Calculate unique variables in page
+ 256:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	count = EE_GetVariablesCount(pageBase, Address) + 1;
+ 694              		.loc 1 256 0 is_stmt 1
+ 695 0084 2146     		mov	r1, r4
+ 696 0086 3246     		mov	r2, r6
+ 697 0088 2846     		mov	r0, r5
+ 698 008a FFF7FEFF 		bl	_ZN11EEPROMClass20EE_GetVariablesCountEjt
+ 699              	.LVL90:
+ 257:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (count >= (PageSize / 4 - 1))
+ 700              		.loc 1 257 0
+ 701 008e AB68     		ldr	r3, [r5, #8]
+ 256:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	count = EE_GetVariablesCount(pageBase, Address) + 1;
+ 702              		.loc 1 256 0
+ 703 0090 421C     		adds	r2, r0, #1
+ 704              		.loc 1 257 0
+ 705 0092 9908     		lsrs	r1, r3, #2
+ 706 0094 92B2     		uxth	r2, r2
+ 707 0096 481E     		subs	r0, r1, #1
+ 708              	.LVL91:
+ 709 0098 8242     		cmp	r2, r0
+ 710 009a 28D2     		bcs	.L64
+ 258:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_OUT_SIZE;
+ 259:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 260:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (pageBase == PageBase1)
+ 711              		.loc 1 260 0
+ 712 009c D5F80480 		ldr	r8, [r5, #4]
+ 713              	.LVL92:
+ 714 00a0 4445     		cmp	r4, r8
+ 261:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		newPage = PageBase0;		// New page address where variable will be moved to
+ 715              		.loc 1 261 0
+ 716 00a2 08BF     		it	eq
+ 717 00a4 D5F80080 		ldreq	r8, [r5, #0]
+ 718              	.LVL93:
+ 262:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	else
+ 263:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		newPage = PageBase1;
+ 264:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 265:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Set the new Page status to RECEIVE_DATA status
+ 266:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FlashStatus = FLASH_ProgramHalfWord(newPage, EEPROM_RECEIVE_DATA);
+ 719              		.loc 1 266 0
+ 720 00a8 4EF6EE61 		movw	r1, #61166
+ 721 00ac 4046     		mov	r0, r8
+ 722 00ae FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 723              	.LVL94:
+ 267:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (FlashStatus != FLASH_COMPLETE)
+ 724              		.loc 1 267 0
+ 725 00b2 0528     		cmp	r0, #5
+ 726 00b4 1CD1     		bne	.L47
+ 268:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return FlashStatus;
+ 269:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 270:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Write the variable passed as parameter in the new active page
+ 271:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FlashStatus = FLASH_ProgramHalfWord(newPage + 4, Data);
+ 727              		.loc 1 271 0
+ 728 00b6 08F10400 		add	r0, r8, #4
+ 729              	.LVL95:
+ 730 00ba 3946     		mov	r1, r7
+ 731 00bc FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 732              	.LVL96:
+ 272:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (FlashStatus != FLASH_COMPLETE)
+ 733              		.loc 1 272 0
+ 734 00c0 0528     		cmp	r0, #5
+ 735 00c2 15D1     		bne	.L47
+ 273:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return FlashStatus;
+ 274:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 275:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FlashStatus = FLASH_ProgramHalfWord(newPage + 6, Address);
+ 736              		.loc 1 275 0
+ 737 00c4 08F10600 		add	r0, r8, #6
+ 738              	.LVL97:
+ 739 00c8 3146     		mov	r1, r6
+ 740 00ca FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 741              	.LVL98:
+ 276:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (FlashStatus != FLASH_COMPLETE)
+ 742              		.loc 1 276 0
+ 743 00ce 0528     		cmp	r0, #5
+ 744 00d0 0ED1     		bne	.L47
+ 277:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return FlashStatus;
+ 278:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 279:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EE_PageTransfer(newPage, pageBase, Address);
+ 745              		.loc 1 279 0
+ 746 00d2 2846     		mov	r0, r5
+ 747              	.LVL99:
+ 748 00d4 4146     		mov	r1, r8
+ 749 00d6 2246     		mov	r2, r4
+ 750 00d8 3346     		mov	r3, r6
+ 751              	.LBE14:
+ 280:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 752              		.loc 1 280 0
+ 753 00da BDE8F047 		pop	{r4, r5, r6, r7, r8, r9, sl, lr}
+ 754              	.LBB15:
+ 279:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EE_PageTransfer(newPage, pageBase, Address);
+ 755              		.loc 1 279 0
+ 756 00de FFF7FEBF 		b	_ZN11EEPROMClass15EE_PageTransferEjjt
+ 757              	.LVL100:
+ 758              	.L60:
+ 219:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return  EEPROM_NO_VALID_PAGE;
+ 759              		.loc 1 219 0
+ 760 00e2 AB20     		movs	r0, #171
+ 761 00e4 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, sl, pc}
+ 762              	.LVL101:
+ 763              	.L62:
+ 235:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 					return EEPROM_OK;
+ 764              		.loc 1 235 0
+ 765 00e8 0020     		movs	r0, #0
+ 766 00ea BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, sl, pc}
+ 767              	.LVL102:
+ 768              	.L64:
+ 258:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_OUT_SIZE;
+ 769              		.loc 1 258 0
+ 770 00ee 8120     		movs	r0, #129
+ 771              	.LVL103:
+ 772              	.L47:
+ 773              	.LBE15:
+ 774              		.loc 1 280 0
+ 775 00f0 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, sl, pc}
+ 776              		.cfi_endproc
+ 777              	.LFE120:
+ 779              		.section	.text._ZN11EEPROMClassC2Ev,"ax",%progbits
+ 780              		.align	1
+ 781              		.global	_ZN11EEPROMClassC2Ev
+ 782              		.thumb
+ 783              		.thumb_func
+ 785              	_ZN11EEPROMClassC2Ev:
+ 786              	.LFB122:
+ 281:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 282:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** EEPROMClass::EEPROMClass(void)
+ 787              		.loc 1 282 0
+ 788              		.cfi_startproc
+ 789              		@ args = 0, pretend = 0, frame = 0
+ 790              		@ frame_needed = 0, uses_anonymous_args = 0
+ 791              		@ link register save eliminated.
+ 792              	.LVL104:
+ 793              	.LBB16:
+ 283:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 284:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	PageBase0 = EEPROM_PAGE0_BASE;
+ 285:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	PageBase1 = EEPROM_PAGE1_BASE;
+ 286:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	PageSize = EEPROM_PAGE_SIZE;
+ 794              		.loc 1 286 0
+ 795 0000 0449     		ldr	r1, .L67
+ 796 0002 054A     		ldr	r2, .L67+4
+ 797 0004 4FF4804C 		mov	ip, #16384
+ 798 0008 80E80610 		stmia	r0, {r1, r2, ip}
+ 287:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	Status = EEPROM_NOT_INIT;
+ 799              		.loc 1 287 0
+ 800 000c 8422     		movs	r2, #132
+ 801 000e 8281     		strh	r2, [r0, #12]	@ movhi
+ 802              	.LBE16:
+ 288:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 803              		.loc 1 288 0
+ 804 0010 7047     		bx	lr
+ 805              	.L68:
+ 806 0012 00BF     		.align	2
+ 807              	.L67:
+ 808 0014 00800008 		.word	134250496
+ 809 0018 00C00008 		.word	134266880
+ 810              		.cfi_endproc
+ 811              	.LFE122:
+ 813              		.section	.text._ZN11EEPROMClass6formatEv,"ax",%progbits
+ 814              		.align	1
+ 815              		.global	_ZN11EEPROMClass6formatEv
+ 816              		.thumb
+ 817              		.thumb_func
+ 819              	_ZN11EEPROMClass6formatEv:
+ 820              	.LFB126:
+ 289:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 290:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::init(uint32 pageBase0, uint32 pageBase1, uint32 pageSize)
+ 291:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 292:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	PageBase0 = pageBase0;
+ 293:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	PageBase1 = pageBase1;
+ 294:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	PageSize = pageSize;
+ 295:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return init();
+ 296:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 297:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 298:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::init(void)
+ 299:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 300:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status0, status1;
+ 301:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Status FlashStatus;
+ 302:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 303:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Unlock();
+ 304:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	Status = EEPROM_NO_VALID_PAGE;
+ 305:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 306:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status0 = (*(__io uint16 *)PageBase0);
+ 307:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status1 = (*(__io uint16 *)PageBase1);
+ 308:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 309:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	switch (status0)
+ 310:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	{
+ 311:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /*
+ 312:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		Page0				Page1
+ 313:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		-----				-----
+ 314:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	EEPROM_ERASED		EEPROM_VALID_PAGE			Page1 valid, Page0 erased
+ 315:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						EEPROM_RECEIVE_DATA			Page1 need set to valid, Page0 erased
+ 316:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						EEPROM_ERASED				make EE_Format
+ 317:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						any							Error: EEPROM_NO_VALID_PAGE
+ 318:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** */
+ 319:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	case EEPROM_ERASED:
+ 320:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)			// Page0 erased, Page1 valid
+ 321:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);
+ 322:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_RECEIVE_DATA)	// Page0 erased, Page1 receive
+ 323:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{
+ 324:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(PageBase1, EEPROM_VALID_PAGE);
+ 325:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 326:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				Status = FlashStatus;
+ 327:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			else
+ 328:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);
+ 329:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 330:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_ERASED)			// Both in erased state so format EEPROM
+ 331:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = format();
+ 332:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		break;
+ 333:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /*
+ 334:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		Page0				Page1
+ 335:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		-----				-----
+ 336:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	EEPROM_RECEIVE_DATA	EEPROM_VALID_PAGE			Transfer Page1 to Page0
+ 337:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						EEPROM_ERASED				Page0 need set to valid, Page1 erased
+ 338:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						any							EEPROM_NO_VALID_PAGE
+ 339:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** */
+ 340:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****     case EEPROM_RECEIVE_DATA:
+ 341:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)			// Page0 receive, Page1 valid
+ 342:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_PageTransfer(PageBase0, PageBase1, 0xFFFF);
+ 343:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_ERASED)			// Page0 receive, Page1 erased
+ 344:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{
+ 345:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_CheckErasePage(PageBase1, EEPROM_ERASED);
+ 346:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (Status == EEPROM_OK)
+ 347:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			{
+ 348:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				FlashStatus = FLASH_ProgramHalfWord(PageBase0, EEPROM_VALID_PAGE);
+ 349:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				if (FlashStatus != FLASH_COMPLETE)
+ 350:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 					Status = FlashStatus;
+ 351:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				else
+ 352:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 					Status = EEPROM_OK;
+ 353:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			}
+ 354:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 355:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		break;
+ 356:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /*
+ 357:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		Page0				Page1
+ 358:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		-----				-----
+ 359:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	EEPROM_VALID_PAGE	EEPROM_VALID_PAGE			Error: EEPROM_NO_VALID_PAGE
+ 360:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						EEPROM_RECEIVE_DATA			Transfer Page0 to Page1
+ 361:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						any							Page0 valid, Page1 erased
+ 362:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** */
+ 363:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	case EEPROM_VALID_PAGE:
+ 364:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)			// Both pages valid
+ 365:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EEPROM_NO_VALID_PAGE;
+ 366:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_RECEIVE_DATA)
+ 367:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_PageTransfer(PageBase1, PageBase0, 0xFFFF);
+ 368:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else
+ 369:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_CheckErasePage(PageBase1, EEPROM_ERASED);
+ 370:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		break;
+ 371:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /*
+ 372:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		Page0				Page1
+ 373:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		-----				-----
+ 374:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		any				EEPROM_VALID_PAGE			Page1 valid, Page0 erased
+ 375:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						EEPROM_RECEIVE_DATA			Page1 valid, Page0 erased
+ 376:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 						any							EEPROM_NO_VALID_PAGE
+ 377:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** */
+ 378:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	default:
+ 379:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)
+ 380:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);	// Check/Erase Page0
+ 381:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_RECEIVE_DATA)
+ 382:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{
+ 383:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(PageBase1, EEPROM_VALID_PAGE);
+ 384:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 385:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				Status = FlashStatus;
+ 386:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			else
+ 387:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);
+ 388:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 389:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		break;
+ 390:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	}
+ 391:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return Status;
+ 392:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 393:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 394:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 395:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Erases PAGE0 and PAGE1 and writes EEPROM_VALID_PAGE / 0 header to PAGE0
+ 396:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  PAGE0 and PAGE1 base addresses
+ 397:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Status of the last operation (Flash write or erase) done during EEPROM formating
+ 398:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 399:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::format(void)
+ 400:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 821              		.loc 1 400 0
+ 822              		.cfi_startproc
+ 823              		@ args = 0, pretend = 0, frame = 0
+ 824              		@ frame_needed = 0, uses_anonymous_args = 0
+ 825              	.LVL105:
+ 826 0000 10B5     		push	{r4, lr}
+ 827              	.LCFI7:
+ 828              		.cfi_def_cfa_offset 8
+ 829              		.cfi_offset 14, -4
+ 830              		.cfi_offset 4, -8
+ 831              		.loc 1 400 0
+ 832 0002 0446     		mov	r4, r0
+ 833              	.LBB17:
+ 401:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status;
+ 402:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Status FlashStatus;
+ 403:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 404:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Unlock();
+ 834              		.loc 1 404 0
+ 835 0004 FFF7FEFF 		bl	FLASH_Unlock
+ 836              	.LVL106:
+ 405:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 406:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Erase Page0
+ 407:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status = EE_CheckErasePage(PageBase0, EEPROM_VALID_PAGE);
+ 837              		.loc 1 407 0
+ 838 0008 2168     		ldr	r1, [r4, #0]
+ 839 000a 2046     		mov	r0, r4
+ 840 000c 0022     		movs	r2, #0
+ 841 000e FFF7FEFF 		bl	_ZN11EEPROMClass17EE_CheckErasePageEjt
+ 842              	.LVL107:
+ 408:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (status != EEPROM_OK)
+ 843              		.loc 1 408 0
+ 844 0012 0146     		mov	r1, r0
+ 845 0014 B0B9     		cbnz	r0, .L70
+ 409:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return status;
+ 410:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if ((*(__io uint16*)PageBase0) == EEPROM_ERASED)
+ 846              		.loc 1 410 0
+ 847 0016 2068     		ldr	r0, [r4, #0]
+ 848              	.LVL108:
+ 849 0018 B0F800C0 		ldrh	ip, [r0, #0]
+ 850 001c 4FF6FF73 		movw	r3, #65535
+ 851 0020 1FFA8CF2 		uxth	r2, ip
+ 852 0024 9A42     		cmp	r2, r3
+ 853 0026 05D1     		bne	.L71
+ 411:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	{
+ 412:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		// Set Page0 as valid page: Write VALID_PAGE at Page0 base address
+ 413:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		FlashStatus = FLASH_ProgramHalfWord(PageBase0, EEPROM_VALID_PAGE);
+ 854              		.loc 1 413 0
+ 855 0028 FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 856              	.LVL109:
+ 414:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (FlashStatus != FLASH_COMPLETE)
+ 857              		.loc 1 414 0
+ 858 002c 0528     		cmp	r0, #5
+ 859 002e 01D0     		beq	.L71
+ 415:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return FlashStatus;
+ 860              		.loc 1 415 0
+ 861 0030 0146     		mov	r1, r0
+ 862 0032 07E0     		b	.L70
+ 863              	.LVL110:
+ 864              	.L71:
+ 416:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	}
+ 417:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Erase Page1
+ 418:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EE_CheckErasePage(PageBase1, EEPROM_ERASED);
+ 865              		.loc 1 418 0
+ 866 0034 6168     		ldr	r1, [r4, #4]
+ 867 0036 2046     		mov	r0, r4
+ 868 0038 4FF6FF72 		movw	r2, #65535
+ 869              	.LBE17:
+ 419:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 870              		.loc 1 419 0
+ 871 003c BDE81040 		pop	{r4, lr}
+ 872              	.LBB18:
+ 418:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EE_CheckErasePage(PageBase1, EEPROM_ERASED);
+ 873              		.loc 1 418 0
+ 874 0040 FFF7FEBF 		b	_ZN11EEPROMClass17EE_CheckErasePageEjt
+ 875              	.L70:
+ 876              	.LBE18:
+ 877              		.loc 1 419 0
+ 878 0044 0846     		mov	r0, r1
+ 879 0046 10BD     		pop	{r4, pc}
+ 880              		.cfi_endproc
+ 881              	.LFE126:
+ 883              		.section	.text._ZN11EEPROMClass4initEv,"ax",%progbits
+ 884              		.align	1
+ 885              		.global	_ZN11EEPROMClass4initEv
+ 886              		.thumb
+ 887              		.thumb_func
+ 889              	_ZN11EEPROMClass4initEv:
+ 890              	.LFB125:
+ 299:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 891              		.loc 1 299 0
+ 892              		.cfi_startproc
+ 893              		@ args = 0, pretend = 0, frame = 0
+ 894              		@ frame_needed = 0, uses_anonymous_args = 0
+ 895              	.LVL111:
+ 896 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 897              	.LCFI8:
+ 898              		.cfi_def_cfa_offset 24
+ 899              		.cfi_offset 14, -4
+ 900              		.cfi_offset 7, -8
+ 901              		.cfi_offset 6, -12
+ 902              		.cfi_offset 5, -16
+ 903              		.cfi_offset 4, -20
+ 904              		.cfi_offset 3, -24
+ 299:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 905              		.loc 1 299 0
+ 906 0002 0446     		mov	r4, r0
+ 907              	.LBB19:
+ 303:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	FLASH_Unlock();
+ 908              		.loc 1 303 0
+ 909 0004 FFF7FEFF 		bl	FLASH_Unlock
+ 910              	.LVL112:
+ 304:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	Status = EEPROM_NO_VALID_PAGE;
+ 911              		.loc 1 304 0
+ 912 0008 AB20     		movs	r0, #171
+ 306:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status0 = (*(__io uint16 *)PageBase0);
+ 913              		.loc 1 306 0
+ 914 000a 2268     		ldr	r2, [r4, #0]
+ 304:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	Status = EEPROM_NO_VALID_PAGE;
+ 915              		.loc 1 304 0
+ 916 000c A081     		strh	r0, [r4, #12]	@ movhi
+ 306:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status0 = (*(__io uint16 *)PageBase0);
+ 917              		.loc 1 306 0
+ 918 000e 1788     		ldrh	r7, [r2, #0]
+ 307:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status1 = (*(__io uint16 *)PageBase1);
+ 919              		.loc 1 307 0
+ 920 0010 6668     		ldr	r6, [r4, #4]
+ 306:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status0 = (*(__io uint16 *)PageBase0);
+ 921              		.loc 1 306 0
+ 922 0012 BFB2     		uxth	r7, r7
+ 923              	.LVL113:
+ 307:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status1 = (*(__io uint16 *)PageBase1);
+ 924              		.loc 1 307 0
+ 925 0014 3388     		ldrh	r3, [r6, #0]
+ 309:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	switch (status0)
+ 926              		.loc 1 309 0
+ 927 0016 4EF6EE61 		movw	r1, #61166
+ 928 001a 8F42     		cmp	r7, r1
+ 307:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	status1 = (*(__io uint16 *)PageBase1);
+ 929              		.loc 1 307 0
+ 930 001c 9BB2     		uxth	r3, r3
+ 931              	.LVL114:
+ 309:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	switch (status0)
+ 932              		.loc 1 309 0
+ 933 001e 1CD0     		beq	.L75
+ 934 0020 4FF6FF75 		movw	r5, #65535
+ 935 0024 AF42     		cmp	r7, r5
+ 936 0026 02D0     		beq	.L76
+ 937 0028 002F     		cmp	r7, #0
+ 938 002a 31D0     		beq	.L74
+ 939 002c 39E0     		b	.L92
+ 940              	.L76:
+ 320:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)			// Page0 erased, Page1 valid
+ 941              		.loc 1 320 0
+ 942 002e 13B9     		cbnz	r3, .L77
+ 321:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);
+ 943              		.loc 1 321 0
+ 944 0030 2046     		mov	r0, r4
+ 945 0032 1146     		mov	r1, r2
+ 946 0034 09E0     		b	.L91
+ 947              	.L77:
+ 322:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_RECEIVE_DATA)	// Page0 erased, Page1 receive
+ 948              		.loc 1 322 0
+ 949 0036 8B42     		cmp	r3, r1
+ 950 0038 09D1     		bne	.L79
+ 324:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(PageBase1, EEPROM_VALID_PAGE);
+ 951              		.loc 1 324 0
+ 952 003a 0021     		movs	r1, #0
+ 953 003c 3046     		mov	r0, r6
+ 954 003e FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 955              	.LVL115:
+ 325:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 956              		.loc 1 325 0
+ 957 0042 0528     		cmp	r0, #5
+ 958 0044 3ED1     		bne	.L87
+ 959              	.L80:
+ 328:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);
+ 960              		.loc 1 328 0
+ 961 0046 2168     		ldr	r1, [r4, #0]
+ 962 0048 2046     		mov	r0, r4
+ 963              	.LVL116:
+ 964              	.L91:
+ 965 004a 3A46     		mov	r2, r7
+ 966 004c 38E0     		b	.L90
+ 967              	.LVL117:
+ 968              	.L79:
+ 330:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_ERASED)			// Both in erased state so format EEPROM
+ 969              		.loc 1 330 0
+ 970 004e BB42     		cmp	r3, r7
+ 971 0050 39D1     		bne	.L78
+ 331:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = format();
+ 972              		.loc 1 331 0
+ 973 0052 2046     		mov	r0, r4
+ 974 0054 FFF7FEFF 		bl	_ZN11EEPROMClass6formatEv
+ 975              	.LVL118:
+ 976 0058 34E0     		b	.L87
+ 977              	.LVL119:
+ 978              	.L75:
+ 341:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)			// Page0 receive, Page1 valid
+ 979              		.loc 1 341 0
+ 980 005a 2BB9     		cbnz	r3, .L81
+ 342:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_PageTransfer(PageBase0, PageBase1, 0xFFFF);
+ 981              		.loc 1 342 0
+ 982 005c 1146     		mov	r1, r2
+ 983 005e 2046     		mov	r0, r4
+ 984 0060 3246     		mov	r2, r6
+ 985 0062 4FF6FF73 		movw	r3, #65535
+ 986              	.LVL120:
+ 987 0066 19E0     		b	.L89
+ 988              	.LVL121:
+ 989              	.L81:
+ 343:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_ERASED)			// Page0 receive, Page1 erased
+ 990              		.loc 1 343 0
+ 991 0068 4FF6FF72 		movw	r2, #65535
+ 992 006c 9342     		cmp	r3, r2
+ 993 006e 2AD1     		bne	.L78
+ 345:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_CheckErasePage(PageBase1, EEPROM_ERASED);
+ 994              		.loc 1 345 0
+ 995 0070 2046     		mov	r0, r4
+ 996 0072 3146     		mov	r1, r6
+ 997 0074 1A46     		mov	r2, r3
+ 998 0076 FFF7FEFF 		bl	_ZN11EEPROMClass17EE_CheckErasePageEjt
+ 999              	.LVL122:
+ 1000 007a 0546     		mov	r5, r0
+ 1001 007c A081     		strh	r0, [r4, #12]	@ movhi
+ 346:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (Status == EEPROM_OK)
+ 1002              		.loc 1 346 0
+ 1003 007e 10BB     		cbnz	r0, .L78
+ 348:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				FlashStatus = FLASH_ProgramHalfWord(PageBase0, EEPROM_VALID_PAGE);
+ 1004              		.loc 1 348 0
+ 1005 0080 2068     		ldr	r0, [r4, #0]
+ 1006 0082 2946     		mov	r1, r5
+ 1007 0084 FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 1008              	.LVL123:
+ 349:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				if (FlashStatus != FLASH_COMPLETE)
+ 1009              		.loc 1 349 0
+ 1010 0088 0528     		cmp	r0, #5
+ 1011 008a 1BD1     		bne	.L87
+ 1012              	.L82:
+ 352:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 					Status = EEPROM_OK;
+ 1013              		.loc 1 352 0
+ 1014 008c A581     		strh	r5, [r4, #12]	@ movhi
+ 1015 008e 1AE0     		b	.L78
+ 1016              	.LVL124:
+ 1017              	.L74:
+ 364:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)			// Both pages valid
+ 1018              		.loc 1 364 0
+ 1019 0090 CBB1     		cbz	r3, .L78
+ 366:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_RECEIVE_DATA)
+ 1020              		.loc 1 366 0
+ 1021 0092 8B42     		cmp	r3, r1
+ 367:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_PageTransfer(PageBase1, PageBase0, 0xFFFF);
+ 1022              		.loc 1 367 0
+ 1023 0094 2046     		mov	r0, r4
+ 1024 0096 3146     		mov	r1, r6
+ 366:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_RECEIVE_DATA)
+ 1025              		.loc 1 366 0
+ 1026 0098 11D1     		bne	.L88
+ 367:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_PageTransfer(PageBase1, PageBase0, 0xFFFF);
+ 1027              		.loc 1 367 0
+ 1028 009a 2B46     		mov	r3, r5
+ 1029              	.LVL125:
+ 1030              	.L89:
+ 1031 009c FFF7FEFF 		bl	_ZN11EEPROMClass15EE_PageTransferEjjt
+ 1032 00a0 10E0     		b	.L87
+ 1033              	.LVL126:
+ 1034              	.L92:
+ 379:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (status1 == EEPROM_VALID_PAGE)
+ 1035              		.loc 1 379 0
+ 1036 00a2 13B9     		cbnz	r3, .L84
+ 380:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);	// Check/Erase Page0
+ 1037              		.loc 1 380 0
+ 1038 00a4 2046     		mov	r0, r4
+ 1039 00a6 1146     		mov	r1, r2
+ 1040 00a8 09E0     		b	.L88
+ 1041              	.L84:
+ 381:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		else if (status1 == EEPROM_RECEIVE_DATA)
+ 1042              		.loc 1 381 0
+ 1043 00aa 8B42     		cmp	r3, r1
+ 1044 00ac 0BD1     		bne	.L78
+ 383:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			FlashStatus = FLASH_ProgramHalfWord(PageBase1, EEPROM_VALID_PAGE);
+ 1045              		.loc 1 383 0
+ 1046 00ae 0021     		movs	r1, #0
+ 1047 00b0 3046     		mov	r0, r6
+ 1048 00b2 FFF7FEFF 		bl	FLASH_ProgramHalfWord
+ 1049              	.LVL127:
+ 384:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			if (FlashStatus != FLASH_COMPLETE)
+ 1050              		.loc 1 384 0
+ 1051 00b6 0528     		cmp	r0, #5
+ 1052 00b8 04D1     		bne	.L87
+ 1053              	.L85:
+ 387:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 				Status = EE_CheckErasePage(PageBase0, EEPROM_ERASED);
+ 1054              		.loc 1 387 0
+ 1055 00ba 2168     		ldr	r1, [r4, #0]
+ 1056 00bc 2046     		mov	r0, r4
+ 1057              	.LVL128:
+ 1058              	.L88:
+ 1059 00be 2A46     		mov	r2, r5
+ 1060              	.L90:
+ 1061 00c0 FFF7FEFF 		bl	_ZN11EEPROMClass17EE_CheckErasePageEjt
+ 1062              	.L87:
+ 1063 00c4 A081     		strh	r0, [r4, #12]	@ movhi
+ 1064              	.L78:
+ 1065              	.LBE19:
+ 392:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1066              		.loc 1 392 0
+ 1067 00c6 A089     		ldrh	r0, [r4, #12]
+ 1068 00c8 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1069              		.cfi_endproc
+ 1070              	.LFE125:
+ 1072              		.section	.text._ZN11EEPROMClass4initEjjj,"ax",%progbits
+ 1073              		.align	1
+ 1074              		.global	_ZN11EEPROMClass4initEjjj
+ 1075              		.thumb
+ 1076              		.thumb_func
+ 1078              	_ZN11EEPROMClass4initEjjj:
+ 1079              	.LFB124:
+ 291:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1080              		.loc 1 291 0
+ 1081              		.cfi_startproc
+ 1082              		@ args = 0, pretend = 0, frame = 0
+ 1083              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1084              	.LVL129:
+ 1085 0000 10B5     		push	{r4, lr}
+ 1086              	.LCFI9:
+ 1087              		.cfi_def_cfa_offset 8
+ 1088              		.cfi_offset 14, -4
+ 1089              		.cfi_offset 4, -8
+ 294:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	PageSize = pageSize;
+ 1090              		.loc 1 294 0
+ 1091 0002 80E80E00 		stmia	r0, {r1, r2, r3}
+ 296:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1092              		.loc 1 296 0
+ 1093 0006 BDE81040 		pop	{r4, lr}
+ 295:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return init();
+ 1094              		.loc 1 295 0
+ 1095 000a FFF7FEBF 		b	_ZN11EEPROMClass4initEv
+ 1096              	.LVL130:
+ 1097              	.LVL131:
+ 1098              	.LVL132:
+ 1099              	.LVL133:
+ 1100              		.cfi_endproc
+ 1101              	.LFE124:
+ 1103              		.section	.text._ZN11EEPROMClass6erasesEPt,"ax",%progbits
+ 1104              		.align	1
+ 1105              		.global	_ZN11EEPROMClass6erasesEPt
+ 1106              		.thumb
+ 1107              		.thumb_func
+ 1109              	_ZN11EEPROMClass6erasesEPt:
+ 1110              	.LFB127:
+ 420:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 421:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 422:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Returns the erase counter for current page
+ 423:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  Data: Global variable contains the read variable value
+ 424:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error status:
+ 425:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_OK: if erases counter return.
+ 426:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_NO_VALID_PAGE: if no valid page was found.
+ 427:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 428:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::erases(uint16 *Erases)
+ 429:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1111              		.loc 1 429 0
+ 1112              		.cfi_startproc
+ 1113              		@ args = 0, pretend = 0, frame = 0
+ 1114              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1115              	.LVL134:
+ 1116 0000 38B5     		push	{r3, r4, r5, lr}
+ 1117              	.LCFI10:
+ 1118              		.cfi_def_cfa_offset 16
+ 1119              		.cfi_offset 14, -4
+ 1120              		.cfi_offset 5, -8
+ 1121              		.cfi_offset 4, -12
+ 1122              		.cfi_offset 3, -16
+ 1123              	.LBB20:
+ 430:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageBase;
+ 431:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (Status != EEPROM_OK)
+ 1124              		.loc 1 431 0
+ 1125 0002 8389     		ldrh	r3, [r0, #12]
+ 1126              	.LBE20:
+ 429:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1127              		.loc 1 429 0
+ 1128 0004 0446     		mov	r4, r0
+ 1129 0006 0D46     		mov	r5, r1
+ 1130              	.LBB21:
+ 1131              		.loc 1 431 0
+ 1132 0008 23B1     		cbz	r3, .L95
+ 432:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (init() != EEPROM_OK)
+ 1133              		.loc 1 432 0
+ 1134 000a FFF7FEFF 		bl	_ZN11EEPROMClass4initEv
+ 1135              	.LVL135:
+ 1136 000e 08B1     		cbz	r0, .L95
+ 433:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return Status;
+ 1137              		.loc 1 433 0
+ 1138 0010 A089     		ldrh	r0, [r4, #12]
+ 1139 0012 38BD     		pop	{r3, r4, r5, pc}
+ 1140              	.L95:
+ 434:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 435:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Get active Page for read operation
+ 436:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	pageBase = EE_FindValidPage();
+ 1141              		.loc 1 436 0
+ 1142 0014 2046     		mov	r0, r4
+ 1143 0016 FFF7FEFF 		bl	_ZN11EEPROMClass16EE_FindValidPageEv
+ 1144              	.LVL136:
+ 437:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (pageBase == 0)
+ 1145              		.loc 1 437 0
+ 1146 001a 20B1     		cbz	r0, .L97
+ 438:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return  EEPROM_NO_VALID_PAGE;
+ 439:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 440:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	*Erases = (*(__io uint16*)pageBase+2);
+ 1147              		.loc 1 440 0
+ 1148 001c 0188     		ldrh	r1, [r0, #0]
+ 1149 001e 881C     		adds	r0, r1, #2
+ 1150              	.LVL137:
+ 1151 0020 2880     		strh	r0, [r5, #0]	@ movhi
+ 441:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EEPROM_OK;
+ 1152              		.loc 1 441 0
+ 1153 0022 0020     		movs	r0, #0
+ 1154 0024 38BD     		pop	{r3, r4, r5, pc}
+ 1155              	.LVL138:
+ 1156              	.L97:
+ 438:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return  EEPROM_NO_VALID_PAGE;
+ 1157              		.loc 1 438 0
+ 1158 0026 AB20     		movs	r0, #171
+ 1159              	.LVL139:
+ 1160              	.LBE21:
+ 442:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1161              		.loc 1 442 0
+ 1162 0028 38BD     		pop	{r3, r4, r5, pc}
+ 1163              		.cfi_endproc
+ 1164              	.LFE127:
+ 1166              		.section	.text._ZN11EEPROMClass4readEtPt,"ax",%progbits
+ 1167              		.align	1
+ 1168              		.global	_ZN11EEPROMClass4readEtPt
+ 1169              		.thumb
+ 1170              		.thumb_func
+ 1172              	_ZN11EEPROMClass4readEtPt:
+ 1173              	.LFB129:
+ 443:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 444:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 445:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief	Returns the last stored variable data, if found,
+ 446:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			which correspond to the passed virtual address
+ 447:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  Address: Variable virtual address
+ 448:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Data for variable or EEPROM_DEFAULT_DATA, if any errors
+ 449:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 450:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::read (uint16 Address)
+ 451:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 452:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 data;
+ 453:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	read(Address, &data);
+ 454:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return data;
+ 455:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 456:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 457:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 458:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief	Returns the last stored variable data, if found,
+ 459:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			which correspond to the passed virtual address
+ 460:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  Address: Variable virtual address
+ 461:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  Data: Pointer to data variable
+ 462:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error status:
+ 463:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - EEPROM_OK: if variable was found
+ 464:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - EEPROM_BAD_ADDRESS: if the variable was not found
+ 465:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *           - EEPROM_NO_VALID_PAGE: if no valid page was found.
+ 466:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 467:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::read(uint16 Address, uint16 *Data)
+ 468:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1174              		.loc 1 468 0
+ 1175              		.cfi_startproc
+ 1176              		@ args = 0, pretend = 0, frame = 0
+ 1177              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1178              	.LVL140:
+ 1179 0000 70B5     		push	{r4, r5, r6, lr}
+ 1180              	.LCFI11:
+ 1181              		.cfi_def_cfa_offset 16
+ 1182              		.cfi_offset 14, -4
+ 1183              		.cfi_offset 6, -8
+ 1184              		.cfi_offset 5, -12
+ 1185              		.cfi_offset 4, -16
+ 1186              		.loc 1 468 0
+ 1187 0002 0D46     		mov	r5, r1
+ 1188              	.LBB22:
+ 469:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageBase, pageEnd;
+ 470:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 471:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Set default data (empty EEPROM)
+ 472:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	*Data = EEPROM_DEFAULT_DATA;
+ 1189              		.loc 1 472 0
+ 1190 0004 4FF0FF31 		mov	r1, #-1	@ movhi
+ 1191              	.LVL141:
+ 1192 0008 1180     		strh	r1, [r2, #0]	@ movhi
+ 473:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 474:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (Status == EEPROM_NOT_INIT)
+ 1193              		.loc 1 474 0
+ 1194 000a 8389     		ldrh	r3, [r0, #12]
+ 1195 000c 842B     		cmp	r3, #132
+ 1196              	.LBE22:
+ 468:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1197              		.loc 1 468 0
+ 1198 000e 0446     		mov	r4, r0
+ 1199 0010 1646     		mov	r6, r2
+ 1200              	.LBB23:
+ 1201              		.loc 1 474 0
+ 1202 0012 04D1     		bne	.L99
+ 475:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (init() != EEPROM_OK)
+ 1203              		.loc 1 475 0
+ 1204 0014 FFF7FEFF 		bl	_ZN11EEPROMClass4initEv
+ 1205              	.LVL142:
+ 1206 0018 08B1     		cbz	r0, .L99
+ 476:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return Status;
+ 1207              		.loc 1 476 0
+ 1208 001a A089     		ldrh	r0, [r4, #12]
+ 1209 001c 70BD     		pop	{r4, r5, r6, pc}
+ 1210              	.L99:
+ 477:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 478:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Get active Page for read operation
+ 479:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	pageBase = EE_FindValidPage();
+ 1211              		.loc 1 479 0
+ 1212 001e 2046     		mov	r0, r4
+ 1213 0020 FFF7FEFF 		bl	_ZN11EEPROMClass16EE_FindValidPageEv
+ 1214              	.LVL143:
+ 480:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (pageBase == 0)
+ 1215              		.loc 1 480 0
+ 1216 0024 A0B1     		cbz	r0, .L104
+ 481:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return  EEPROM_NO_VALID_PAGE;
+ 482:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 483:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Get the valid Page end Address
+ 484:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	pageEnd = pageBase + ((uint32)(PageSize - 2));
+ 1217              		.loc 1 484 0
+ 1218 0026 A368     		ldr	r3, [r4, #8]
+ 1219 0028 9A1E     		subs	r2, r3, #2
+ 1220 002a 1318     		adds	r3, r2, r0
+ 1221              	.LVL144:
+ 485:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	
+ 486:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Check each active page address starting from end
+ 487:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (pageBase += 6; pageEnd >= pageBase; pageEnd -= 4)
+ 1222              		.loc 1 487 0
+ 1223 002c 0630     		adds	r0, r0, #6
+ 1224              	.LVL145:
+ 1225 002e 0BE0     		b	.L101
+ 1226              	.L103:
+ 488:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if ((*(__io uint16*)pageEnd) == Address)		// Compare the read address with the virtual address
+ 1227              		.loc 1 488 0
+ 1228 0030 B3F800C0 		ldrh	ip, [r3, #0]
+ 1229 0034 1FFA8CF1 		uxth	r1, ip
+ 1230 0038 A942     		cmp	r1, r5
+ 1231 003a 04D1     		bne	.L102
+ 489:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		{
+ 490:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			*Data = (*(__io uint16*)(pageEnd - 2));		// Get content of Address-2 which is variable value
+ 1232              		.loc 1 490 0
+ 1233 003c 33F8020C 		ldrh	r0, [r3, #-2]
+ 1234              	.LVL146:
+ 1235 0040 3080     		strh	r0, [r6, #0]	@ movhi
+ 491:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return EEPROM_OK;
+ 1236              		.loc 1 491 0
+ 1237 0042 0020     		movs	r0, #0
+ 1238 0044 70BD     		pop	{r4, r5, r6, pc}
+ 1239              	.LVL147:
+ 1240              	.L102:
+ 487:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (pageBase += 6; pageEnd >= pageBase; pageEnd -= 4)
+ 1241              		.loc 1 487 0
+ 1242 0046 043B     		subs	r3, r3, #4
+ 1243              	.LVL148:
+ 1244              	.L101:
+ 487:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	for (pageBase += 6; pageEnd >= pageBase; pageEnd -= 4)
+ 1245              		.loc 1 487 0 is_stmt 0 discriminator 1
+ 1246 0048 8342     		cmp	r3, r0
+ 1247 004a F1D2     		bcs	.L103
+ 492:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		}
+ 493:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 494:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Return ReadStatus value: (0: variable exist, 1: variable doesn't exist)
+ 495:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EEPROM_BAD_ADDRESS;
+ 1248              		.loc 1 495 0 is_stmt 1
+ 1249 004c 8220     		movs	r0, #130
+ 1250              	.LVL149:
+ 1251 004e 70BD     		pop	{r4, r5, r6, pc}
+ 1252              	.LVL150:
+ 1253              	.L104:
+ 481:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return  EEPROM_NO_VALID_PAGE;
+ 1254              		.loc 1 481 0
+ 1255 0050 AB20     		movs	r0, #171
+ 1256              	.LVL151:
+ 1257              	.LBE23:
+ 496:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1258              		.loc 1 496 0
+ 1259 0052 70BD     		pop	{r4, r5, r6, pc}
+ 1260              		.cfi_endproc
+ 1261              	.LFE129:
+ 1263              		.section	.text._ZN11EEPROMClass4readEt,"ax",%progbits
+ 1264              		.align	1
+ 1265              		.global	_ZN11EEPROMClass4readEt
+ 1266              		.thumb
+ 1267              		.thumb_func
+ 1269              	_ZN11EEPROMClass4readEt:
+ 1270              	.LFB128:
+ 451:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1271              		.loc 1 451 0
+ 1272              		.cfi_startproc
+ 1273              		@ args = 0, pretend = 0, frame = 8
+ 1274              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1275              	.LVL152:
+ 1276 0000 07B5     		push	{r0, r1, r2, lr}
+ 1277              	.LCFI12:
+ 1278              		.cfi_def_cfa_offset 16
+ 1279              		.cfi_offset 14, -4
+ 1280              		.cfi_offset 2, -8
+ 1281              		.cfi_offset 1, -12
+ 1282              		.cfi_offset 0, -16
+ 1283              	.LBB24:
+ 453:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	read(Address, &data);
+ 1284              		.loc 1 453 0
+ 1285 0002 0DF10602 		add	r2, sp, #6
+ 1286 0006 FFF7FEFF 		bl	_ZN11EEPROMClass4readEtPt
+ 1287              	.LVL153:
+ 1288              	.LBE24:
+ 455:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1289              		.loc 1 455 0
+ 1290 000a BDF80600 		ldrh	r0, [sp, #6]
+ 1291 000e 0EBD     		pop	{r1, r2, r3, pc}
+ 1292              		.cfi_endproc
+ 1293              	.LFE128:
+ 1295              		.section	.text._ZN11EEPROMClass5writeEtt,"ax",%progbits
+ 1296              		.align	1
+ 1297              		.global	_ZN11EEPROMClass5writeEtt
+ 1298              		.thumb
+ 1299              		.thumb_func
+ 1301              	_ZN11EEPROMClass5writeEtt:
+ 1302              	.LFB130:
+ 497:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 498:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 499:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Writes/upadtes variable data in EEPROM.
+ 500:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  VirtAddress: Variable virtual address
+ 501:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @param  Data: 16 bit data to be written
+ 502:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Success or error status:
+ 503:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- FLASH_COMPLETE: on success
+ 504:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_BAD_ADDRESS: if address = 0xFFFF
+ 505:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_PAGE_FULL: if valid page is full
+ 506:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_NO_VALID_PAGE: if no valid page was found
+ 507:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- EEPROM_OUT_SIZE: if no empty EEPROM variables
+ 508:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   *			- Flash error code: on write Flash error
+ 509:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 510:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::write(uint16 Address, uint16 Data)
+ 511:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1303              		.loc 1 511 0
+ 1304              		.cfi_startproc
+ 1305              		@ args = 0, pretend = 0, frame = 0
+ 1306              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1307              	.LVL154:
+ 1308              	.LBB25:
+ 512:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (Status == EEPROM_NOT_INIT)
+ 1309              		.loc 1 512 0
+ 1310 0000 8389     		ldrh	r3, [r0, #12]
+ 1311 0002 842B     		cmp	r3, #132
+ 1312              	.LBE25:
+ 511:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1313              		.loc 1 511 0
+ 1314 0004 70B5     		push	{r4, r5, r6, lr}
+ 1315              	.LCFI13:
+ 1316              		.cfi_def_cfa_offset 16
+ 1317              		.cfi_offset 14, -4
+ 1318              		.cfi_offset 6, -8
+ 1319              		.cfi_offset 5, -12
+ 1320              		.cfi_offset 4, -16
+ 511:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1321              		.loc 1 511 0
+ 1322 0006 0446     		mov	r4, r0
+ 1323 0008 0D46     		mov	r5, r1
+ 1324 000a 1646     		mov	r6, r2
+ 1325              	.LBB26:
+ 1326              		.loc 1 512 0
+ 1327 000c 04D1     		bne	.L107
+ 513:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (init() != EEPROM_OK)
+ 1328              		.loc 1 513 0
+ 1329 000e FFF7FEFF 		bl	_ZN11EEPROMClass4initEv
+ 1330              	.LVL155:
+ 1331 0012 08B1     		cbz	r0, .L107
+ 514:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return Status;
+ 1332              		.loc 1 514 0
+ 1333 0014 A089     		ldrh	r0, [r4, #12]
+ 1334 0016 70BD     		pop	{r4, r5, r6, pc}
+ 1335              	.L107:
+ 515:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 516:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (Address == 0xFFFF)
+ 1336              		.loc 1 516 0
+ 1337 0018 4FF6FF70 		movw	r0, #65535
+ 1338 001c 8542     		cmp	r5, r0
+ 1339 001e 06D0     		beq	.L109
+ 517:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_BAD_ADDRESS;
+ 518:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 519:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Write the variable virtual address and value in the EEPROM
+ 520:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status = EE_VerifyPageFullWriteVariable(Address, Data);
+ 1340              		.loc 1 520 0
+ 1341 0020 2046     		mov	r0, r4
+ 1342 0022 2946     		mov	r1, r5
+ 1343 0024 3246     		mov	r2, r6
+ 1344              	.LBE26:
+ 521:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return status;
+ 522:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1345              		.loc 1 522 0
+ 1346 0026 BDE87040 		pop	{r4, r5, r6, lr}
+ 1347              	.LBB27:
+ 520:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint16 status = EE_VerifyPageFullWriteVariable(Address, Data);
+ 1348              		.loc 1 520 0
+ 1349 002a FFF7FEBF 		b	_ZN11EEPROMClass30EE_VerifyPageFullWriteVariableEtt
+ 1350              	.L109:
+ 517:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_BAD_ADDRESS;
+ 1351              		.loc 1 517 0
+ 1352 002e 8220     		movs	r0, #130
+ 1353              	.LBE27:
+ 1354              		.loc 1 522 0
+ 1355 0030 70BD     		pop	{r4, r5, r6, pc}
+ 1356              		.cfi_endproc
+ 1357              	.LFE130:
+ 1359              		.section	.text._ZN11EEPROMClass5countEPt,"ax",%progbits
+ 1360              		.align	1
+ 1361              		.global	_ZN11EEPROMClass5countEPt
+ 1362              		.thumb
+ 1363              		.thumb_func
+ 1365              	_ZN11EEPROMClass5countEPt:
+ 1366              	.LFB131:
+ 523:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 524:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** /**
+ 525:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @brief  Return number of variable
+ 526:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   * @retval Number of variables
+ 527:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp ****   */
+ 528:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::count(uint16 *Count)
+ 529:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1367              		.loc 1 529 0
+ 1368              		.cfi_startproc
+ 1369              		@ args = 0, pretend = 0, frame = 0
+ 1370              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1371              	.LVL156:
+ 1372 0000 38B5     		push	{r3, r4, r5, lr}
+ 1373              	.LCFI14:
+ 1374              		.cfi_def_cfa_offset 16
+ 1375              		.cfi_offset 14, -4
+ 1376              		.cfi_offset 5, -8
+ 1377              		.cfi_offset 4, -12
+ 1378              		.cfi_offset 3, -16
+ 1379              	.LBB28:
+ 530:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (Status == EEPROM_NOT_INIT)
+ 1380              		.loc 1 530 0
+ 1381 0002 8389     		ldrh	r3, [r0, #12]
+ 1382 0004 842B     		cmp	r3, #132
+ 1383              	.LBE28:
+ 529:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1384              		.loc 1 529 0
+ 1385 0006 0546     		mov	r5, r0
+ 1386 0008 0C46     		mov	r4, r1
+ 1387              	.LBB29:
+ 1388              		.loc 1 530 0
+ 1389 000a 04D1     		bne	.L111
+ 531:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		if (init() != EEPROM_OK)
+ 1390              		.loc 1 531 0
+ 1391 000c FFF7FEFF 		bl	_ZN11EEPROMClass4initEv
+ 1392              	.LVL157:
+ 1393 0010 08B1     		cbz	r0, .L111
+ 532:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 			return Status;
+ 1394              		.loc 1 532 0
+ 1395 0012 A889     		ldrh	r0, [r5, #12]
+ 1396 0014 38BD     		pop	{r3, r4, r5, pc}
+ 1397              	.L111:
+ 533:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 534:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	// Get valid Page for write operation
+ 535:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	uint32 pageBase = EE_FindValidPage();
+ 1398              		.loc 1 535 0
+ 1399 0016 2846     		mov	r0, r5
+ 1400 0018 FFF7FEFF 		bl	_ZN11EEPROMClass16EE_FindValidPageEv
+ 1401              	.LVL158:
+ 536:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	if (pageBase == 0)
+ 1402              		.loc 1 536 0
+ 1403 001c 0146     		mov	r1, r0
+ 1404 001e 38B1     		cbz	r0, .L113
+ 537:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_NO_VALID_PAGE;	// No valid page, return max. numbers
+ 538:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 539:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	*Count = EE_GetVariablesCount(pageBase, 0xFFFF);
+ 1405              		.loc 1 539 0
+ 1406 0020 2846     		mov	r0, r5
+ 1407              	.LVL159:
+ 1408 0022 4FF6FF72 		movw	r2, #65535
+ 1409 0026 FFF7FEFF 		bl	_ZN11EEPROMClass20EE_GetVariablesCountEjt
+ 1410              	.LVL160:
+ 1411 002a 2080     		strh	r0, [r4, #0]	@ movhi
+ 540:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return EEPROM_OK;
+ 1412              		.loc 1 540 0
+ 1413 002c 0020     		movs	r0, #0
+ 1414 002e 38BD     		pop	{r3, r4, r5, pc}
+ 1415              	.LVL161:
+ 1416              	.L113:
+ 537:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 		return EEPROM_NO_VALID_PAGE;	// No valid page, return max. numbers
+ 1417              		.loc 1 537 0
+ 1418 0030 AB20     		movs	r0, #171
+ 1419              	.LVL162:
+ 1420              	.LBE29:
+ 541:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1421              		.loc 1 541 0
+ 1422 0032 38BD     		pop	{r3, r4, r5, pc}
+ 1423              		.cfi_endproc
+ 1424              	.LFE131:
+ 1426              		.section	.text._ZN11EEPROMClass8maxcountEv,"ax",%progbits
+ 1427              		.align	1
+ 1428              		.global	_ZN11EEPROMClass8maxcountEv
+ 1429              		.thumb
+ 1430              		.thumb_func
+ 1432              	_ZN11EEPROMClass8maxcountEv:
+ 1433              	.LFB132:
+ 542:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 543:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** uint16 EEPROMClass::maxcount(void)
+ 544:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** {
+ 1434              		.loc 1 544 0
+ 1435              		.cfi_startproc
+ 1436              		@ args = 0, pretend = 0, frame = 0
+ 1437              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1438              		@ link register save eliminated.
+ 1439              	.LVL163:
+ 545:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 	return ((PageSize / 4)-1);
+ 1440              		.loc 1 545 0
+ 1441 0000 8268     		ldr	r2, [r0, #8]
+ 1442 0002 9108     		lsrs	r1, r2, #2
+ 1443 0004 481E     		subs	r0, r1, #1
+ 1444              	.LVL164:
+ 546:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** }
+ 1445              		.loc 1 546 0
+ 1446 0006 80B2     		uxth	r0, r0
+ 1447 0008 7047     		bx	lr
+ 1448              		.cfi_endproc
+ 1449              	.LFE132:
+ 1451              		.section	.text.startup._GLOBAL__sub_I__ZN11EEPROMClass12EE_CheckPageEjt,"ax",%progbits
+ 1452              		.align	1
+ 1453              		.thumb
+ 1454              		.thumb_func
+ 1456              	_GLOBAL__sub_I__ZN11EEPROMClass12EE_CheckPageEjt:
+ 1457              	.LFB134:
+ 547:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** 
+ 548:/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.cpp **** EEPROMClass EEPROM;
+ 1458              		.loc 1 548 0
+ 1459              		.cfi_startproc
+ 1460              		@ args = 0, pretend = 0, frame = 0
+ 1461              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1462              		@ link register save eliminated.
+ 1463              	.LVL165:
+ 1464              	.LBB32:
+ 1465              	.LBB33:
+ 1466              		.loc 1 548 0
+ 1467 0000 0148     		ldr	r0, .L116
+ 1468              	.LBE33:
+ 1469              	.LBE32:
+ 1470              	.LBB35:
+ 1471              	.LBB34:
+ 1472 0002 FFF7FEBF 		b	_ZN11EEPROMClassC1Ev
+ 1473              	.L117:
+ 1474 0006 00BF     		.align	2
+ 1475              	.L116:
+ 1476 0008 00000000 		.word	.LANCHOR0
+ 1477              	.LBE34:
+ 1478              	.LBE35:
+ 1479              		.cfi_endproc
+ 1480              	.LFE134:
+ 1482              		.section	.init_array,"aw",%init_array
+ 1483              		.align	2
+ 1484 0000 00000000 		.word	_GLOBAL__sub_I__ZN11EEPROMClass12EE_CheckPageEjt(target1)
+ 1485              		.global	EEPROM
+ 1486              		.global	_ZN11EEPROMClassC1Ev
+ 1487              		.thumb_set _ZN11EEPROMClassC1Ev,_ZN11EEPROMClassC2Ev
+ 1488              		.section	.bss.EEPROM,"aw",%nobits
+ 1489              		.align	2
+ 1490              		.set	.LANCHOR0,. + 0
+ 1493              	EEPROM:
+ 1494 0000 00000000 		.space	16
+ 1494      00000000 
+ 1494      00000000 
+ 1494      00000000 
+ 1495              		.text
+ 1496              	.Letext0:
+ 1497              		.file 2 "../Libmaple/libmaple/libmaple/libmaple_types.h"
+ 1498              		.file 3 "/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/flash_stm32.h"
+ 1499              		.file 4 "../Libmaple/libmaple/wirish/Print.h"
+ 1500              		.file 5 "/home/asim/AeroQuad/AeroQuad32/MapleCompatibility/EEPROM.h"
+ 1501              		.file 6 "../Libmaple/libmaple/libmaple/systick.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 EEPROM.cpp
+     /tmp/ccIMflsw.s:20     .text._ZN11EEPROMClass12EE_CheckPageEjt:00000000 $t
+     /tmp/ccIMflsw.s:25     .text._ZN11EEPROMClass12EE_CheckPageEjt:00000000 _ZN11EEPROMClass12EE_CheckPageEjt
+     /tmp/ccIMflsw.s:90     .text._ZN11EEPROMClass12EE_ErasePageEj:00000000 $t
+     /tmp/ccIMflsw.s:95     .text._ZN11EEPROMClass12EE_ErasePageEj:00000000 _ZN11EEPROMClass12EE_ErasePageEj
+     /tmp/ccIMflsw.s:170    .text._ZN11EEPROMClass17EE_CheckErasePageEjt:00000000 $t
+     /tmp/ccIMflsw.s:175    .text._ZN11EEPROMClass17EE_CheckErasePageEjt:00000000 _ZN11EEPROMClass17EE_CheckErasePageEjt
+     /tmp/ccIMflsw.s:225    .text._ZN11EEPROMClass16EE_FindValidPageEv:00000000 $t
+     /tmp/ccIMflsw.s:230    .text._ZN11EEPROMClass16EE_FindValidPageEv:00000000 _ZN11EEPROMClass16EE_FindValidPageEv
+     /tmp/ccIMflsw.s:296    .text._ZN11EEPROMClass20EE_GetVariablesCountEjt:00000000 $t
+     /tmp/ccIMflsw.s:301    .text._ZN11EEPROMClass20EE_GetVariablesCountEjt:00000000 _ZN11EEPROMClass20EE_GetVariablesCountEjt
+     /tmp/ccIMflsw.s:383    .text._ZN11EEPROMClass15EE_PageTransferEjjt:00000000 $t
+     /tmp/ccIMflsw.s:388    .text._ZN11EEPROMClass15EE_PageTransferEjjt:00000000 _ZN11EEPROMClass15EE_PageTransferEjjt
+     /tmp/ccIMflsw.s:576    .text._ZN11EEPROMClass30EE_VerifyPageFullWriteVariableEtt:00000000 $t
+     /tmp/ccIMflsw.s:581    .text._ZN11EEPROMClass30EE_VerifyPageFullWriteVariableEtt:00000000 _ZN11EEPROMClass30EE_VerifyPageFullWriteVariableEtt
+     /tmp/ccIMflsw.s:780    .text._ZN11EEPROMClassC2Ev:00000000 $t
+     /tmp/ccIMflsw.s:785    .text._ZN11EEPROMClassC2Ev:00000000 _ZN11EEPROMClassC2Ev
+     /tmp/ccIMflsw.s:808    .text._ZN11EEPROMClassC2Ev:00000014 $d
+     /tmp/ccIMflsw.s:814    .text._ZN11EEPROMClass6formatEv:00000000 $t
+     /tmp/ccIMflsw.s:819    .text._ZN11EEPROMClass6formatEv:00000000 _ZN11EEPROMClass6formatEv
+     /tmp/ccIMflsw.s:884    .text._ZN11EEPROMClass4initEv:00000000 $t
+     /tmp/ccIMflsw.s:889    .text._ZN11EEPROMClass4initEv:00000000 _ZN11EEPROMClass4initEv
+     /tmp/ccIMflsw.s:1073   .text._ZN11EEPROMClass4initEjjj:00000000 $t
+     /tmp/ccIMflsw.s:1078   .text._ZN11EEPROMClass4initEjjj:00000000 _ZN11EEPROMClass4initEjjj
+     /tmp/ccIMflsw.s:1104   .text._ZN11EEPROMClass6erasesEPt:00000000 $t
+     /tmp/ccIMflsw.s:1109   .text._ZN11EEPROMClass6erasesEPt:00000000 _ZN11EEPROMClass6erasesEPt
+     /tmp/ccIMflsw.s:1167   .text._ZN11EEPROMClass4readEtPt:00000000 $t
+     /tmp/ccIMflsw.s:1172   .text._ZN11EEPROMClass4readEtPt:00000000 _ZN11EEPROMClass4readEtPt
+     /tmp/ccIMflsw.s:1264   .text._ZN11EEPROMClass4readEt:00000000 $t
+     /tmp/ccIMflsw.s:1269   .text._ZN11EEPROMClass4readEt:00000000 _ZN11EEPROMClass4readEt
+     /tmp/ccIMflsw.s:1296   .text._ZN11EEPROMClass5writeEtt:00000000 $t
+     /tmp/ccIMflsw.s:1301   .text._ZN11EEPROMClass5writeEtt:00000000 _ZN11EEPROMClass5writeEtt
+     /tmp/ccIMflsw.s:1360   .text._ZN11EEPROMClass5countEPt:00000000 $t
+     /tmp/ccIMflsw.s:1365   .text._ZN11EEPROMClass5countEPt:00000000 _ZN11EEPROMClass5countEPt
+     /tmp/ccIMflsw.s:1427   .text._ZN11EEPROMClass8maxcountEv:00000000 $t
+     /tmp/ccIMflsw.s:1432   .text._ZN11EEPROMClass8maxcountEv:00000000 _ZN11EEPROMClass8maxcountEv
+     /tmp/ccIMflsw.s:1452   .text.startup._GLOBAL__sub_I__ZN11EEPROMClass12EE_CheckPageEjt:00000000 $t
+     /tmp/ccIMflsw.s:1456   .text.startup._GLOBAL__sub_I__ZN11EEPROMClass12EE_CheckPageEjt:00000000 _GLOBAL__sub_I__ZN11EEPROMClass12EE_CheckPageEjt
+     /tmp/ccIMflsw.s:785    .text._ZN11EEPROMClassC2Ev:00000000 _ZN11EEPROMClassC1Ev
+     /tmp/ccIMflsw.s:1476   .text.startup._GLOBAL__sub_I__ZN11EEPROMClass12EE_CheckPageEjt:00000008 $d
+     /tmp/ccIMflsw.s:1483   .init_array:00000000 $d
+     /tmp/ccIMflsw.s:1493   .bss.EEPROM:00000000 EEPROM
+     /tmp/ccIMflsw.s:1489   .bss.EEPROM:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+FLASH_ErasePage
+FLASH_ProgramHalfWord
+FLASH_Unlock

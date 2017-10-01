@@ -3,6 +3,9 @@
 LIDARLite myLidarLite;
 
 float prev_val;
+unsigned char i2caddress[2] = {0x64, 0x66};
+// use STM pins below!
+int pinsArray[2] = {50, 52};
 
 int alt_read(){
   int temp = myLidarLite.distance();

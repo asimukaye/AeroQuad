@@ -34,7 +34,7 @@
  * Calculate roll/pitch axis error with gyro/accel data to
  * compute motor command thrust so used command are executed
  */
-void calculateFlightError()pos
+void calculateFlightError()
 {
   #if defined (UseGPSNavigator)
     if (navigationState == ON || positionHoldState == ON) {

@@ -1,0 +1,1933 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 4
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"AQMath.cpp"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text._Z12filterSmoothfff,"ax",%progbits
+  20              		.align	1
+  21              		.global	_Z12filterSmoothfff
+  22              		.thumb
+  23              		.thumb_func
+  25              	_Z12filterSmoothfff:
+  26              	.LFB114:
+  27              		.file 1 "/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp"
+   1:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** /*
+   2:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   AeroQuad v3.0.1 - February 2012
+   3:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   www.AeroQuad.com
+   4:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   Copyright (c) 2012 Ted Carancho.  All rights reserved.
+   5:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   An Open Source Arduino based multicopter.
+   6:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****  
+   7:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   This program is free software: you can redistribute it and/or modify 
+   8:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   it under the terms of the GNU General Public License as published by 
+   9:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   the Free Software Foundation, either version 3 of the License, or 
+  10:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   (at your option) any later version. 
+  11:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  12:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   This program is distributed in the hope that it will be useful, 
+  13:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   but WITHOUT ANY WARRANTY; without even the implied warranty of 
+  14:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+  15:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   GNU General Public License for more details. 
+  16:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  17:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   You should have received a copy of the GNU General Public License 
+  18:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   along with this program. If not, see <http://www.gnu.org/licenses/>. 
+  19:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** */
+  20:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  21:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** #include "AQMath.h"
+  22:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  23:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  24:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // Low pass filter, kept as regular C function for speed
+  25:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** float filterSmooth(float currentData, float previousData, float smoothFactor) 
+  26:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+  28              		.loc 1 26 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+  34              		.loc 1 26 0
+  35 0000 07EE102A 		fmsr	s14, r2
+  27:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   if (smoothFactor != 1.0) //only apply time compensated filter if smoothFactor is applied
+  36              		.loc 1 27 0
+  37 0004 F7EE006A 		fconsts	s13, #112
+  38 0008 B4EE667A 		fcmps	s14, s13
+  39 000c F1EE10FA 		fmstat
+  26:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+  40              		.loc 1 26 0
+  41 0010 07EE900A 		fmsr	s15, r0
+  42 0014 06EE101A 		fmsr	s12, r1
+  43              		.loc 1 27 0
+  44 0018 07D0     		beq	.L2
+  28:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+  29:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     return (previousData * (1.0 - smoothFactor) + (currentData * smoothFactor)); 
+  45              		.loc 1 29 0
+  46 001a 76EEC76A 		fsubs	s13, s13, s14
+  47 001e 66EE266A 		fmuls	s13, s12, s13
+  48 0022 47EE876A 		fmacs	s13, s15, s14
+  49 0026 F0EE667A 		fcpys	s15, s13
+  50              	.L2:
+  30:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+  31:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return currentData; //if smoothFactor == 1.0, do not calculate, just bypass!
+  32:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+  51              		.loc 1 32 0
+  52 002a 17EE900A 		fmrs	r0, s15
+  53              	.LVL1:
+  54 002e 7047     		bx	lr
+  55              		.cfi_endproc
+  56              	.LFE114:
+  58              		.section	.text._Z20filterSmoothWithTimeffff,"ax",%progbits
+  59              		.align	1
+  60              		.global	_Z20filterSmoothWithTimeffff
+  61              		.thumb
+  62              		.thumb_func
+  64              	_Z20filterSmoothWithTimeffff:
+  65              	.LFB115:
+  33:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  34:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** float filterSmoothWithTime(float currentData, float previousData, float smoothFactor, float dT_scal
+  35:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {  //time scale factor
+  66              		.loc 1 35 0
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 0
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70              		@ link register save eliminated.
+  71              	.LVL2:
+  72              		.loc 1 35 0
+  73 0000 07EE102A 		fmsr	s14, r2
+  36:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   if (smoothFactor != 1.0) //only apply time compensated filter if smoothFactor is applied
+  74              		.loc 1 36 0
+  75 0004 F7EE006A 		fconsts	s13, #112
+  76 0008 B4EE667A 		fcmps	s14, s13
+  77 000c F1EE10FA 		fmstat
+  35:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {  //time scale factor
+  78              		.loc 1 35 0
+  79 0010 07EE900A 		fmsr	s15, r0
+  80 0014 06EE101A 		fmsr	s12, r1
+  81 0018 05EE903A 		fmsr	s11, r3
+  82              		.loc 1 36 0
+  83 001c 09D0     		beq	.L4
+  37:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+  38:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     return (previousData * (1.0 - (smoothFactor * dT_scaledAroundOne)) + (currentData * (smoothFact
+  84              		.loc 1 38 0
+  85 001e 27EE257A 		fmuls	s14, s14, s11
+  86 0022 76EEC76A 		fsubs	s13, s13, s14
+  87 0026 66EE266A 		fmuls	s13, s12, s13
+  88 002a 47EE876A 		fmacs	s13, s15, s14
+  89 002e F0EE667A 		fcpys	s15, s13
+  90              	.L4:
+  39:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+  40:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return currentData; //if smoothFactor == 1.0, do not calculate, just bypass!
+  41:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+  91              		.loc 1 41 0
+  92 0032 17EE900A 		fmrs	r0, s15
+  93              	.LVL3:
+  94 0036 7047     		bx	lr
+  95              		.cfi_endproc
+  96              	.LFE115:
+  98              		.section	.text._ZN12MedianFilterC2Ev,"ax",%progbits
+  99              		.align	1
+ 100              		.global	_ZN12MedianFilterC2Ev
+ 101              		.thumb
+ 102              		.thumb_func
+ 104              	_ZN12MedianFilterC2Ev:
+ 105              	.LFB117:
+  42:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  43:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // ***********************************************************************
+  44:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // *********************** Median Filter Class ***************************
+  45:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // ***********************************************************************
+  46:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // Median filter currently not used, but kept if needed for the future
+  47:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // To declare use: MedianFilter filterSomething;
+  48:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  49:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** MedianFilter::MedianFilter() {}
+ 106              		.loc 1 49 0
+ 107              		.cfi_startproc
+ 108              		@ args = 0, pretend = 0, frame = 0
+ 109              		@ frame_needed = 0, uses_anonymous_args = 0
+ 110              		@ link register save eliminated.
+ 111              	.LVL4:
+ 112              		.loc 1 49 0
+ 113 0000 7047     		bx	lr
+ 114              		.cfi_endproc
+ 115              	.LFE117:
+ 117              		.section	.text._ZN12MedianFilter10initializeEv,"ax",%progbits
+ 118              		.align	1
+ 119              		.global	_ZN12MedianFilter10initializeEv
+ 120              		.thumb
+ 121              		.thumb_func
+ 123              	_ZN12MedianFilter10initializeEv:
+ 124              	.LFB119:
+  50:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  51:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void MedianFilter::initialize() 
+  52:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 125              		.loc 1 52 0
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 0
+ 128              		@ frame_needed = 0, uses_anonymous_args = 0
+ 129              		@ link register save eliminated.
+ 130              	.LVL5:
+ 131              		.loc 1 52 0
+ 132 0000 0246     		mov	r2, r0
+ 133 0002 1923     		movs	r3, #25
+ 134              	.LVL6:
+ 135              	.L8:
+ 136              	.LBB2:
+ 137              	.LBB3:
+  53:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int index = 0; index < DATASIZE; index++) 
+  54:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+  55:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     data[index] = 0;
+ 138              		.loc 1 55 0 discriminator 2
+ 139 0004 0021     		movs	r1, #0
+ 140 0006 42F8041B 		str	r1, [r2], #4	@ float
+  53:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int index = 0; index < DATASIZE; index++) 
+ 141              		.loc 1 53 0 discriminator 2
+ 142 000a 013B     		subs	r3, r3, #1
+  56:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     sortData[index] = 0;
+ 143              		.loc 1 56 0 discriminator 2
+ 144 000c 1166     		str	r1, [r2, #96]	@ float
+  53:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int index = 0; index < DATASIZE; index++) 
+ 145              		.loc 1 53 0 discriminator 2
+ 146 000e F9D1     		bne	.L8
+ 147              	.LBE3:
+  57:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+  58:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   dataIndex = 0;
+ 148              		.loc 1 58 0
+ 149 0010 C0F8C830 		str	r3, [r0, #200]
+ 150              	.LBE2:
+  59:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 151              		.loc 1 59 0
+ 152 0014 7047     		bx	lr
+ 153              		.cfi_endproc
+ 154              	.LFE119:
+ 156              		.section	.text._ZN12MedianFilter6filterEf,"ax",%progbits
+ 157              		.align	1
+ 158              		.global	_ZN12MedianFilter6filterEf
+ 159              		.thumb
+ 160              		.thumb_func
+ 162              	_ZN12MedianFilter6filterEf:
+ 163              	.LFB120:
+  60:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   
+  61:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** const float MedianFilter::filter(float newData) 
+  62:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 164              		.loc 1 62 0
+ 165              		.cfi_startproc
+ 166              		@ args = 0, pretend = 0, frame = 0
+ 167              		@ frame_needed = 0, uses_anonymous_args = 0
+ 168              	.LVL7:
+ 169 0000 38B5     		push	{r3, r4, r5, lr}
+ 170              	.LCFI0:
+ 171              		.cfi_def_cfa_offset 16
+ 172              		.cfi_offset 14, -4
+ 173              		.cfi_offset 5, -8
+ 174              		.cfi_offset 4, -12
+ 175              		.cfi_offset 3, -16
+ 176              	.LBB4:
+  63:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   int temp, j; // used to sort array
+  64:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  65:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   // Insert new data into raw data array round robin style
+  66:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   data[dataIndex] = newData;
+ 177              		.loc 1 66 0
+ 178 0002 D0F8C830 		ldr	r3, [r0, #200]
+ 179 0006 00EB8302 		add	r2, r0, r3, lsl #2
+  67:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   if (dataIndex < (DATASIZE-1)) 
+ 180              		.loc 1 67 0
+ 181 000a 172B     		cmp	r3, #23
+ 182              	.LBE4:
+  62:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 183              		.loc 1 62 0
+ 184 000c 0446     		mov	r4, r0
+ 185              	.LBB6:
+  66:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   data[dataIndex] = newData;
+ 186              		.loc 1 66 0
+ 187 000e 1160     		str	r1, [r2, #0]	@ float
+ 188              		.loc 1 67 0
+ 189 0010 01DC     		bgt	.L11
+  68:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+  69:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     dataIndex++;
+ 190              		.loc 1 69 0
+ 191 0012 0133     		adds	r3, r3, #1
+ 192 0014 00E0     		b	.L19
+ 193              	.L11:
+  70:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+  71:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   else 
+  72:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+  73:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     dataIndex = 0;    
+ 194              		.loc 1 73 0
+ 195 0016 0023     		movs	r3, #0
+ 196              	.L19:
+  74:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+  75:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  76:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   // Copy raw data to sort data array
+  77:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   memcpy(sortData, data, sizeof(data));
+ 197              		.loc 1 77 0
+ 198 0018 04F16405 		add	r5, r4, #100
+  73:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     dataIndex = 0;    
+ 199              		.loc 1 73 0
+ 200 001c C0F8C830 		str	r3, [r0, #200]
+ 201              		.loc 1 77 0
+ 202 0020 2146     		mov	r1, r4
+ 203              	.LVL8:
+ 204 0022 2846     		mov	r0, r5
+ 205              	.LVL9:
+ 206 0024 6422     		movs	r2, #100
+ 207              	.LVL10:
+ 208 0026 FFF7FEFF 		bl	memcpy
+ 209              	.LVL11:
+ 210              	.LBE6:
+  61:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** const float MedianFilter::filter(float newData) 
+ 211              		.loc 1 61 0
+ 212 002a 0223     		movs	r3, #2
+ 213              	.LVL12:
+ 214              	.L16:
+ 215              	.LBB7:
+ 216              	.LBB5:
+  78:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  79:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   // Insertion Sort
+  80:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i=1; i<=(DATASIZE-1); i++) 
+  81:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+  82:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     temp = sortData[i];
+ 217              		.loc 1 82 0
+ 218 002c 0435     		adds	r5, r5, #4
+ 219 002e D5ED006A 		flds	s13, [r5, #0]
+  61:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** const float MedianFilter::filter(float newData) 
+ 220              		.loc 1 61 0
+ 221 0032 04EB8301 		add	r1, r4, r3, lsl #2
+ 222              		.loc 1 82 0
+ 223 0036 FDEEE66A 		ftosizs	s13, s13
+ 224              	.LVL13:
+  61:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** const float MedianFilter::filter(float newData) 
+ 225              		.loc 1 61 0
+ 226 003a 9A1E     		subs	r2, r3, #2
+ 227              	.LVL14:
+ 228 003c 6431     		adds	r1, r1, #100
+ 229              	.L15:
+  83:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     j = i-1;
+  84:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     while(temp<sortData[j] && j>=0) 
+ 230              		.loc 1 84 0 discriminator 1
+ 231 003e F8EEE67A 		fsitos	s15, s13
+ 232 0042 11ED027A 		flds	s14, [r1, #-8]
+ 233 0046 F4EEC77A 		fcmpes	s15, s14
+ 234 004a F1EE10FA 		fmstat
+ 235 004e 05D5     		bpl	.L13
+ 236              		.loc 1 84 0 is_stmt 0 discriminator 2
+ 237 0050 501C     		adds	r0, r2, #1
+ 238 0052 03D0     		beq	.L13
+  85:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	{
+  86:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	  sortData[j+1] = sortData[j];
+ 239              		.loc 1 86 0 is_stmt 1 discriminator 5
+ 240 0054 21ED017A 		fstmdbs	r1!, {s14}
+  87:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	  j = j-1;
+ 241              		.loc 1 87 0 discriminator 5
+ 242 0058 013A     		subs	r2, r2, #1
+ 243              	.LVL15:
+ 244 005a F0E7     		b	.L15
+ 245              	.L13:
+  88:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     }
+  89:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     sortData[j+1] = temp;
+ 246              		.loc 1 89 0
+ 247 005c 0133     		adds	r3, r3, #1
+ 248 005e 04EB8200 		add	r0, r4, r2, lsl #2
+  80:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i=1; i<=(DATASIZE-1); i++) 
+ 249              		.loc 1 80 0
+ 250 0062 1A2B     		cmp	r3, #26
+ 251              		.loc 1 89 0
+ 252 0064 C0ED1A7A 		fsts	s15, [r0, #104]
+  80:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i=1; i<=(DATASIZE-1); i++) 
+ 253              		.loc 1 80 0
+ 254 0068 E0D1     		bne	.L16
+ 255              	.LBE5:
+ 256              	.LBE7:
+  90:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+  91:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return data[(DATASIZE)>>1]; // return data value in middle of sorted array
+  92:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** } 
+ 257              		.loc 1 92 0
+ 258 006a 206B     		ldr	r0, [r4, #48]	@ float
+ 259 006c 38BD     		pop	{r3, r4, r5, pc}
+ 260              		.cfi_endproc
+ 261              	.LFE120:
+ 263              		.section	.text._Z16vectorDotProductiPfS_,"ax",%progbits
+ 264              		.align	1
+ 265              		.global	_Z16vectorDotProductiPfS_
+ 266              		.thumb
+ 267              		.thumb_func
+ 269              	_Z16vectorDotProductiPfS_:
+ 270              	.LFB121:
+  93:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+  94:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+  95:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Vector Dot Product
+  96:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Return the Dot product of vectors a and b with length m
+  97:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+  98:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: vectorDotProduct(m, a, b)
+  99:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 100:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 101:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** float vectorDotProduct(int length, float vector1[], float vector2[])
+ 102:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 271              		.loc 1 102 0
+ 272              		.cfi_startproc
+ 273              		@ args = 0, pretend = 0, frame = 0
+ 274              		@ frame_needed = 0, uses_anonymous_args = 0
+ 275              		@ link register save eliminated.
+ 276              	.LVL16:
+ 277              	.LBB8:
+ 278              	.LBB9:
+ 103:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float dotProduct = 0;
+ 104:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   //int   i;
+ 105:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 106:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < length; i++)
+ 279              		.loc 1 106 0
+ 280 0000 0023     		movs	r3, #0
+ 103:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float dotProduct = 0;
+ 281              		.loc 1 103 0
+ 282 0002 DFED077A 		flds	s15, .L23
+ 283              		.loc 1 106 0
+ 284 0006 06E0     		b	.L21
+ 285              	.LVL17:
+ 286              	.L22:
+ 107:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 108:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   dotProduct += vector1[i] * vector2[i];
+ 287              		.loc 1 108 0 discriminator 2
+ 288 0008 F1EC016A 		fldmias	r1!, {s13}
+ 289 000c B2EC017A 		fldmias	r2!, {s14}
+ 290 0010 46EE877A 		fmacs	s15, s13, s14
+ 291              	.LVL18:
+ 106:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < length; i++)
+ 292              		.loc 1 106 0 discriminator 2
+ 293 0014 0133     		adds	r3, r3, #1
+ 294              	.LVL19:
+ 295              	.L21:
+ 106:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < length; i++)
+ 296              		.loc 1 106 0 is_stmt 0 discriminator 1
+ 297 0016 8342     		cmp	r3, r0
+ 298 0018 F6DB     		blt	.L22
+ 299              	.LBE9:
+ 300              	.LBE8:
+ 109:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 110:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 111:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return dotProduct;
+ 112:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 301              		.loc 1 112 0 is_stmt 1
+ 302 001a 17EE900A 		fmrs	r0, s15
+ 303              	.LVL20:
+ 304 001e 7047     		bx	lr
+ 305              	.L24:
+ 306              		.align	2
+ 307              	.L23:
+ 308 0020 00000000 		.word	0
+ 309              		.cfi_endproc
+ 310              	.LFE121:
+ 312              		.section	.text._Z18vectorCrossProductPfS_S_,"ax",%progbits
+ 313              		.align	1
+ 314              		.global	_Z18vectorCrossProductPfS_S_
+ 315              		.thumb
+ 316              		.thumb_func
+ 318              	_Z18vectorCrossProductPfS_S_:
+ 319              	.LFB122:
+ 113:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 114:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 115:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Vector Cross Product
+ 116:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Compute the cross product of vectors a and b with length 3
+ 117:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Place result in vector C
+ 118:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 119:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: vectorDotProduct(c, a, b)
+ 120:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 121:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 122:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void vectorCrossProduct(float vectorC[3], float vectorA[3], float vectorB[3])
+ 123:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 320              		.loc 1 123 0
+ 321              		.cfi_startproc
+ 322              		@ args = 0, pretend = 0, frame = 0
+ 323              		@ frame_needed = 0, uses_anonymous_args = 0
+ 324              		@ link register save eliminated.
+ 325              	.LVL21:
+ 124:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   vectorC[0] = (vectorA[1] * vectorB[2]) - (vectorA[2] * vectorB[1]);
+ 326              		.loc 1 124 0
+ 327 0000 D1ED023A 		flds	s7, [r1, #8]
+ 328 0004 92ED012A 		flds	s4, [r2, #4]
+ 329 0008 D1ED012A 		flds	s5, [r1, #4]
+ 330 000c 92ED023A 		flds	s6, [r2, #8]
+ 331 0010 23EE822A 		fmuls	s4, s7, s4
+ 332 0014 12EE832A 		fmscs	s4, s5, s6
+ 333 0018 80ED002A 		fsts	s4, [r0, #0]
+ 125:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   vectorC[1] = (vectorA[2] * vectorB[0]) - (vectorA[0] * vectorB[2]);
+ 334              		.loc 1 125 0
+ 335 001c D1ED001A 		flds	s3, [r1, #0]
+ 336 0020 92ED020A 		flds	s0, [r2, #8]
+ 337 0024 D1ED020A 		flds	s1, [r1, #8]
+ 338 0028 92ED001A 		flds	s2, [r2, #0]
+ 339 002c 21EE800A 		fmuls	s0, s3, s0
+ 340 0030 10EE810A 		fmscs	s0, s1, s2
+ 341 0034 80ED010A 		fsts	s0, [r0, #4]
+ 126:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   vectorC[2] = (vectorA[0] * vectorB[1]) - (vectorA[1] * vectorB[0]);
+ 342              		.loc 1 126 0
+ 343 0038 91ED016A 		flds	s12, [r1, #4]
+ 344 003c D2ED007A 		flds	s15, [r2, #0]
+ 345 0040 D1ED006A 		flds	s13, [r1, #0]
+ 346 0044 92ED017A 		flds	s14, [r2, #4]
+ 347 0048 66EE277A 		fmuls	s15, s12, s15
+ 348 004c 56EE877A 		fmscs	s15, s13, s14
+ 349 0050 C0ED027A 		fsts	s15, [r0, #8]
+ 127:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 350              		.loc 1 127 0
+ 351 0054 7047     		bx	lr
+ 352              		.cfi_endproc
+ 353              	.LFE122:
+ 355              		.section	.text._Z11vectorScaleiPfS_f,"ax",%progbits
+ 356              		.align	1
+ 357              		.global	_Z11vectorScaleiPfS_f
+ 358              		.thumb
+ 359              		.thumb_func
+ 361              	_Z11vectorScaleiPfS_f:
+ 362              	.LFB123:
+ 128:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 129:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 130:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Multiply a vector by a scalar
+ 131:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Mulitply vector a with length m by a scalar
+ 132:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Place result in vector b
+ 133:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 134:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: vectorScale(m, b, a, scalar)
+ 135:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 136:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 137:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void vectorScale(int length, float scaledVector[], float inputVector[], float scalar)
+ 138:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 363              		.loc 1 138 0
+ 364              		.cfi_startproc
+ 365              		@ args = 0, pretend = 0, frame = 0
+ 366              		@ frame_needed = 0, uses_anonymous_args = 0
+ 367              		@ link register save eliminated.
+ 368              	.LVL22:
+ 369              		.loc 1 138 0
+ 370 0000 07EE903A 		fmsr	s15, r3
+ 371              	.LBB10:
+ 139:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < length; i++)
+ 372              		.loc 1 139 0
+ 373 0004 0023     		movs	r3, #0
+ 374              	.LVL23:
+ 375 0006 06E0     		b	.L27
+ 376              	.LVL24:
+ 377              	.L28:
+ 140:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 141:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****    scaledVector[i] = inputVector[i] * scalar;
+ 378              		.loc 1 141 0 discriminator 2
+ 379 0008 B2EC017A 		fldmias	r2!, {s14}
+ 380 000c 27EE277A 		fmuls	s14, s14, s15
+ 139:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < length; i++)
+ 381              		.loc 1 139 0 discriminator 2
+ 382 0010 0133     		adds	r3, r3, #1
+ 383              	.LVL25:
+ 384              		.loc 1 141 0 discriminator 2
+ 385 0012 A1EC017A 		fstmias	r1!, {s14}
+ 386              	.LVL26:
+ 387              	.L27:
+ 139:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < length; i++)
+ 388              		.loc 1 139 0 discriminator 1
+ 389 0016 8342     		cmp	r3, r0
+ 390 0018 F6DB     		blt	.L28
+ 391              	.LBE10:
+ 142:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 143:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 392              		.loc 1 143 0
+ 393 001a 7047     		bx	lr
+ 394              		.cfi_endproc
+ 395              	.LFE123:
+ 397              		.section	.text._Z9vectorAddiPfS_S_,"ax",%progbits
+ 398              		.align	1
+ 399              		.global	_Z9vectorAddiPfS_S_
+ 400              		.thumb
+ 401              		.thumb_func
+ 403              	_Z9vectorAddiPfS_S_:
+ 404              	.LFB124:
+ 144:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 145:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 146:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Compute sum of 2 vectors
+ 147:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Add vector a to vector b, both of length m
+ 148:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Place result in vector c
+ 149:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 150:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: vectorAdd(m, c, b, a)
+ 151:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 152:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 153:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void vectorAdd(int length, float vectorC[], float vectorA[], float vectorB[])
+ 154:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 405              		.loc 1 154 0
+ 406              		.cfi_startproc
+ 407              		@ args = 0, pretend = 0, frame = 0
+ 408              		@ frame_needed = 0, uses_anonymous_args = 0
+ 409              	.LVL27:
+ 410 0000 10B5     		push	{r4, lr}
+ 411              	.LCFI1:
+ 412              		.cfi_def_cfa_offset 8
+ 413              		.cfi_offset 14, -4
+ 414              		.cfi_offset 4, -8
+ 415              	.LBB11:
+ 155:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i = 0; i < length; i++)
+ 416              		.loc 1 155 0
+ 417 0002 0024     		movs	r4, #0
+ 418 0004 08E0     		b	.L30
+ 419              	.LVL28:
+ 420              	.L31:
+ 156:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 157:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****      vectorC[i] = vectorA[i] + vectorB[i];
+ 421              		.loc 1 157 0 discriminator 2
+ 422 0006 B2EC017A 		fldmias	r2!, {s14}
+ 423 000a B3EC010A 		fldmias	r3!, {s0}
+ 424 000e 77EE007A 		fadds	s15, s14, s0
+ 155:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i = 0; i < length; i++)
+ 425              		.loc 1 155 0 discriminator 2
+ 426 0012 0134     		adds	r4, r4, #1
+ 427              	.LVL29:
+ 428              		.loc 1 157 0 discriminator 2
+ 429 0014 E1EC017A 		fstmias	r1!, {s15}
+ 430              	.LVL30:
+ 431              	.L30:
+ 155:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i = 0; i < length; i++)
+ 432              		.loc 1 155 0 discriminator 1
+ 433 0018 8442     		cmp	r4, r0
+ 434 001a F4DB     		blt	.L31
+ 435              	.LBE11:
+ 158:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 159:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 436              		.loc 1 159 0
+ 437 001c 10BD     		pop	{r4, pc}
+ 438              		.cfi_endproc
+ 439              	.LFE124:
+ 441              		.section	.text._Z14vectorSubtractiPfS_S_,"ax",%progbits
+ 442              		.align	1
+ 443              		.global	_Z14vectorSubtractiPfS_S_
+ 444              		.thumb
+ 445              		.thumb_func
+ 447              	_Z14vectorSubtractiPfS_S_:
+ 448              	.LFB125:
+ 160:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 161:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 162:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Compute difference of 2 vectors
+ 163:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Subtract vector a from vector b, both of length m
+ 164:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Place result in vector c
+ 165:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 166:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: vectorSubtract(m, c, b, a)
+ 167:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 168:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 169:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void vectorSubtract(int length, float vectorC[], float vectorA[], float vectorB[])
+ 170:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 449              		.loc 1 170 0
+ 450              		.cfi_startproc
+ 451              		@ args = 0, pretend = 0, frame = 0
+ 452              		@ frame_needed = 0, uses_anonymous_args = 0
+ 453              	.LVL31:
+ 454 0000 10B5     		push	{r4, lr}
+ 455              	.LCFI2:
+ 456              		.cfi_def_cfa_offset 8
+ 457              		.cfi_offset 14, -4
+ 458              		.cfi_offset 4, -8
+ 459              	.LBB12:
+ 171:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i = 0; i < length; i++)
+ 460              		.loc 1 171 0
+ 461 0002 0024     		movs	r4, #0
+ 462 0004 08E0     		b	.L33
+ 463              	.LVL32:
+ 464              	.L34:
+ 172:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 173:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****      vectorC[i] = vectorA[i] - vectorB[i];
+ 465              		.loc 1 173 0 discriminator 2
+ 466 0006 B2EC017A 		fldmias	r2!, {s14}
+ 467 000a B3EC010A 		fldmias	r3!, {s0}
+ 468 000e 77EE407A 		fsubs	s15, s14, s0
+ 171:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i = 0; i < length; i++)
+ 469              		.loc 1 171 0 discriminator 2
+ 470 0012 0134     		adds	r4, r4, #1
+ 471              	.LVL33:
+ 472              		.loc 1 173 0 discriminator 2
+ 473 0014 E1EC017A 		fstmias	r1!, {s15}
+ 474              	.LVL34:
+ 475              	.L33:
+ 171:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for(int i = 0; i < length; i++)
+ 476              		.loc 1 171 0 discriminator 1
+ 477 0018 8442     		cmp	r4, r0
+ 478 001a F4DB     		blt	.L34
+ 479              	.LBE12:
+ 174:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 175:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 480              		.loc 1 175 0
+ 481 001c 10BD     		pop	{r4, pc}
+ 482              		.cfi_endproc
+ 483              	.LFE125:
+ 485              		.section	.text._Z14matrixMultiplyiiiPfS_S_,"ax",%progbits
+ 486              		.align	1
+ 487              		.global	_Z14matrixMultiplyiiiPfS_S_
+ 488              		.thumb
+ 489              		.thumb_func
+ 491              	_Z14matrixMultiplyiiiPfS_S_:
+ 492              	.LFB126:
+ 176:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 177:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 178:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Matrix Multiply
+ 179:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Multiply matrix A times matrix B, matrix A dimension m x n, matrix B dimension n x p
+ 180:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Result placed in matrix C, dimension m x p
+ 181:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 182:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: matrixMultiply(m, n, p, C, A, B)
+ 183:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 184:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 185:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixMultiply(int aRows, int aCols_bRows, int bCols, float matrixC[], float matrixA[], float 
+ 186:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 493              		.loc 1 186 0
+ 494              		.cfi_startproc
+ 495              		@ args = 8, pretend = 0, frame = 8
+ 496              		@ frame_needed = 0, uses_anonymous_args = 0
+ 497              	.LVL35:
+ 498 0000 2DE9F74F 		push	{r0, r1, r2, r4, r5, r6, r7, r8, r9, sl, fp, lr}
+ 499              	.LCFI3:
+ 500              		.cfi_def_cfa_offset 48
+ 501              		.cfi_offset 14, -4
+ 502              		.cfi_offset 11, -8
+ 503              		.cfi_offset 10, -12
+ 504              		.cfi_offset 9, -16
+ 505              		.cfi_offset 8, -20
+ 506              		.cfi_offset 7, -24
+ 507              		.cfi_offset 6, -28
+ 508              		.cfi_offset 5, -32
+ 509              		.cfi_offset 4, -36
+ 510              		.cfi_offset 2, -40
+ 511              		.cfi_offset 1, -44
+ 512              		.cfi_offset 0, -48
+ 513              		.loc 1 186 0
+ 514 0004 8346     		mov	fp, r0
+ 515              	.LBB13:
+ 187:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < aRows * bCols; i++)
+ 516              		.loc 1 187 0
+ 517 0006 1D46     		mov	r5, r3
+ 518 0008 5043     		muls	r0, r2, r0
+ 519              	.LVL36:
+ 520 000a 0024     		movs	r4, #0
+ 521 000c 03E0     		b	.L36
+ 522              	.LVL37:
+ 523              	.L37:
+ 188:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 189:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     matrixC[i] = 0.0;
+ 524              		.loc 1 189 0 discriminator 2
+ 525 000e 0026     		movs	r6, #0
+ 526 0010 45F8046B 		str	r6, [r5], #4	@ float
+ 187:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < aRows * bCols; i++)
+ 527              		.loc 1 187 0 discriminator 2
+ 528 0014 0134     		adds	r4, r4, #1
+ 529              	.LVL38:
+ 530              	.L36:
+ 187:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < aRows * bCols; i++)
+ 531              		.loc 1 187 0 is_stmt 0 discriminator 1
+ 532 0016 8442     		cmp	r4, r0
+ 533 0018 F9DB     		blt	.L37
+ 185:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixMultiply(int aRows, int aCols_bRows, int bCols, float matrixC[], float matrixA[], float 
+ 534              		.loc 1 185 0 is_stmt 1
+ 535 001a 8800     		lsls	r0, r1, #2
+ 536 001c 4FEA8208 		lsl	r8, r2, #2
+ 537 0020 0190     		str	r0, [sp, #4]
+ 538 0022 0C9D     		ldr	r5, [sp, #48]
+ 539              	.LBE13:
+ 540              	.LBB14:
+ 541              	.LBB15:
+ 542 0024 0024     		movs	r4, #0
+ 543              	.LVL39:
+ 544 0026 9C46     		mov	ip, r3
+ 545 0028 1FE0     		b	.L38
+ 546              	.LVL40:
+ 547              	.L39:
+ 548              	.LBB16:
+ 185:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixMultiply(int aRows, int aCols_bRows, int bCols, float matrixC[], float matrixA[], float 
+ 549              		.loc 1 185 0 is_stmt 0 discriminator 2
+ 550 002a 05EB8009 		add	r9, r5, r0, lsl #2
+ 190:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 191:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 192:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < aRows; i++)
+ 193:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 194:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for(int j = 0; j < aCols_bRows; j++)
+ 195:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     {
+ 196:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       for(int k = 0;  k < bCols; k++)
+ 197:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       {
+ 198:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****        matrixC[i * bCols + k] += matrixA[i * aCols_bRows + j] * matrixB[j * bCols + k];
+ 551              		.loc 1 198 0 is_stmt 1 discriminator 2
+ 552 002e 0434     		adds	r4, r4, #4
+ 553 0030 D7ED007A 		flds	s15, [r7, #0]
+ 554 0034 D9ED006A 		flds	s13, [r9, #0]
+ 555 0038 94ED007A 		flds	s14, [r4, #0]
+ 556 003c 46EE877A 		fmacs	s15, s13, s14
+ 196:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       for(int k = 0;  k < bCols; k++)
+ 557              		.loc 1 196 0 discriminator 2
+ 558 0040 0133     		adds	r3, r3, #1
+ 559              	.LVL41:
+ 560              		.loc 1 198 0 discriminator 2
+ 561 0042 E7EC017A 		fstmias	r7!, {s15}
+ 562 0046 04E0     		b	.L40
+ 563              	.LVL42:
+ 564              	.L43:
+ 565              	.LBE16:
+ 194:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for(int j = 0; j < aCols_bRows; j++)
+ 566              		.loc 1 194 0
+ 567 0048 A246     		mov	sl, r4
+ 568 004a 6746     		mov	r7, ip
+ 569 004c 0023     		movs	r3, #0
+ 570 004e 0091     		str	r1, [sp, #0]
+ 571 0050 3446     		mov	r4, r6
+ 572              	.LVL43:
+ 573              	.L40:
+ 574              	.LBB17:
+ 196:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       for(int k = 0;  k < bCols; k++)
+ 575              		.loc 1 196 0 discriminator 1
+ 576 0052 9342     		cmp	r3, r2
+ 577 0054 E9DB     		blt	.L39
+ 578 0056 0099     		ldr	r1, [sp, #0]
+ 579 0058 5446     		mov	r4, sl
+ 580              	.LBE17:
+ 194:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for(int j = 0; j < aCols_bRows; j++)
+ 581              		.loc 1 194 0
+ 582 005a 0130     		adds	r0, r0, #1
+ 583              	.LVL44:
+ 584 005c 4644     		add	r6, r6, r8
+ 585              	.LVL45:
+ 586              	.L42:
+ 194:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for(int j = 0; j < aCols_bRows; j++)
+ 587              		.loc 1 194 0 is_stmt 0 discriminator 1
+ 588 005e 8842     		cmp	r0, r1
+ 589 0060 F2DB     		blt	.L43
+ 590              	.LBE15:
+ 192:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < aRows; i++)
+ 591              		.loc 1 192 0 is_stmt 1
+ 592 0062 019B     		ldr	r3, [sp, #4]
+ 593 0064 0134     		adds	r4, r4, #1
+ 594              	.LVL46:
+ 595 0066 C444     		add	ip, ip, r8
+ 596 0068 ED18     		adds	r5, r5, r3
+ 597              	.LVL47:
+ 598              	.L38:
+ 192:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < aRows; i++)
+ 599              		.loc 1 192 0 is_stmt 0 discriminator 1
+ 600 006a 5C45     		cmp	r4, fp
+ 601 006c 03DA     		bge	.L35
+ 185:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixMultiply(int aRows, int aCols_bRows, int bCols, float matrixC[], float matrixA[], float 
+ 602              		.loc 1 185 0 is_stmt 1
+ 603 006e 0D9E     		ldr	r6, [sp, #52]
+ 604              	.LBB18:
+ 605 0070 0020     		movs	r0, #0
+ 606              	.LBE18:
+ 607 0072 043E     		subs	r6, r6, #4
+ 608 0074 F3E7     		b	.L42
+ 609              	.L35:
+ 610              	.LBE14:
+ 199:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       }
+ 200:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     }
+ 201:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 202:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 611              		.loc 1 202 0
+ 612 0076 BDE8FE8F 		pop	{r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp, pc}
+ 613              		.cfi_endproc
+ 614              	.LFE126:
+ 616              		.section	.text._Z9matrixAddiiPfS_S_,"ax",%progbits
+ 617              		.align	1
+ 618              		.global	_Z9matrixAddiiPfS_S_
+ 619              		.thumb
+ 620              		.thumb_func
+ 622              	_Z9matrixAddiiPfS_S_:
+ 623              	.LFB127:
+ 203:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 204:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 205:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Matrix Addition
+ 206:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Add matrix A to matrix B, dimensions m x n
+ 207:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Result placed in matrix C, dimension m x n
+ 208:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 209:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: matrixAdd(m, n, C, A, B)
+ 210:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 211:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 212:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixAdd(int rows, int cols, float matrixC[], float matrixA[], float matrixB[])
+ 213:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 624              		.loc 1 213 0
+ 625              		.cfi_startproc
+ 626              		@ args = 4, pretend = 0, frame = 0
+ 627              		@ frame_needed = 0, uses_anonymous_args = 0
+ 628              	.LVL48:
+ 629 0000 10B5     		push	{r4, lr}
+ 630              	.LCFI4:
+ 631              		.cfi_def_cfa_offset 8
+ 632              		.cfi_offset 14, -4
+ 633              		.cfi_offset 4, -8
+ 634              	.LBB19:
+ 214:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 635              		.loc 1 214 0
+ 636 0002 4143     		muls	r1, r0, r1
+ 637              	.LVL49:
+ 638 0004 0024     		movs	r4, #0
+ 639 0006 0298     		ldr	r0, [sp, #8]
+ 640              	.LVL50:
+ 641 0008 08E0     		b	.L45
+ 642              	.LVL51:
+ 643              	.L46:
+ 215:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 216:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     matrixC[i] = matrixA[i] + matrixB[i];
+ 644              		.loc 1 216 0 discriminator 2
+ 645 000a B3EC017A 		fldmias	r3!, {s14}
+ 646 000e B0EC010A 		fldmias	r0!, {s0}
+ 647 0012 77EE007A 		fadds	s15, s14, s0
+ 214:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 648              		.loc 1 214 0 discriminator 2
+ 649 0016 0134     		adds	r4, r4, #1
+ 650              	.LVL52:
+ 651              		.loc 1 216 0 discriminator 2
+ 652 0018 E2EC017A 		fstmias	r2!, {s15}
+ 653              	.LVL53:
+ 654              	.L45:
+ 214:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 655              		.loc 1 214 0 discriminator 1
+ 656 001c 8C42     		cmp	r4, r1
+ 657 001e F4DB     		blt	.L46
+ 658              	.LBE19:
+ 217:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 218:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 659              		.loc 1 218 0
+ 660 0020 10BD     		pop	{r4, pc}
+ 661              		.cfi_endproc
+ 662              	.LFE127:
+ 664              		.section	.text._Z14matrixSubtractiiPfS_S_,"ax",%progbits
+ 665              		.align	1
+ 666              		.global	_Z14matrixSubtractiiPfS_S_
+ 667              		.thumb
+ 668              		.thumb_func
+ 670              	_Z14matrixSubtractiiPfS_S_:
+ 671              	.LFB128:
+ 219:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 220:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 221:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Matrix Subtraction
+ 222:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Subtract matrix A from matrix B, dimensions m x n
+ 223:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Result placed in matrix C, dimension m x n
+ 224:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 225:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: matrixSubtract(m, n, C, A, B)
+ 226:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 227:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 228:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixSubtract(int rows, int cols, float matrixC[], float matrixA[], float matrixB[])
+ 229:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 672              		.loc 1 229 0
+ 673              		.cfi_startproc
+ 674              		@ args = 4, pretend = 0, frame = 0
+ 675              		@ frame_needed = 0, uses_anonymous_args = 0
+ 676              	.LVL54:
+ 677 0000 10B5     		push	{r4, lr}
+ 678              	.LCFI5:
+ 679              		.cfi_def_cfa_offset 8
+ 680              		.cfi_offset 14, -4
+ 681              		.cfi_offset 4, -8
+ 682              	.LBB20:
+ 230:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 683              		.loc 1 230 0
+ 684 0002 4143     		muls	r1, r0, r1
+ 685              	.LVL55:
+ 686 0004 0024     		movs	r4, #0
+ 687 0006 0298     		ldr	r0, [sp, #8]
+ 688              	.LVL56:
+ 689 0008 08E0     		b	.L48
+ 690              	.LVL57:
+ 691              	.L49:
+ 231:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 232:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     matrixC[i] = matrixA[i] - matrixB[i];
+ 692              		.loc 1 232 0 discriminator 2
+ 693 000a B3EC017A 		fldmias	r3!, {s14}
+ 694 000e B0EC010A 		fldmias	r0!, {s0}
+ 695 0012 77EE407A 		fsubs	s15, s14, s0
+ 230:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 696              		.loc 1 230 0 discriminator 2
+ 697 0016 0134     		adds	r4, r4, #1
+ 698              	.LVL58:
+ 699              		.loc 1 232 0 discriminator 2
+ 700 0018 E2EC017A 		fstmias	r2!, {s15}
+ 701              	.LVL59:
+ 702              	.L48:
+ 230:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 703              		.loc 1 230 0 discriminator 1
+ 704 001c 8C42     		cmp	r4, r1
+ 705 001e F4DB     		blt	.L49
+ 706              	.LBE20:
+ 233:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 234:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 707              		.loc 1 234 0
+ 708 0020 10BD     		pop	{r4, pc}
+ 709              		.cfi_endproc
+ 710              	.LFE128:
+ 712              		.section	.text._Z11matrixScaleiiPffS_,"ax",%progbits
+ 713              		.align	1
+ 714              		.global	_Z11matrixScaleiiPffS_
+ 715              		.thumb
+ 716              		.thumb_func
+ 718              	_Z11matrixScaleiiPffS_:
+ 719              	.LFB129:
+ 235:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 236:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 237:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 238:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Matrix Scaling
+ 239:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Scale matrix A, dimensions m x n, by a scaler, S
+ 240:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Result placed in matrix C, dimension m x n
+ 241:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 242:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: matrixScale(m, n, C, S, B)
+ 243:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 244:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 245:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixScale(int rows, int cols, float matrixC[], float scaler, float matrixA[])
+ 246:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 720              		.loc 1 246 0
+ 721              		.cfi_startproc
+ 722              		@ args = 4, pretend = 0, frame = 0
+ 723              		@ frame_needed = 0, uses_anonymous_args = 0
+ 724              		@ link register save eliminated.
+ 725              	.LVL60:
+ 726              		.loc 1 246 0
+ 727 0000 07EE903A 		fmsr	s15, r3
+ 728              	.LBB21:
+ 247:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 729              		.loc 1 247 0
+ 730 0004 4143     		muls	r1, r0, r1
+ 731              	.LVL61:
+ 732 0006 009B     		ldr	r3, [sp, #0]
+ 733              	.LVL62:
+ 734 0008 0020     		movs	r0, #0
+ 735              	.LVL63:
+ 736 000a 06E0     		b	.L51
+ 737              	.LVL64:
+ 738              	.L52:
+ 248:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 249:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     matrixC[i] = scaler * matrixA[i];
+ 739              		.loc 1 249 0 discriminator 2
+ 740 000c B3EC017A 		fldmias	r3!, {s14}
+ 741 0010 27EE877A 		fmuls	s14, s15, s14
+ 247:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 742              		.loc 1 247 0 discriminator 2
+ 743 0014 0130     		adds	r0, r0, #1
+ 744              	.LVL65:
+ 745              		.loc 1 249 0 discriminator 2
+ 746 0016 A2EC017A 		fstmias	r2!, {s14}
+ 747              	.LVL66:
+ 748              	.L51:
+ 247:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   for (int i = 0; i < rows * cols; i++)
+ 749              		.loc 1 247 0 discriminator 1
+ 750 001a 8842     		cmp	r0, r1
+ 751 001c F6DB     		blt	.L52
+ 752              	.LBE21:
+ 250:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 251:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 753              		.loc 1 251 0
+ 754 001e 7047     		bx	lr
+ 755              		.cfi_endproc
+ 756              	.LFE129:
+ 758              		.section	.text._Z18matrixTranspose3x3PfS_,"ax",%progbits
+ 759              		.align	1
+ 760              		.global	_Z18matrixTranspose3x3PfS_
+ 761              		.thumb
+ 762              		.thumb_func
+ 764              	_Z18matrixTranspose3x3PfS_:
+ 765              	.LFB130:
+ 252:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 253:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 254:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  3 x 3 Matrix Transpose
+ 255:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Compute 3 x 3 Transpose of A
+ 256:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Result placed in matrix C, dimension 3 x 3
+ 257:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 258:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: Transpose3x3(C, A)
+ 259:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 260:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 261:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixTranspose3x3(float matrixC[9], float matrixA[9])
+ 262:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 766              		.loc 1 262 0
+ 767              		.cfi_startproc
+ 768              		@ args = 0, pretend = 0, frame = 0
+ 769              		@ frame_needed = 0, uses_anonymous_args = 0
+ 770              		@ link register save eliminated.
+ 771              	.LVL67:
+ 263:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[0] = matrixA[0];
+ 772              		.loc 1 263 0
+ 773 0000 D1F800C0 		ldr	ip, [r1, #0]	@ float
+ 774 0004 C0F800C0 		str	ip, [r0, #0]	@ float
+ 264:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[1] = matrixA[3];
+ 775              		.loc 1 264 0
+ 776 0008 CA68     		ldr	r2, [r1, #12]	@ float
+ 777 000a 4260     		str	r2, [r0, #4]	@ float
+ 265:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[2] = matrixA[6];
+ 778              		.loc 1 265 0
+ 779 000c 8B69     		ldr	r3, [r1, #24]	@ float
+ 780 000e 8360     		str	r3, [r0, #8]	@ float
+ 266:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[3] = matrixA[1];
+ 781              		.loc 1 266 0
+ 782 0010 D1F804C0 		ldr	ip, [r1, #4]	@ float
+ 783 0014 C0F80CC0 		str	ip, [r0, #12]	@ float
+ 267:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[4] = matrixA[4];
+ 784              		.loc 1 267 0
+ 785 0018 0A69     		ldr	r2, [r1, #16]	@ float
+ 786 001a 0261     		str	r2, [r0, #16]	@ float
+ 268:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[5] = matrixA[7];
+ 787              		.loc 1 268 0
+ 788 001c CB69     		ldr	r3, [r1, #28]	@ float
+ 789 001e 4361     		str	r3, [r0, #20]	@ float
+ 269:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[6] = matrixA[2];
+ 790              		.loc 1 269 0
+ 791 0020 D1F808C0 		ldr	ip, [r1, #8]	@ float
+ 792 0024 C0F818C0 		str	ip, [r0, #24]	@ float
+ 270:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[7] = matrixA[5];
+ 793              		.loc 1 270 0
+ 794 0028 4A69     		ldr	r2, [r1, #20]	@ float
+ 795 002a C261     		str	r2, [r0, #28]	@ float
+ 271:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixC[8] = matrixA[8];
+ 796              		.loc 1 271 0
+ 797 002c 0B6A     		ldr	r3, [r1, #32]	@ float
+ 798 002e 0362     		str	r3, [r0, #32]	@ float
+ 272:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 799              		.loc 1 272 0
+ 800 0030 7047     		bx	lr
+ 801              		.cfi_endproc
+ 802              	.LFE130:
+ 804              		.section	.text._Z16matrixInverse3x3PfS_,"ax",%progbits
+ 805              		.align	1
+ 806              		.global	_Z16matrixInverse3x3PfS_
+ 807              		.thumb
+ 808              		.thumb_func
+ 810              	_Z16matrixInverse3x3PfS_:
+ 811              	.LFB131:
+ 273:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 274:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 275:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  3 x 3 Matrix Inverse
+ 276:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Compute 3 x 3 Inverse of A
+ 277:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Result placed in matrix C, dimension 3 x 3
+ 278:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //
+ 279:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** //  Call as: Inverse3x3(C, A)
+ 280:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** ////////////////////////////////////////////////////////////////////////////////
+ 281:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 282:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** void matrixInverse3x3(float matrixC[9], float matrixA[9])
+ 283:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 812              		.loc 1 283 0
+ 813              		.cfi_startproc
+ 814              		@ args = 0, pretend = 0, frame = 112
+ 815              		@ frame_needed = 0, uses_anonymous_args = 0
+ 816              	.LVL68:
+ 817              	.LBB22:
+ 284:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 285:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float det;
+ 286:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float transposeA[9];
+ 287:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float minors[9];
+ 288:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float transposeMinors[9];
+ 289:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 290:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   det = matrixA[0] * (matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7]) -
+ 818              		.loc 1 290 0
+ 819 0000 D1ED070A 		flds	s1, [r1, #28]
+ 291:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         matrixA[1] * (matrixA[3] * matrixA[8] - matrixA[5] * matrixA[6]) +
+ 820              		.loc 1 291 0
+ 821 0004 91ED065A 		flds	s10, [r1, #24]
+ 290:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   det = matrixA[0] * (matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7]) -
+ 822              		.loc 1 290 0
+ 823 0008 91ED051A 		flds	s2, [r1, #20]
+ 824              	.LBE22:
+ 283:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 825              		.loc 1 283 0
+ 826 000c 30B5     		push	{r4, r5, lr}
+ 827              	.LCFI6:
+ 828              		.cfi_def_cfa_offset 12
+ 829              		.cfi_offset 14, -4
+ 830              		.cfi_offset 5, -8
+ 831              		.cfi_offset 4, -12
+ 832              	.LBB23:
+ 290:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   det = matrixA[0] * (matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7]) -
+ 833              		.loc 1 290 0
+ 834 000e 91ED083A 		flds	s6, [r1, #32]
+ 835              		.loc 1 291 0
+ 836 0012 91ED030A 		flds	s0, [r1, #12]
+ 290:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   det = matrixA[0] * (matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7]) -
+ 837              		.loc 1 290 0
+ 838 0016 91ED046A 		flds	s12, [r1, #16]
+ 292:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         matrixA[2] * (matrixA[3] * matrixA[7] - matrixA[4] * matrixA[6]);
+ 839              		.loc 1 292 0
+ 840 001a 21EE204A 		fmuls	s8, s2, s1
+ 841 001e 21EE051A 		fmuls	s2, s2, s10
+ 842 0022 10EE031A 		fmscs	s2, s0, s6
+ 843 0026 16EE034A 		fmscs	s8, s12, s6
+ 844 002a D1ED014A 		flds	s9, [r1, #4]
+ 845              	.LBE23:
+ 283:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 846              		.loc 1 283 0
+ 847 002e 2DED028B 		fstmfdd	sp!, {d8}
+ 848              	.LCFI7:
+ 849              		.cfi_def_cfa_offset 20
+ 850              		.cfi_offset 80, -20
+ 851              	.LBB24:
+ 852              		.loc 1 292 0
+ 853 0032 D1ED005A 		flds	s11, [r1, #0]
+ 854 0036 66EE057A 		fmuls	s15, s12, s10
+ 855 003a 50EE207A 		fmscs	s15, s0, s1
+ 856 003e 21EE248A 		fmuls	s16, s2, s9
+ 857 0042 14EE258A 		fmscs	s16, s8, s11
+ 858              	.LBE24:
+ 283:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 859              		.loc 1 283 0
+ 860 0046 9FB0     		sub	sp, sp, #124
+ 861              	.LCFI8:
+ 862              		.cfi_def_cfa_offset 144
+ 863              	.LBB25:
+ 864              		.loc 1 292 0
+ 865 0048 D1ED026A 		flds	s13, [r1, #8]
+ 866              	.LBE25:
+ 283:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 867              		.loc 1 283 0
+ 868 004c 0C46     		mov	r4, r1
+ 869 004e 0546     		mov	r5, r0
+ 870              	.LBB26:
+ 293:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 294:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixTranspose3x3(transposeA, matrixA);
+ 871              		.loc 1 294 0
+ 872 0050 03A8     		add	r0, sp, #12
+ 873              	.LVL69:
+ 292:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         matrixA[2] * (matrixA[3] * matrixA[7] - matrixA[4] * matrixA[6]);
+ 874              		.loc 1 292 0
+ 875 0052 07EEA68A 		fmacs	s16, s15, s13
+ 876              	.LVL70:
+ 877              		.loc 1 294 0
+ 878 0056 FFF7FEFF 		bl	_Z18matrixTranspose3x3PfS_
+ 879              	.LVL71:
+ 295:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 296:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[0] = matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7];
+ 880              		.loc 1 296 0
+ 881 005a D4ED040A 		flds	s1, [r4, #16]
+ 882 005e D4ED083A 		flds	s7, [r4, #32]
+ 297:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[1] = matrixA[5] * matrixA[6] - matrixA[3] * matrixA[8];
+ 298:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[2] = matrixA[3] * matrixA[7] - matrixA[4] * matrixA[6];
+ 299:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[3] = matrixA[2] * matrixA[7] - matrixA[1] * matrixA[8];
+ 883              		.loc 1 299 0
+ 884 0062 D4ED025A 		flds	s11, [r4, #8]
+ 297:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[1] = matrixA[5] * matrixA[6] - matrixA[3] * matrixA[8];
+ 885              		.loc 1 297 0
+ 886 0066 D4ED036A 		flds	s13, [r4, #12]
+ 887 006a 94ED061A 		flds	s2, [r4, #24]
+ 888              		.loc 1 299 0
+ 889 006e 94ED016A 		flds	s12, [r4, #4]
+ 300:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[4] = matrixA[0] * matrixA[8] - matrixA[2] * matrixA[6];
+ 890              		.loc 1 300 0
+ 891 0072 94ED000A 		flds	s0, [r4, #0]
+ 296:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[0] = matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7];
+ 892              		.loc 1 296 0
+ 893 0076 94ED055A 		flds	s10, [r4, #20]
+ 894 007a 94ED074A 		flds	s8, [r4, #28]
+ 297:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[1] = matrixA[5] * matrixA[6] - matrixA[3] * matrixA[8];
+ 895              		.loc 1 297 0
+ 896 007e 66EEA32A 		fmuls	s5, s13, s7
+ 301:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[5] = matrixA[1] * matrixA[6] - matrixA[0] * matrixA[7];
+ 302:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[6] = matrixA[1] * matrixA[5] - matrixA[2] * matrixA[4];
+ 897              		.loc 1 302 0
+ 898 0082 65EEA04A 		fmuls	s9, s11, s1
+ 297:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[1] = matrixA[5] * matrixA[6] - matrixA[3] * matrixA[8];
+ 899              		.loc 1 297 0
+ 900 0086 55EE012A 		fmscs	s5, s10, s2
+ 901              		.loc 1 302 0
+ 902 008a 56EE054A 		fmscs	s9, s12, s10
+ 296:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[0] = matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7];
+ 903              		.loc 1 296 0
+ 904 008e 25EE047A 		fmuls	s14, s10, s8
+ 298:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[2] = matrixA[3] * matrixA[7] - matrixA[4] * matrixA[6];
+ 905              		.loc 1 298 0
+ 906 0092 20EE812A 		fmuls	s4, s1, s2
+ 299:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[3] = matrixA[2] * matrixA[7] - matrixA[1] * matrixA[8];
+ 907              		.loc 1 299 0
+ 908 0096 66EE231A 		fmuls	s3, s12, s7
+ 303:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[7] = matrixA[2] * matrixA[3] - matrixA[0] * matrixA[5];
+ 909              		.loc 1 303 0
+ 910 009a 20EE055A 		fmuls	s10, s0, s10
+ 298:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[2] = matrixA[3] * matrixA[7] - matrixA[4] * matrixA[6];
+ 911              		.loc 1 298 0
+ 912 009e 16EE842A 		fmscs	s4, s13, s8
+ 299:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[3] = matrixA[2] * matrixA[7] - matrixA[1] * matrixA[8];
+ 913              		.loc 1 299 0
+ 914 00a2 55EE841A 		fmscs	s3, s11, s8
+ 915              		.loc 1 303 0
+ 916 00a6 15EEA65A 		fmscs	s10, s11, s13
+ 300:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[4] = matrixA[0] * matrixA[8] - matrixA[2] * matrixA[6];
+ 917              		.loc 1 300 0
+ 918 00aa 25EE813A 		fmuls	s6, s11, s2
+ 301:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[5] = matrixA[1] * matrixA[6] - matrixA[0] * matrixA[7];
+ 919              		.loc 1 301 0
+ 920 00ae 20EE044A 		fmuls	s8, s0, s8
+ 304:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[8] = matrixA[0] * matrixA[4] - matrixA[1] * matrixA[3];
+ 921              		.loc 1 304 0
+ 922 00b2 66EE266A 		fmuls	s13, s12, s13
+ 296:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[0] = matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7];
+ 923              		.loc 1 296 0
+ 924 00b6 10EEA37A 		fmscs	s14, s1, s7
+ 300:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[4] = matrixA[0] * matrixA[8] - matrixA[2] * matrixA[6];
+ 925              		.loc 1 300 0
+ 926 00ba 10EE233A 		fmscs	s6, s0, s7
+ 301:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[5] = matrixA[1] * matrixA[6] - matrixA[0] * matrixA[7];
+ 927              		.loc 1 301 0
+ 928 00be 16EE014A 		fmscs	s8, s12, s2
+ 929              		.loc 1 304 0
+ 930 00c2 50EE206A 		fmscs	s13, s0, s1
+ 305:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 306:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixTranspose3x3(transposeMinors, minors);
+ 931              		.loc 1 306 0
+ 932 00c6 15AC     		add	r4, sp, #84
+ 933              	.LVL72:
+ 934 00c8 2046     		mov	r0, r4
+ 935 00ca 0CA9     		add	r1, sp, #48
+ 296:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[0] = matrixA[4] * matrixA[8] - matrixA[5] * matrixA[7];
+ 936              		.loc 1 296 0
+ 937 00cc 8DED0C7A 		fsts	s14, [sp, #48]
+ 297:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[1] = matrixA[5] * matrixA[6] - matrixA[3] * matrixA[8];
+ 938              		.loc 1 297 0
+ 939 00d0 CDED0D2A 		fsts	s5, [sp, #52]
+ 298:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[2] = matrixA[3] * matrixA[7] - matrixA[4] * matrixA[6];
+ 940              		.loc 1 298 0
+ 941 00d4 8DED0E2A 		fsts	s4, [sp, #56]
+ 299:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[3] = matrixA[2] * matrixA[7] - matrixA[1] * matrixA[8];
+ 942              		.loc 1 299 0
+ 943 00d8 CDED0F1A 		fsts	s3, [sp, #60]
+ 300:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[4] = matrixA[0] * matrixA[8] - matrixA[2] * matrixA[6];
+ 944              		.loc 1 300 0
+ 945 00dc 8DED103A 		fsts	s6, [sp, #64]
+ 301:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[5] = matrixA[1] * matrixA[6] - matrixA[0] * matrixA[7];
+ 946              		.loc 1 301 0
+ 947 00e0 8DED114A 		fsts	s8, [sp, #68]
+ 302:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[6] = matrixA[1] * matrixA[5] - matrixA[2] * matrixA[4];
+ 948              		.loc 1 302 0
+ 949 00e4 CDED124A 		fsts	s9, [sp, #72]
+ 303:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[7] = matrixA[2] * matrixA[3] - matrixA[0] * matrixA[5];
+ 950              		.loc 1 303 0
+ 951 00e8 8DED135A 		fsts	s10, [sp, #76]
+ 304:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   minors[8] = matrixA[0] * matrixA[4] - matrixA[1] * matrixA[3];
+ 952              		.loc 1 304 0
+ 953 00ec CDED146A 		fsts	s13, [sp, #80]
+ 954              		.loc 1 306 0
+ 955 00f0 FFF7FEFF 		bl	_Z18matrixTranspose3x3PfS_
+ 956              	.LVL73:
+ 307:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 308:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   det = 1/det;
+ 309:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 310:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   matrixScale(3,3, matrixC, det, transposeMinors);
+ 957              		.loc 1 310 0
+ 958 00f4 F7EE007A 		fconsts	s15, #112
+ 959 00f8 87EE887A 		fdivs	s14, s15, s16
+ 960 00fc 0320     		movs	r0, #3
+ 961 00fe 0146     		mov	r1, r0
+ 962 0100 2A46     		mov	r2, r5
+ 963 0102 0094     		str	r4, [sp, #0]
+ 964 0104 17EE103A 		fmrs	r3, s14
+ 965 0108 FFF7FEFF 		bl	_Z11matrixScaleiiPffS_
+ 966              	.LBE26:
+ 311:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 967              		.loc 1 311 0
+ 968 010c 1FB0     		add	sp, sp, #124
+ 969 010e BDEC028B 		fldmfdd	sp!, {d8}
+ 970 0112 30BD     		pop	{r4, r5, pc}
+ 971              		.cfi_endproc
+ 972              	.LFE131:
+ 974              		.section	.text._Z7arctan2ff,"ax",%progbits
+ 975              		.align	1
+ 976              		.global	_Z7arctan2ff
+ 977              		.thumb
+ 978              		.thumb_func
+ 980              	_Z7arctan2ff:
+ 981              	.LFB132:
+ 312:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 313:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 314:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // Alternate method to calculate arctangent from: http://www.dspguru.com/comp.dsp/tricks/alg/fxdata
+ 315:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** float arctan2(float y, float x) 
+ 316:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 982              		.loc 1 316 0
+ 983              		.cfi_startproc
+ 984              		@ args = 0, pretend = 0, frame = 0
+ 985              		@ frame_needed = 0, uses_anonymous_args = 0
+ 986              		@ link register save eliminated.
+ 987              	.LVL74:
+ 988              		.loc 1 316 0
+ 989 0000 06EE100A 		fmsr	s12, r0
+ 990 0004 07EE901A 		fmsr	s15, r1
+ 991              	.LBB27:
+ 317:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float coeff_1 = PI/4;
+ 318:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float coeff_2 = 3*coeff_1;
+ 319:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float abs_y = fabs(y)+1e-10;      // kludge to prevent 0/0 condition
+ 992              		.loc 1 319 0
+ 993 0008 9FED147A 		flds	s14, .L64
+ 994 000c F0EEC66A 		fabss	s13, s12
+ 995 0010 76EE876A 		fadds	s13, s13, s14
+ 996              	.LVL75:
+ 320:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float r, angle;
+ 321:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****    
+ 322:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   if (x >= 0) 
+ 997              		.loc 1 322 0
+ 998 0014 F5EEC07A 		fcmpezs	s15
+ 999 0018 F1EE10FA 		fmstat
+ 1000 001c 77EEA65A 		fadds	s11, s15, s13
+ 1001 0020 9FED0F7A 		flds	s14, .L64+4
+ 1002 0024 08DB     		blt	.L63
+ 1003              	.LVL76:
+ 323:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 324:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     r = (x - abs_y) / (x + abs_y);
+ 1004              		.loc 1 324 0
+ 1005 0026 77EEE67A 		fsubs	s15, s15, s13
+ 1006 002a C7EEA57A 		fdivs	s15, s15, s11
+ 325:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     angle = coeff_1 - coeff_1 * r;
+ 1007              		.loc 1 325 0
+ 1008 002e 07EEC77A 		fnmacs	s14, s15, s14
+ 1009 0032 F0EE477A 		fcpys	s15, s14
+ 1010              	.LVL77:
+ 1011 0036 07E0     		b	.L58
+ 1012              	.LVL78:
+ 1013              	.L63:
+ 326:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 327:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   else 
+ 328:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 329:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     r = (x + abs_y) / (abs_y - x);
+ 1014              		.loc 1 329 0
+ 1015 0038 76EEE70A 		fsubs	s1, s13, s15
+ 330:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     angle = coeff_2 - coeff_1 * r;
+ 1016              		.loc 1 330 0
+ 1017 003c DFED097A 		flds	s15, .L64+8
+ 329:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     r = (x + abs_y) / (abs_y - x);
+ 1018              		.loc 1 329 0
+ 1019 0040 85EEA00A 		fdivs	s0, s11, s1
+ 1020              		.loc 1 330 0
+ 1021 0044 40EE477A 		fnmacs	s15, s0, s14
+ 1022              	.LVL79:
+ 1023              	.L58:
+ 331:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 332:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   if (y < 0)
+ 1024              		.loc 1 332 0
+ 1025 0048 B5EEC06A 		fcmpezs	s12
+ 1026 004c F1EE10FA 		fmstat
+ 333:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 334:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     return(-angle);     // negate if in quad III or IV
+ 1027              		.loc 1 334 0
+ 1028 0050 48BF     		it	mi
+ 1029 0052 F1EE677A 		fnegsmi	s15, s15
+ 1030              	.LVL80:
+ 1031              	.LBE27:
+ 335:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 336:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   else
+ 337:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {
+ 338:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     return(angle);
+ 339:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 340:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 1032              		.loc 1 340 0
+ 1033 0056 17EE900A 		fmrs	r0, s15
+ 1034              	.LVL81:
+ 1035 005a 7047     		bx	lr
+ 1036              	.L65:
+ 1037              		.align	2
+ 1038              	.L64:
+ 1039 005c FFE6DB2E 		.word	786163455
+ 1040 0060 DB0F493F 		.word	1061752795
+ 1041 0064 E4CB1640 		.word	1075235812
+ 1042              		.cfi_endproc
+ 1043              	.LFE132:
+ 1045              		.section	.text._Z15findMedianFloatPfi,"ax",%progbits
+ 1046              		.align	1
+ 1047              		.global	_Z15findMedianFloatPfi
+ 1048              		.thumb
+ 1049              		.thumb_func
+ 1051              	_Z15findMedianFloatPfi:
+ 1052              	.LFB133:
+ 341:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 342:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // Used for sensor calibration
+ 343:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // Takes the median of 50 results as zero
+ 344:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** // Thanks ala42! Post: http://aeroquad.com/showthread.php?1369-The-big-enhancement-addition-to-2.0-
+ 345:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** float findMedianFloat(float *data, int arraySize) 
+ 346:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 1053              		.loc 1 346 0
+ 1054              		.cfi_startproc
+ 1055              		@ args = 0, pretend = 0, frame = 0
+ 1056              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1057              	.LVL82:
+ 1058 0000 30B5     		push	{r4, r5, lr}
+ 1059              	.LCFI9:
+ 1060              		.cfi_def_cfa_offset 12
+ 1061              		.cfi_offset 14, -4
+ 1062              		.cfi_offset 5, -8
+ 1063              		.cfi_offset 4, -12
+ 1064 0002 17E0     		b	.L67
+ 1065              	.LVL83:
+ 1066              	.L70:
+ 1067              	.LBB28:
+ 347:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   float temp;
+ 348:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   boolean done = 0;
+ 349:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   byte i;
+ 350:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   
+ 351:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****    // Sorts numbers from lowest to highest
+ 352:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   while (done != 1) 
+ 353:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {        
+ 354:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     done = 1;
+ 355:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 356:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	{
+ 357:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       if (data[i] > data[i+1]) 
+ 1068              		.loc 1 357 0
+ 1069 0004 00EB8304 		add	r4, r0, r3, lsl #2
+ 1070 0008 0133     		adds	r3, r3, #1
+ 1071              	.LVL84:
+ 1072 000a 00EB8305 		add	r5, r0, r3, lsl #2
+ 1073 000e 94ED007A 		flds	s14, [r4, #0]
+ 1074 0012 D5ED007A 		flds	s15, [r5, #0]
+ 1075 0016 B4EEE77A 		fcmpes	s14, s15
+ 1076 001a F1EE10FA 		fmstat
+ 1077 001e 04DD     		ble	.L68
+ 1078              	.LVL85:
+ 358:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	  {     // numbers are out of order - swap
+ 359:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         temp = data[i+1];
+ 360:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         data[i+1] = data[i];
+ 1079              		.loc 1 360 0
+ 1080 0020 85ED007A 		fsts	s14, [r5, #0]
+ 361:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         data[i] = temp;
+ 1081              		.loc 1 361 0
+ 1082 0024 C4ED007A 		fsts	s15, [r4, #0]
+ 1083              	.LVL86:
+ 362:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         done = 0;
+ 1084              		.loc 1 362 0
+ 1085 0028 0022     		movs	r2, #0
+ 1086              	.LVL87:
+ 1087              	.L68:
+ 355:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 1088              		.loc 1 355 0
+ 1089 002a DBB2     		uxtb	r3, r3
+ 1090              	.LVL88:
+ 1091              	.L72:
+ 355:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 1092              		.loc 1 355 0 is_stmt 0 discriminator 1
+ 1093 002c 4C1E     		subs	r4, r1, #1
+ 1094 002e A342     		cmp	r3, r4
+ 1095 0030 E8DB     		blt	.L70
+ 1096              	.LVL89:
+ 352:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   while (done != 1) 
+ 1097              		.loc 1 352 0 is_stmt 1
+ 1098 0032 12B9     		cbnz	r2, .L71
+ 1099              	.LVL90:
+ 1100              	.L67:
+ 1101              		.loc 1 362 0 discriminator 1
+ 1102 0034 0023     		movs	r3, #0
+ 1103 0036 0122     		movs	r2, #1
+ 1104 0038 F8E7     		b	.L72
+ 1105              	.LVL91:
+ 1106              	.L71:
+ 363:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       }
+ 364:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     }
+ 365:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 366:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   
+ 367:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return data[arraySize/2]; // return the median value
+ 1107              		.loc 1 367 0
+ 1108 003a 01EBD172 		add	r2, r1, r1, lsr #31
+ 1109              	.LVL92:
+ 1110 003e 5110     		asrs	r1, r2, #1
+ 1111              	.LVL93:
+ 1112 0040 00EB8100 		add	r0, r0, r1, lsl #2
+ 1113              	.LVL94:
+ 1114              	.LBE28:
+ 368:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 1115              		.loc 1 368 0
+ 1116 0044 0068     		ldr	r0, [r0, #0]	@ float
+ 1117 0046 30BD     		pop	{r4, r5, pc}
+ 1118              		.cfi_endproc
+ 1119              	.LFE133:
+ 1121              		.section	.text._Z13findMedianIntPii,"ax",%progbits
+ 1122              		.align	1
+ 1123              		.global	_Z13findMedianIntPii
+ 1124              		.thumb
+ 1125              		.thumb_func
+ 1127              	_Z13findMedianIntPii:
+ 1128              	.LFB134:
+ 369:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 370:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 371:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** int findMedianInt(int *data, int arraySize) 
+ 372:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 1129              		.loc 1 372 0
+ 1130              		.cfi_startproc
+ 1131              		@ args = 0, pretend = 0, frame = 0
+ 1132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1133              	.LVL95:
+ 1134 0000 70B5     		push	{r4, r5, r6, lr}
+ 1135              	.LCFI10:
+ 1136              		.cfi_def_cfa_offset 16
+ 1137              		.cfi_offset 14, -4
+ 1138              		.cfi_offset 6, -8
+ 1139              		.cfi_offset 5, -12
+ 1140              		.cfi_offset 4, -16
+ 1141 0002 10E0     		b	.L75
+ 1142              	.LVL96:
+ 1143              	.L77:
+ 1144              	.LBB29:
+ 373:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   int temp;
+ 374:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   boolean done = 0;
+ 375:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   byte i;
+ 376:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   
+ 377:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****    // Sorts numbers from lowest to highest
+ 378:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   while (done != 1) 
+ 379:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {        
+ 380:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     done = 1;
+ 381:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 382:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	{
+ 383:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       if (data[i] > data[i+1]) 
+ 1145              		.loc 1 383 0
+ 1146 0004 5A1C     		adds	r2, r3, #1
+ 1147 0006 50F82360 		ldr	r6, [r0, r3, lsl #2]
+ 1148 000a 50F82250 		ldr	r5, [r0, r2, lsl #2]
+ 1149 000e AE42     		cmp	r6, r5
+ 1150 0010 04DD     		ble	.L76
+ 1151              	.LVL97:
+ 384:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	  {     // numbers are out of order - swap
+ 385:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         temp = data[i+1];
+ 386:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         data[i+1] = data[i];
+ 1152              		.loc 1 386 0
+ 1153 0012 40F82260 		str	r6, [r0, r2, lsl #2]
+ 387:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         data[i] = temp;
+ 1154              		.loc 1 387 0
+ 1155 0016 40F82350 		str	r5, [r0, r3, lsl #2]
+ 1156              	.LVL98:
+ 388:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         done = 0;
+ 1157              		.loc 1 388 0
+ 1158 001a 0024     		movs	r4, #0
+ 1159              	.LVL99:
+ 1160              	.L76:
+ 381:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 1161              		.loc 1 381 0
+ 1162 001c D3B2     		uxtb	r3, r2
+ 1163              	.LVL100:
+ 1164              	.L79:
+ 381:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 1165              		.loc 1 381 0 is_stmt 0 discriminator 1
+ 1166 001e 4A1E     		subs	r2, r1, #1
+ 1167 0020 9342     		cmp	r3, r2
+ 1168 0022 EFDB     		blt	.L77
+ 1169              	.LVL101:
+ 378:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   while (done != 1) 
+ 1170              		.loc 1 378 0 is_stmt 1
+ 1171 0024 14B9     		cbnz	r4, .L78
+ 1172              	.LVL102:
+ 1173              	.L75:
+ 1174              		.loc 1 388 0 discriminator 1
+ 1175 0026 0023     		movs	r3, #0
+ 1176 0028 0124     		movs	r4, #1
+ 1177 002a F8E7     		b	.L79
+ 1178              	.LVL103:
+ 1179              	.L78:
+ 389:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       }
+ 390:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     }
+ 391:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 392:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   
+ 393:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return data[arraySize/2]; // return the median value
+ 1180              		.loc 1 393 0
+ 1181 002c 01EBD173 		add	r3, r1, r1, lsr #31
+ 1182              	.LVL104:
+ 1183 0030 5910     		asrs	r1, r3, #1
+ 1184              	.LVL105:
+ 1185              	.LBE29:
+ 394:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 1186              		.loc 1 394 0
+ 1187 0032 50F82100 		ldr	r0, [r0, r1, lsl #2]
+ 1188              	.LVL106:
+ 1189 0036 70BD     		pop	{r4, r5, r6, pc}
+ 1190              		.cfi_endproc
+ 1191              	.LFE134:
+ 1193              		.section	.text._Z21findMedianIntWithDiffPiiS_,"ax",%progbits
+ 1194              		.align	1
+ 1195              		.global	_Z21findMedianIntWithDiffPiiS_
+ 1196              		.thumb
+ 1197              		.thumb_func
+ 1199              	_Z21findMedianIntWithDiffPiiS_:
+ 1200              	.LFB135:
+ 395:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 396:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** int findMedianIntWithDiff(int *data, int arraySize, int * diff) 
+ 397:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** {
+ 1201              		.loc 1 397 0
+ 1202              		.cfi_startproc
+ 1203              		@ args = 0, pretend = 0, frame = 0
+ 1204              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1205              	.LVL107:
+ 1206 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1207              	.LCFI11:
+ 1208              		.cfi_def_cfa_offset 20
+ 1209              		.cfi_offset 14, -4
+ 1210              		.cfi_offset 7, -8
+ 1211              		.cfi_offset 6, -12
+ 1212              		.cfi_offset 5, -16
+ 1213              		.cfi_offset 4, -20
+ 1214 0002 10E0     		b	.L81
+ 1215              	.LVL108:
+ 1216              	.L83:
+ 1217              	.LBB30:
+ 398:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   int temp;
+ 399:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   boolean done = 0;
+ 400:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   byte i;
+ 401:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   
+ 402:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****    // Sorts numbers from lowest to highest
+ 403:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   while (done != 1) 
+ 404:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   {        
+ 405:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     done = 1;
+ 406:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 407:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	{
+ 408:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       if (data[i] > data[i+1]) 
+ 1218              		.loc 1 408 0
+ 1219 0004 5C1C     		adds	r4, r3, #1
+ 1220 0006 50F82370 		ldr	r7, [r0, r3, lsl #2]
+ 1221 000a 50F82460 		ldr	r6, [r0, r4, lsl #2]
+ 1222 000e B742     		cmp	r7, r6
+ 1223 0010 04DD     		ble	.L82
+ 1224              	.LVL109:
+ 409:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	  {     // numbers are out of order - swap
+ 410:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         temp = data[i+1];
+ 411:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         data[i+1] = data[i];
+ 1225              		.loc 1 411 0
+ 1226 0012 40F82470 		str	r7, [r0, r4, lsl #2]
+ 412:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         data[i] = temp;
+ 1227              		.loc 1 412 0
+ 1228 0016 40F82360 		str	r6, [r0, r3, lsl #2]
+ 1229              	.LVL110:
+ 413:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****         done = 0;
+ 1230              		.loc 1 413 0
+ 1231 001a 0025     		movs	r5, #0
+ 1232              	.LVL111:
+ 1233              	.L82:
+ 406:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 1234              		.loc 1 406 0
+ 1235 001c E3B2     		uxtb	r3, r4
+ 1236              	.LVL112:
+ 1237              	.L85:
+ 406:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     for (i=0; i<(arraySize-1); i++) 
+ 1238              		.loc 1 406 0 is_stmt 0 discriminator 1
+ 1239 001e 4C1E     		subs	r4, r1, #1
+ 1240 0020 A342     		cmp	r3, r4
+ 1241 0022 EFDB     		blt	.L83
+ 1242              	.LVL113:
+ 403:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   while (done != 1) 
+ 1243              		.loc 1 403 0 is_stmt 1
+ 1244 0024 15B9     		cbnz	r5, .L84
+ 1245              	.LVL114:
+ 1246              	.L81:
+ 1247              		.loc 1 413 0 discriminator 1
+ 1248 0026 0023     		movs	r3, #0
+ 1249 0028 0125     		movs	r5, #1
+ 1250 002a F8E7     		b	.L85
+ 1251              	.LVL115:
+ 1252              	.L84:
+ 414:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****       }
+ 415:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     }
+ 416:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 417:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 418:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   *diff = abs(data[0] - data[arraySize-1]);
+ 1253              		.loc 1 418 0
+ 1254 002c 0568     		ldr	r5, [r0, #0]
+ 1255              	.LVL116:
+ 1256 002e 50F82430 		ldr	r3, [r0, r4, lsl #2]
+ 1257              	.LVL117:
+ 1258 0032 EB1A     		subs	r3, r5, r3
+ 1259 0034 002B     		cmp	r3, #0
+ 1260 0036 B8BF     		it	lt
+ 1261 0038 5B42     		rsblt	r3, r3, #0
+ 1262 003a 1360     		str	r3, [r2, #0]
+ 419:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   
+ 420:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return data[arraySize/2]; // return the median value
+ 1263              		.loc 1 420 0
+ 1264 003c 01EBD172 		add	r2, r1, r1, lsr #31
+ 1265              	.LVL118:
+ 1266 0040 5110     		asrs	r1, r2, #1
+ 1267              	.LVL119:
+ 1268              	.LBE30:
+ 421:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 1269              		.loc 1 421 0
+ 1270 0042 50F82100 		ldr	r0, [r0, r1, lsl #2]
+ 1271              	.LVL120:
+ 1272 0046 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1273              		.cfi_endproc
+ 1274              	.LFE135:
+ 1276              		.section	.text._Z10isSwitchedff,"ax",%progbits
+ 1277              		.align	1
+ 1278              		.global	_Z10isSwitchedff
+ 1279              		.thumb
+ 1280              		.thumb_func
+ 1282              	_Z10isSwitchedff:
+ 1283              	.LFB136:
+ 422:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 423:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 424:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** boolean isSwitched(float previousError, float currentError) {
+ 1284              		.loc 1 424 0
+ 1285              		.cfi_startproc
+ 1286              		@ args = 0, pretend = 0, frame = 0
+ 1287              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1288              		@ link register save eliminated.
+ 1289              	.LVL121:
+ 1290              		.loc 1 424 0
+ 1291 0000 07EE100A 		fmsr	s14, r0
+ 425:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   if ( (previousError > 0 &&  currentError < 0) ||
+ 1292              		.loc 1 425 0
+ 1293 0004 B5EEC07A 		fcmpezs	s14
+ 1294 0008 F1EE10FA 		fmstat
+ 424:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** boolean isSwitched(float previousError, float currentError) {
+ 1295              		.loc 1 424 0
+ 1296 000c 07EE901A 		fmsr	s15, r1
+ 1297              		.loc 1 425 0
+ 1298 0010 04DD     		ble	.L87
+ 1299              		.loc 1 425 0 is_stmt 0 discriminator 1
+ 1300 0012 F5EEC07A 		fcmpezs	s15
+ 1301 0016 F1EE10FA 		fmstat
+ 1302 001a 0CD4     		bmi	.L91
+ 1303              	.L87:
+ 1304              		.loc 1 425 0 discriminator 2
+ 1305 001c B5EEC07A 		fcmpezs	s14
+ 1306 0020 F1EE10FA 		fmstat
+ 1307 0024 09D5     		bpl	.L95
+ 1308              		.loc 1 425 0 discriminator 3
+ 1309 0026 F5EEC07A 		fcmpezs	s15
+ 1310 002a F1EE10FA 		fmstat
+ 426:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 	   (previousError < 0 &&  currentError > 0)) {
+ 427:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     return true;
+ 1311              		.loc 1 427 0 is_stmt 1 discriminator 3
+ 1312 002e D4BF     		ite	le
+ 1313 0030 0020     		movle	r0, #0
+ 1314 0032 0120     		movgt	r0, #1
+ 1315              	.LVL122:
+ 1316 0034 7047     		bx	lr
+ 1317              	.L91:
+ 1318              		.loc 1 427 0 is_stmt 0
+ 1319 0036 0120     		movs	r0, #1
+ 1320 0038 7047     		bx	lr
+ 1321              	.L95:
+ 428:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   }
+ 429:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return false;
+ 1322              		.loc 1 429 0 is_stmt 1
+ 1323 003a 0020     		movs	r0, #0
+ 430:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 1324              		.loc 1 430 0
+ 1325 003c 7047     		bx	lr
+ 1326              		.cfi_endproc
+ 1327              	.LFE136:
+ 1329              		.section	.text._Z7invSqrtf,"ax",%progbits
+ 1330              		.align	1
+ 1331              		.global	_Z7invSqrtf
+ 1332              		.thumb
+ 1333              		.thumb_func
+ 1335              	_Z7invSqrtf:
+ 1336              	.LFB137:
+ 431:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 432:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** float invSqrt (float x){ 
+ 1337              		.loc 1 432 0
+ 1338              		.cfi_startproc
+ 1339              		@ args = 0, pretend = 0, frame = 0
+ 1340              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1341              		@ link register save eliminated.
+ 1342              	.LVL123:
+ 433:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   union{  
+ 434:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     int32_t i;  
+ 435:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****     float   f; 
+ 436:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   } conv; 
+ 437:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   conv.f = x; 
+ 438:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   conv.i = 0x5f3759df - (conv.i >> 1); 
+ 1343              		.loc 1 438 0
+ 1344 0000 0A49     		ldr	r1, .L97
+ 1345 0002 A1EB6003 		sub	r3, r1, r0, asr #1
+ 1346 0006 00EE103A 		fmsr	s0, r3	@ int
+ 1347              	.LVL124:
+ 1348              	.LBB31:
+ 439:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return 0.5f * conv.f * (3.0f - x * conv.f * conv.f);
+ 1349              		.loc 1 439 0
+ 1350 000a 00EE900A 		fmsr	s1, r0
+ 1351 000e 20EE806A 		fmuls	s12, s1, s0
+ 1352 0012 F0EE087A 		fconsts	s15, #8
+ 1353 0016 46EE407A 		fnmacs	s15, s12, s0
+ 1354 001a B6EE001A 		fconsts	s2, #96
+ 1355 001e 60EE016A 		fmuls	s13, s0, s2
+ 1356              	.LBE31:
+ 440:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** } 
+ 1357              		.loc 1 440 0
+ 1358 0022 26EEA77A 		fmuls	s14, s13, s15
+ 1359 0026 17EE100A 		fmrs	r0, s14
+ 1360              	.LVL125:
+ 1361 002a 7047     		bx	lr
+ 1362              	.L98:
+ 1363              		.align	2
+ 1364              	.L97:
+ 1365 002c DF59375F 		.word	1597463007
+ 1366              		.cfi_endproc
+ 1367              	.LFE137:
+ 1369              		.section	.text._Z3isql,"ax",%progbits
+ 1370              		.align	1
+ 1371              		.global	_Z3isql
+ 1372              		.thumb
+ 1373              		.thumb_func
+ 1375              	_Z3isql:
+ 1376              	.LFB138:
+ 441:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** 
+ 442:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** int32_t isq(int32_t  x) {
+ 1377              		.loc 1 442 0
+ 1378              		.cfi_startproc
+ 1379              		@ args = 0, pretend = 0, frame = 0
+ 1380              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1381              		@ link register save eliminated.
+ 1382              	.LVL126:
+ 443:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp ****   return x * x;
+ 444:/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.cpp **** }
+ 1383              		.loc 1 444 0
+ 1384 0000 4043     		muls	r0, r0, r0
+ 1385              	.LVL127:
+ 1386 0002 7047     		bx	lr
+ 1387              		.cfi_endproc
+ 1388              	.LFE138:
+ 1390              		.global	_ZN12MedianFilterC1Ev
+ 1391              		.thumb_set _ZN12MedianFilterC1Ev,_ZN12MedianFilterC2Ev
+ 1392              		.text
+ 1393              	.Letext0:
+ 1394              		.file 2 "/home/asim/opt/arm-2011.09/bin/../lib/gcc/arm-none-eabi/4.6.1/../../../../arm-none-eabi/i
+ 1395              		.file 3 "../Libmaple/libmaple/libmaple/libmaple_types.h"
+ 1396              		.file 4 "../Libmaple/libmaple/wirish/wirish.h"
+ 1397              		.file 5 "/home/asim/AeroQuad/Libraries/AQ_Math/AQMath.h"
+ 1398              		.file 6 "../Libmaple/libmaple/libmaple/systick.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 AQMath.cpp
+     /tmp/ccQuDfmM.s:20     .text._Z12filterSmoothfff:00000000 $t
+     /tmp/ccQuDfmM.s:25     .text._Z12filterSmoothfff:00000000 _Z12filterSmoothfff
+     /tmp/ccQuDfmM.s:59     .text._Z20filterSmoothWithTimeffff:00000000 $t
+     /tmp/ccQuDfmM.s:64     .text._Z20filterSmoothWithTimeffff:00000000 _Z20filterSmoothWithTimeffff
+     /tmp/ccQuDfmM.s:99     .text._ZN12MedianFilterC2Ev:00000000 $t
+     /tmp/ccQuDfmM.s:104    .text._ZN12MedianFilterC2Ev:00000000 _ZN12MedianFilterC2Ev
+     /tmp/ccQuDfmM.s:118    .text._ZN12MedianFilter10initializeEv:00000000 $t
+     /tmp/ccQuDfmM.s:123    .text._ZN12MedianFilter10initializeEv:00000000 _ZN12MedianFilter10initializeEv
+     /tmp/ccQuDfmM.s:157    .text._ZN12MedianFilter6filterEf:00000000 $t
+     /tmp/ccQuDfmM.s:162    .text._ZN12MedianFilter6filterEf:00000000 _ZN12MedianFilter6filterEf
+     /tmp/ccQuDfmM.s:264    .text._Z16vectorDotProductiPfS_:00000000 $t
+     /tmp/ccQuDfmM.s:269    .text._Z16vectorDotProductiPfS_:00000000 _Z16vectorDotProductiPfS_
+     /tmp/ccQuDfmM.s:308    .text._Z16vectorDotProductiPfS_:00000020 $d
+     /tmp/ccQuDfmM.s:313    .text._Z18vectorCrossProductPfS_S_:00000000 $t
+     /tmp/ccQuDfmM.s:318    .text._Z18vectorCrossProductPfS_S_:00000000 _Z18vectorCrossProductPfS_S_
+     /tmp/ccQuDfmM.s:356    .text._Z11vectorScaleiPfS_f:00000000 $t
+     /tmp/ccQuDfmM.s:361    .text._Z11vectorScaleiPfS_f:00000000 _Z11vectorScaleiPfS_f
+     /tmp/ccQuDfmM.s:398    .text._Z9vectorAddiPfS_S_:00000000 $t
+     /tmp/ccQuDfmM.s:403    .text._Z9vectorAddiPfS_S_:00000000 _Z9vectorAddiPfS_S_
+     /tmp/ccQuDfmM.s:442    .text._Z14vectorSubtractiPfS_S_:00000000 $t
+     /tmp/ccQuDfmM.s:447    .text._Z14vectorSubtractiPfS_S_:00000000 _Z14vectorSubtractiPfS_S_
+     /tmp/ccQuDfmM.s:486    .text._Z14matrixMultiplyiiiPfS_S_:00000000 $t
+     /tmp/ccQuDfmM.s:491    .text._Z14matrixMultiplyiiiPfS_S_:00000000 _Z14matrixMultiplyiiiPfS_S_
+     /tmp/ccQuDfmM.s:617    .text._Z9matrixAddiiPfS_S_:00000000 $t
+     /tmp/ccQuDfmM.s:622    .text._Z9matrixAddiiPfS_S_:00000000 _Z9matrixAddiiPfS_S_
+     /tmp/ccQuDfmM.s:665    .text._Z14matrixSubtractiiPfS_S_:00000000 $t
+     /tmp/ccQuDfmM.s:670    .text._Z14matrixSubtractiiPfS_S_:00000000 _Z14matrixSubtractiiPfS_S_
+     /tmp/ccQuDfmM.s:713    .text._Z11matrixScaleiiPffS_:00000000 $t
+     /tmp/ccQuDfmM.s:718    .text._Z11matrixScaleiiPffS_:00000000 _Z11matrixScaleiiPffS_
+     /tmp/ccQuDfmM.s:759    .text._Z18matrixTranspose3x3PfS_:00000000 $t
+     /tmp/ccQuDfmM.s:764    .text._Z18matrixTranspose3x3PfS_:00000000 _Z18matrixTranspose3x3PfS_
+     /tmp/ccQuDfmM.s:805    .text._Z16matrixInverse3x3PfS_:00000000 $t
+     /tmp/ccQuDfmM.s:810    .text._Z16matrixInverse3x3PfS_:00000000 _Z16matrixInverse3x3PfS_
+     /tmp/ccQuDfmM.s:975    .text._Z7arctan2ff:00000000 $t
+     /tmp/ccQuDfmM.s:980    .text._Z7arctan2ff:00000000 _Z7arctan2ff
+     /tmp/ccQuDfmM.s:1039   .text._Z7arctan2ff:0000005c $d
+     /tmp/ccQuDfmM.s:1046   .text._Z15findMedianFloatPfi:00000000 $t
+     /tmp/ccQuDfmM.s:1051   .text._Z15findMedianFloatPfi:00000000 _Z15findMedianFloatPfi
+     /tmp/ccQuDfmM.s:1122   .text._Z13findMedianIntPii:00000000 $t
+     /tmp/ccQuDfmM.s:1127   .text._Z13findMedianIntPii:00000000 _Z13findMedianIntPii
+     /tmp/ccQuDfmM.s:1194   .text._Z21findMedianIntWithDiffPiiS_:00000000 $t
+     /tmp/ccQuDfmM.s:1199   .text._Z21findMedianIntWithDiffPiiS_:00000000 _Z21findMedianIntWithDiffPiiS_
+     /tmp/ccQuDfmM.s:1277   .text._Z10isSwitchedff:00000000 $t
+     /tmp/ccQuDfmM.s:1282   .text._Z10isSwitchedff:00000000 _Z10isSwitchedff
+     /tmp/ccQuDfmM.s:1330   .text._Z7invSqrtf:00000000 $t
+     /tmp/ccQuDfmM.s:1335   .text._Z7invSqrtf:00000000 _Z7invSqrtf
+     /tmp/ccQuDfmM.s:1365   .text._Z7invSqrtf:0000002c $d
+     /tmp/ccQuDfmM.s:1370   .text._Z3isql:00000000 $t
+     /tmp/ccQuDfmM.s:1375   .text._Z3isql:00000000 _Z3isql
+     /tmp/ccQuDfmM.s:104    .text._ZN12MedianFilterC2Ev:00000000 _ZN12MedianFilterC1Ev
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+memcpy
