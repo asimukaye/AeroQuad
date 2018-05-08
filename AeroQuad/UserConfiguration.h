@@ -93,9 +93,10 @@
 //#define HeadingMagHold				// Enables Magnetometer, gets automatically selected if CHR6DM is defined
 #define AltitudeHoldBaro			// Enables Barometer
 #define AltitudeLidar				//Enables Lidar(Barometer must be enabled too)
-#define Lidar2D                          // hokuyo connected to Serial2
-#define Hold_X                          // roll position hold
-#define Hold_Y                           //Pitch position hold
+// #define Lidar2D                          // hokuyo connected to Serial2
+//#define Hold_X                          // roll position hold
+//#define Hold_Y                           //Pitch position hold
+//#define Vicon                           // Enable Vicon 
 //#define AltitudeHoldRangeFinder	// Enables Altitude Hold with range finder, not displayed on the configurator (yet)
 //#define AutoLanding				// Enables auto landing on channel AUX3 of the remote, NEEDS AltitudeHoldBaro AND AltitudeHoldRangeFinder to be defined
 

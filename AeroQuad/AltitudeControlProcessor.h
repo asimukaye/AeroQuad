@@ -35,6 +35,7 @@
 #define G_Bias 17
 
 //************************************************************************************
+/*
 int movingAvg( int senValue)
 {
   alt_Sum -=alt_buffer[alt_buffer_pointer];
@@ -48,7 +49,7 @@ int movingAvg( int senValue)
   return(alt_Sum/(alt_buffer_size));
 
 
-}
+}*/
 //***************************************************************************************
 
 
@@ -82,22 +83,33 @@ void processAltitudeHold()
       }
     #endif
     #if defined AltitudeLidar
-      int errorAltitude = (baroAltitudeToHoldTarget - estimatedAltitude);
-      altitudeHoldThrottleCorrection = updatePID(baroAltitudeToHoldTarget, estimatedAltitude, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);
-      if((errorAltitude<0)&&(-10<errorAltitude)){
+   
+      float errorAltitude = (baroAltitudeToHoldTarget - estimatedAltitude);
+      
+     // altitudeHoldThrottleCorrection = updatePID(baroAltitudeToHoldTarget, estimatedAltitude, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);  // original definition of control law
+    
+    //changing to control law using velocity
+    LidarZVelSetpoint = errorAltitude*0.15  ;//can scale this and make it like proportional gain
+    
+    
+      // This below is the deadband
+      if((errorAltitude<2)&&(-2<errorAltitude)){
         altitudeHoldThrottleCorrection=0;
       }
-      if(zDirection ==0){  // down motion
+      else{
+          altitudeHoldThrottleCorrection = updatePID(LidarZVelSetpoint, LidarZVelocity, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);
+      }
+      /*if(zDirection ==0){  // down motion
         altitudeHoldThrottleCorrection +=G_Bias;
       }
-    /*  else(zDirection ==1){  // up motion
+     else(zDirection ==1){  // up motion
         altitudeHoldThrottleCorrection -=G_Bias;
       }   */    
-      //altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection,minThrottleAdjust,maxThrottleAdjust); //uncomment it after tuning position hold
-      altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, -50, 50);
-      altitudeHoldThrottleCorrectionGLOBAL = altitudeHoldThrottleCorrection;  
+      
+      // This is the constrain on correction. Currently b/w +- 50
+      altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
+      altitudeHoldThrottleCorrectionGLOBAL = altitudeHoldThrottleCorrection;  // passing on to global variable for access
       LidarHoldThrottle = altitudeHoldThrottle + altitudeHoldThrottleCorrection;
-      //LidarHoldThrottle = constrain(LidarHoldThrottle, altitudeHoldThrottle-50, altitudeHoldThrottle + 50);
       
    
    #elif defined AltitudeHoldBaro && !defined AltitudeLidar
@@ -114,7 +126,7 @@ void processAltitudeHold()
     // ZDAMPENING COMPUTATIONS
     #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
       float zDampeningThrottleCorrection = -updatePID(0.0, estimatedZVelocity, &PID[ZDAMPENING_PID_IDX]);
-      zDampeningThrottleCorrection = constrain(zDampeningThrottleCorrection, -50, 50);
+      zDampeningThrottleCorrection = constrain(zDampeningThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
     #endif
     
     if (abs(altitudeHoldThrottle - receiverCommand[THROTTLE]) > altitudeHoldPanicStickMovement) {
@@ -148,9 +160,9 @@ void processAltitudeHold()
     }
 	
 	#if defined AltitudeLidar
-	     throttle = LidarHoldThrottle + zDampeningThrottleCorrection;
+        throttle = LidarHoldThrottle + zDampeningThrottleCorrection;
 	#else
-            throttle = altitudeHoldThrottle + altitudeHoldThrottleCorrection + zDampeningThrottleCorrection;
+        throttle = altitudeHoldThrottle + altitudeHoldThrottleCorrection + zDampeningThrottleCorrection;
 	#endif
   }
   else {

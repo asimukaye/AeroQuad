@@ -119,7 +119,12 @@ byte  headingHoldConfig   = 0;
 float headingHold         = 0; // calculated adjustment for quad to go to heading (PID output)
 float heading             = 0; // measured heading from yaw gyro (process variable)
 float relativeHeading     = 0; // current heading the quad is set to (set point)
+
+
+
 //////////////// Lidar-1D
+// These variables are for the older filters during Mohit and Ankit
+/*
 #define alt_buffer_size 50
 float alt_buffer[alt_buffer_size];
 int alt_buffer_pointer =0;
@@ -127,6 +132,22 @@ uint8 meanFreqCount = 0;
 float alt_Sum =0;
 int meanAltitude;
 /////////////////////////////
+*/
+// new filter variables
+#if defined (AltitudeLidar)
+//***************************************************************************
+//***************Lidar Sensor variable for altitude hold*********************
+//***************************************************************************
+
+//float k = 0;
+float z_est_val = 70, z_est_err = 90; // 70,90
+float velz_est_val = 70, velz_est_err = 90; 
+int tempintvariable = 0;
+float tempfloatvariable = 0.0;
+
+//********************************************************************************
+
+#endif
 
 ////////////////Lidar-2D
 #if defined (Lidar2D)
@@ -218,6 +239,8 @@ void reportVehicleState();
   boolean isAltitudeHoldInitialized = false;
   float estimatedAltitude = 0.0;
   float prevAltitude = 0.0;
+  float LidarZVelSetpoint = 0.0;
+  float LidarZVelocity = 0.0;
   bool zDirection = 0;  //  1 = up & 0= Down
 
   

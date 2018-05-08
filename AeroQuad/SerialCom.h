@@ -370,6 +370,11 @@ float getHeading()
 void sendSerialTelemetry() {
   switch (queryType) {
   case '=': // Reserved debug command to view any variable from Serial Monitor
+   #if defined (Vicon)
+      PrintValueComma(viconPose.x);
+      PrintValueComma(viconPose.y);
+      SERIAL_PRINTLN();
+    #endif
     break;
   
   case 'a': // Send roll and pitch rate mode PID values
@@ -632,20 +637,22 @@ void sendSerialTelemetry() {
     #if defined (AltitudeHoldRangeFinder)
       PrintValueComma(maxRangeFinderRange);
       SERIAL_PRINTLN(minRangeFinderRange);
-    /*
+    
     #elif defined (AltitudeLidar)
       PrintValueComma(altitudeHoldState);
       PrintValueComma(baroAltitudeToHoldTarget);
+      // PrintValueComma(tempintvariable); //raw dist
       PrintValueComma(estimatedAltitude);
+      PrintValueComma(LidarZVelSetpoint);
+      // PrintValueComma(tempfloatvariable); //raw_vel
+      PrintValueComma(LidarZVelocity);
       PrintValueComma(altitudeHoldThrottleCorrectionGLOBAL);
-      PrintValueComma(LidarHoldThrottle);
-      PrintValueComma(altitudeHoldThrottle);
-      SERIAL_PRINTLN(throttle);
-      //SERIAL_PRINTLN(zDirection);
-      //SERIAL_PRINTLN(meanAltitude);
-      //PrintValueComma(zDampeningThrottleCorrection);
-      //SERIAL_PRINTLN();    //Terminate CMD
-      */
+      //PrintValueComma(LidarHoldThrottle);
+      //PrintValueComma(altitudeHoldThrottle);
+      //SERIAL_PRINTLN(throttle);
+      PrintValueComma(zDampeningThrottleCorrection);
+      SERIAL_PRINTLN();    //Terminate CMD
+      
     #elif defined (Lidar2D)     
       PrintValueComma(HokuyoHoldState);
       PrintValueComma(hokuyo_YRaw);  //pitch
@@ -656,7 +663,7 @@ void sendSerialTelemetry() {
       PrintValueComma(hokuyoHoldThrottleCorrection_X);
       PrintValueComma(motorAxisCommandRoll);
       SERIAL_PRINTLN(temphokuyoHoldThrottleCorrection_XGLOBAL);
-
+   
       #else  
         PrintValueComma(0);
         SERIAL_PRINTLN(0);

@@ -26,30 +26,7 @@
    or talk to us live on IRC #aeroquad
 *****************************************************************************/
 
-//***************************************************************************
-//***************Lidar Sensor variable for altitude hold*********************
-//***************************************************************************
-unsigned long pulseWidth;
-//signed long d;  //d for distance
-//signed long d_corr, d_filt;  //d corrected for for biass offset
-signed long kal_filt;
-//int t,t_1;
-float k = 0,out;
-float kX =0,kY=0;
-float est_val = 70,est_err = 90; // 70,90
-float est_valX = 70,est_errX = 90; // 70,90
-float est_valY = 70,est_errY = 90; // 70,90
-int pre_value;
 
-#define meas_err 10 // 10 
-#define meas_errX 10 // 10 
-#define meas_errY 10 // 10 
-#define q 0.5 //0.22 //0.25
-#define qX 4.5 //0.22 //0.25
-#define qY 4.5 //0.22 //0.25
-//#include "ultrasonic_sensor.h"
-float kal(signed long);
-//********************************************************************************
 
 #include "UserConfiguration.h" // Edit this file first before uploading to the AeroQuad
 
@@ -196,7 +173,9 @@ float kal(signed long);
 #if defined(Lidar2D)
   #include "Hokuyo.h"
 #endif
-
+//~#if defined(Vicon)
+  //~#include "vicon_read.h"
+//~#endif
 //********************************************************
 //*************** BATTERY MONITOR DECLARATION ************
 //********************************************************
@@ -304,7 +283,9 @@ float kal(signed long);
 #ifdef SoftModem
   #include <AQ_SoftModem.h>
 #endif
-
+#if defined(Vicon)
+  #include "vicon_read.h"
+#endif
 
 // Include this last as it contains objects from above declarations
 #include "AltitudeControlProcessor.h"
@@ -433,6 +414,9 @@ void setup() {
   #if defined(Lidar2D)
     Init_Hokuyo();
   #endif
+  #if defined(Vicon)
+    InitializeVicon();
+  #endif
   #ifdef SlowTelemetry
      initSlowTelemetry();
   #endif
@@ -444,6 +428,7 @@ void setup() {
 /********************************************************
 ************** Lidar Sensor Pin declaration*************
 ********************************************************/ 
+#if defined(AltitudeLidar)
 /*
     begin(int configuration, bool fasti2c, char lidarliteAddress)
     Starts the sensor and I2C.
@@ -476,14 +461,15 @@ void setup() {
     lidarliteAddress: Default 0x62. Fill in new address here if changed. See
       operating manual for instructions.
   */
-myLidarLite.configure(0); // Change this number to try out alternate configurations
+myLidarLite.configure(1); // Change this number to try out alternate configurations
+#endif
 }
+
 
 /*******************************************************************
  * 100Hz task
  ******************************************************************/
 void process100HzTask() {
-  //SERIAL_PRINT("A");
   G_Dt = (currentTime - hundredHZpreviousTime) / 1000000.0;
   hundredHZpreviousTime = currentTime;
   
@@ -508,14 +494,15 @@ void process100HzTask() {
 
    #if defined(AltitudeLidar) 
         estimatedAltitude = alt_read();
-        //estimatedAltitude *= (cos(kinematicsAngle[YAXIS])*(cos(kinematicsAngle[XAXIS])));
+        LidarZVelocity = alt_vel_read();
+        /*estimatedAltitude *= (cos(kinematicsAngle[YAXIS])*(cos(kinematicsAngle[XAXIS])));
         if((estimatedAltitude-prevAltitude)>0){  //up motion
           zDirection = 1;
         }
         else if ((estimatedAltitude-prevAltitude)<0){  //down motion
           zDirection =0;
         }
-        prevAltitude=estimatedAltitude;
+        prevAltitude=estimatedAltitude;*/
   #elif defined(AltitudeHoldBaro)
     measureBaroSum(); 
     if (frameCounter % THROTTLE_ADJUST_TASK_SPEED == 0) {  //  50 Hz tasks
@@ -572,7 +559,10 @@ void process50HzTask() {
     if (haveAGpsLock() && !isHomeBaseInitialized()) {
       initHomeBase();
     }
-  #endif      
+  #endif  
+    #if defined(Vicon)
+      ViconRead();
+  #endif     
 }
 
 /*******************************************************************
