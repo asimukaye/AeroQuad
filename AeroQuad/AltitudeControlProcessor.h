@@ -32,7 +32,7 @@
 
 #define INVALID_THROTTLE_CORRECTION -1000
 #define ALTITUDE_BUMP_SPEED 0.01
-#define G_Bias 17
+#define POS_Z_P 0.15 //P gain for alt control
 
 //************************************************************************************
 /*
@@ -66,8 +66,7 @@ void processAltitudeHold()
   // http://aeroquad.com/showthread.php?792-Problems-with-BMP085-I2C-barometer
   // Thanks to Sherbakov for his work in Z Axis dampening
   // http://aeroquad.com/showthread.php?359-Stable-flight-logic...&p=10325&viewfull=1#post10325
-  //int temp_throttle, errorAltitude;
-  //errorAltitude = baroAltitudeToHoldTarget - estimatedAltitude;
+
   
   if (altitudeHoldState == ON) {
     int altitudeHoldThrottleCorrection = INVALID_THROTTLE_CORRECTION;
@@ -82,6 +81,8 @@ void processAltitudeHold()
         altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);    
       }
     #endif
+    
+    
     #if defined AltitudeLidar
    
       float errorAltitude = (baroAltitudeToHoldTarget - estimatedAltitude);
@@ -89,7 +90,7 @@ void processAltitudeHold()
      // altitudeHoldThrottleCorrection = updatePID(baroAltitudeToHoldTarget, estimatedAltitude, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);  // original definition of control law
     
     //changing to control law using velocity
-    LidarZVelSetpoint = errorAltitude*0.15  ;//can scale this and make it like proportional gain
+    LidarZVelSetpoint = errorAltitude*POS_Z_P  ; //P gain for pos control
     
     
       // This below is the deadband
@@ -99,14 +100,8 @@ void processAltitudeHold()
       else{
           altitudeHoldThrottleCorrection = updatePID(LidarZVelSetpoint, LidarZVelocity, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);
       }
-      /*if(zDirection ==0){  // down motion
-        altitudeHoldThrottleCorrection +=G_Bias;
-      }
-     else(zDirection ==1){  // up motion
-        altitudeHoldThrottleCorrection -=G_Bias;
-      }   */    
-      
-      // This is the constrain on correction. Currently b/w +- 50
+
+      // This is the constrain on correction. Currently b/w +- 70
       altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
       altitudeHoldThrottleCorrectionGLOBAL = altitudeHoldThrottleCorrection;  // passing on to global variable for access
       LidarHoldThrottle = altitudeHoldThrottle + altitudeHoldThrottleCorrection;

@@ -241,7 +241,7 @@ void readSerialCommand() {
       break;
 
     case 'V': // GPS
-      #if defined UseGPSNavigator || defined Lidar2D
+      #if defined UseGPSNavigator || defined Lidar2D || defined Vicon
         readSerialPID(GPSROLL_PID_IDX);
         readSerialPID(GPSPITCH_PID_IDX);
         readSerialPID(GPSYAW_PID_IDX);
@@ -370,11 +370,16 @@ float getHeading()
 void sendSerialTelemetry() {
   switch (queryType) {
   case '=': // Reserved debug command to view any variable from Serial Monitor
-   #if defined (Vicon)
-      PrintValueComma(viconPose.x);
-      PrintValueComma(viconPose.y);
-      SERIAL_PRINTLN();
-    #endif
+   PrintValueComma(tempintvariable);
+   PrintValueComma(tempcharvariable);
+   PrintValueComma(deltaTime);
+   //PrintValueComma(hits);
+   //SERIAL_PRINTLN(miss);
+   //#if defined (Vicon)
+      //PrintValueComma(viconPose.x);
+      //PrintValueComma(viconPose.y);
+      //SERIAL_PRINTLN();
+    //#endif
     break;
   
   case 'a': // Send roll and pitch rate mode PID values
@@ -638,6 +643,7 @@ void sendSerialTelemetry() {
       PrintValueComma(maxRangeFinderRange);
       SERIAL_PRINTLN(minRangeFinderRange);
     
+    //sending Lidar and Altitude data
     #elif defined (AltitudeLidar)
       PrintValueComma(altitudeHoldState);
       PrintValueComma(baroAltitudeToHoldTarget);
@@ -652,17 +658,6 @@ void sendSerialTelemetry() {
       //SERIAL_PRINTLN(throttle);
       PrintValueComma(zDampeningThrottleCorrection);
       SERIAL_PRINTLN();    //Terminate CMD
-      
-    #elif defined (Lidar2D)     
-      PrintValueComma(HokuyoHoldState);
-      PrintValueComma(hokuyo_YRaw);  //pitch
-      PrintValueComma(distance2D[plus_Y]);  //pitch
-      PrintValueComma(hokuyo_XRaw);  //roll
-      PrintValueComma(distance2D[plus_X]);  //roll
-      PrintValueComma(HokuyoPositionToHoldTarget_X); 
-      PrintValueComma(hokuyoHoldThrottleCorrection_X);
-      PrintValueComma(motorAxisCommandRoll);
-      SERIAL_PRINTLN(temphokuyoHoldThrottleCorrection_XGLOBAL);
    
       #else  
         PrintValueComma(0);
@@ -672,7 +667,7 @@ void sendSerialTelemetry() {
     break;
 
   case 'v': // Send GPS PIDs
-    #if defined (UseGPSNavigator) || defined (Lidar2D)
+    #if defined (UseGPSNavigator) || defined (Lidar2D) || defined (Vicon)
       PrintPID(GPSROLL_PID_IDX);
       PrintPID(GPSPITCH_PID_IDX);
       PrintPID(GPSYAW_PID_IDX);
@@ -683,7 +678,7 @@ void sendSerialTelemetry() {
     SERIAL_PRINTLN();
     queryType = 'X';
     break;
-  case 'y': // send GPS info
+  case 'y': // send GPS/Hokuyo/Vicon info
     #if defined (UseGPS)
       PrintValueComma(gpsData.state);
       PrintValueComma(gpsData.lat);
@@ -696,6 +691,30 @@ void sendSerialTelemetry() {
       PrintValueComma(gpsData.fixtime);
       PrintValueComma(gpsData.sentences);
       PrintValueComma(gpsData.idlecount);
+      
+    #elif defined (Vicon)
+      PrintValueComma(PositionHoldState);
+	  PrintValueComma(viconPose.x);
+	  PrintValueComma(PositionHoldTarget_X);
+	  PrintValueComma(viconPose.vx);
+	  PrintValueComma(Vx_setpoint);
+	  PrintValueComma(HoldThrottleCorrection_roll);
+      PrintValueComma(viconPose.y);
+	  PrintValueComma(PositionHoldTarget_Y);
+	  PrintValueComma(viconPose.vy);
+	  PrintValueComma(Vy_setpoint);
+	  PrintValueComma(HoldThrottleCorrection_pitch);
+      
+     #elif defined (Lidar2D)     
+      PrintValueComma(HokuyoHoldState);
+      PrintValueComma(hokuyo_YRaw);  //pitch
+      PrintValueComma(distance2D[plus_Y]);  //pitch
+      PrintValueComma(hokuyo_XRaw);  //roll
+      PrintValueComma(distance2D[plus_X]);  //roll
+      PrintValueComma(HokuyoPositionToHoldTarget_X); 
+      PrintValueComma(hokuyoHoldThrottleCorrection_X);
+      PrintValueComma(motorAxisCommandRoll);
+      PrintValueComma(temphokuyoHoldThrottleCorrection_XGLOBAL);
     #else
       PrintDummyValues(11);
     #endif    

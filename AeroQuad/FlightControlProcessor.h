@@ -45,10 +45,11 @@ void calculateFlightError()
     }
     else
   #endif
+  //check for +- signs here before enabling pos hold, rename variables for Hokuyo Hold
   #if defined (Hold_X) || defined(Hold_Y)
-    if (HokuyoHoldState == ON) {
-      float rollAttitudeCmd  = updatePID((receiverCommand[XAXIS] - receiverZero[XAXIS] - hokuyoHoldThrottleCorrection_X) * ATTITUDE_SCALING, kinematicsAngle[XAXIS], &PID[ATTITUDE_XAXIS_PID_IDX]);
-      float pitchAttitudeCmd = updatePID((receiverCommand[YAXIS] - receiverZero[YAXIS] - hokuyoHoldThrottleCorrection_Y) * ATTITUDE_SCALING, -kinematicsAngle[YAXIS], &PID[ATTITUDE_YAXIS_PID_IDX]);
+    if (PositionHoldState == ON) {
+      float rollAttitudeCmd  = updatePID((receiverCommand[XAXIS] - receiverZero[XAXIS] - HoldThrottleCorrection_roll) * ATTITUDE_SCALING, kinematicsAngle[XAXIS], &PID[ATTITUDE_XAXIS_PID_IDX]);
+      float pitchAttitudeCmd = updatePID((receiverCommand[YAXIS] - receiverZero[YAXIS] - HoldThrottleCorrection_pitch) * ATTITUDE_SCALING, -kinematicsAngle[YAXIS], &PID[ATTITUDE_YAXIS_PID_IDX]);
       motorAxisCommandRoll   = updatePID(rollAttitudeCmd, gyroRate[XAXIS], &PID[ATTITUDE_GYRO_XAXIS_PID_IDX]);
       motorAxisCommandPitch  = updatePID(pitchAttitudeCmd, -gyroRate[YAXIS], &PID[ATTITUDE_GYRO_YAXIS_PID_IDX]);
     }
@@ -294,6 +295,10 @@ void processFlightControl() {
       #if defined (UseGPSNavigator)
         processGpsNavigation();
       #endif  
+    #endif
+    
+    #if defined (Vicon)
+		processViconHold();
     #endif
     
     // ********************** Process Altitude hold **************************

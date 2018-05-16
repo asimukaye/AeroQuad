@@ -28,13 +28,68 @@
 #define _AQ_POSITION_CONTROL_PROCESSOR_H_
 
 
-/* /// do not uncomment
-  motorCommand[FRONT] = throttle - motorAxisCommandPitch  - (YAW_DIRECTION * motorAxisCommandYaw);
-  motorCommand[REAR] =  throttle + motorAxisCommandPitch  - (YAW_DIRECTION * motorAxisCommandYaw);
-  motorCommand[RIGHT] = throttle - motorAxisCommandRoll   + (YAW_DIRECTION * motorAxisCommandYaw) + MotorOffset_Roll;
-  motorCommand[LEFT] =  throttle + motorAxisCommandRoll   + (YAW_DIRECTION * motorAxisCommandYaw) - MotorOffset_Roll;
-*/
+#if defined (Vicon)
+#define INVALID_THROTTLE_CORRECTION_HOKUYO -1000
+#define POS_X_P 1;
+#define POS_Y_P 1;
+float maxViconSpeed = 1.0;
 
+void processViconHold(){
+	if (PositionHoldState == ON) {
+    int tempCorrection_X = INVALID_THROTTLE_CORRECTION_HOKUYO;
+    int tempCorrection_Y = INVALID_THROTTLE_CORRECTION_HOKUYO;
+    
+      float error_X = PositionHoldTarget_X - viconPose.x;
+      float error_Y = PositionHoldTarget_Y - viconPose.y;
+      
+      Vx_setpoint = error_X*POS_X_P;
+      Vy_setpoint = error_Y*POS_Y_P;
+      
+      Vx_setpoint = constrain(Vx_setpoint, -maxViconSpeed, maxViconSpeed);
+      Vy_setpoint = constrain(Vy_setpoint, -maxViconSpeed, maxViconSpeed);
+    /*  
+    angleToWaypoint = atan2(distanceToDestinationX, distanceToDestinationY)-trueNorthHeading;
+    float tmpsin = sin(angleToWaypoint);
+    float tmpcos = cos(angleToWaypoint);
+    
+    float rollSpeedDesired = ((maxSpeedToDestination*tmpsin)*(float)distanceToDestination)/1000; 
+    float pitchSpeedDesired = ((maxSpeedToDestination*tmpcos)*(float)distanceToDestination)/1000;*/  //<----- implement this for yaw corrections
+      
+      tempCorrection_X = updatePID(Vx_setpoint, viconPose.vx, &PID[GPSROLL_PID_IDX]);
+      tempCorrection_Y = updatePID(Vy_setpoint, viconPose.vy, &PID[GPSPITCH_PID_IDX]);
+      
+      
+      HoldThrottleCorrection_roll = tempCorrection_X;
+      HoldThrottleCorrection_pitch = tempCorrection_Y;   
+
+      HoldThrottleCorrection_roll = constrain(HoldThrottleCorrection_roll, minThrottleAdjust,maxThrottleAdjust);
+      HoldThrottleCorrection_pitch = constrain(HoldThrottleCorrection_pitch, minThrottleAdjust,maxThrottleAdjust);
+      
+      
+      //deadbands - might need revision based on x,y units
+      /*
+      if((-3<error_X)&&(error_X<3)){
+        HoldThrottleCorrection_X = 0;
+      }
+      if((-3<error_Y)&&(error_Y<3)){
+        HoldThrottleCorrection_Y = 0;
+      }    */
+         
+	//spurious value prevention
+    if (tempCorrection_X == INVALID_THROTTLE_CORRECTION_HOKUYO) {
+        HoldThrottleCorrection_roll = 0;
+    }
+    if (tempCorrection_Y == INVALID_THROTTLE_CORRECTION_HOKUYO) {
+        HoldThrottleCorrection_pitch = 0;
+    }	
+  }
+  else{
+    HoldThrottleCorrection_roll = 0;
+    HoldThrottleCorrection_pitch = 0;
+	}
+	
+}
+#endif
 
 #if defined Lidar2D
 #define INVALID_THROTTLE_CORRECTION_HOKUYO -1000

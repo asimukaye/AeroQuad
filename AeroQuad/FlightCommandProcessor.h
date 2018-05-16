@@ -46,38 +46,35 @@
 #endif
 
 // NOTE: Completely correct this function before flying in vicon mode
-/*
+
 #if defined (Vicon)
   void processViconHoldStateFromReceiverCommand() {
     if (isViconHoldEnabledByUser()) {
       if (altitudeHoldState != ALTPANIC ) {  // check for special condition with manditory override of Altitude hold
-        if (!isHokuyoHoldInitialized) {  //X and Y according to transmiter co-ordinate system
+        if (!isViconHoldInitialized) {  //X and Y according to transmiter co-ordinate system
             //roll position hold
-            #if defined (Hold_X)
-            HokuyoPositionToHoldTarget_X = distance2D[plus_X];                
+   
+            PositionHoldTarget_X = viconPose.x;                
             PID[GPSROLL_PID_IDX].integratedError = 0;
-            PID[GPSROLL_PID_IDX].lastError = HokuyoPositionToHoldTarget_X;
-            #endif
+            PID[GPSROLL_PID_IDX].lastError = PositionHoldTarget_X;
             
             //pitch position hold
-            #if defined (Hold_Y)  
-            HokuyoPositionToHoldTarget_Y = distance2D[plus_Y];                
+			PositionHoldTarget_Y = viconPose.y;                
             PID[GPSPITCH_PID_IDX].integratedError = 0;
-            PID[GPSPITCH_PID_IDX].lastError = HokuyoPositionToHoldTarget_Y; 
-            #endif           
-            isHokuyoHoldInitialized = true;
+            PID[GPSPITCH_PID_IDX].lastError = PositionHoldTarget_Y; 
+                
+            isViconHoldInitialized = true;
         }
-        HokuyoHoldState = ON;
+        PositionHoldState = ON;
       }
     } 
     else {
-      isHokuyoHoldInitialized = false;
-      HokuyoHoldState = OFF;
+      isViconHoldInitialized = false;
+      PositionHoldState = OFF;
     }
   }
 #endif
  
-*/
 
 #if defined (Lidar2D)
   void processHokuyoHoldStateFromReceiverCommand() {
@@ -108,8 +105,6 @@
     }
   }
 #endif
-
-
 
 
 
@@ -368,6 +363,10 @@ void readPilotCommands() {
 
   #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
     processAltitudeHoldStateFromReceiverCommand();
+  #endif
+  
+  #if defined (Vicon)
+    processViconHoldStateFromReceiverCommand();
   #endif
   
   #if defined (Lidar2D)

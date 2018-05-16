@@ -220,7 +220,7 @@ void initializeEEPROM() {
     minRangeFinderRange = 0.0;
   #endif
 
-  #if defined (Lidar2D)
+  #if defined (Lidar2D) || defined (Vicon)
     PID[GPSROLL_PID_IDX].P = 0.8;
     PID[GPSROLL_PID_IDX].I = 0.0;
     PID[GPSROLL_PID_IDX].D = 0.0;
@@ -331,7 +331,7 @@ void readEEPROM() {
   accelOneG = readFloat(ACCEL_1G_ADR);
   headingHoldConfig = readFloat(HEADINGHOLD_ADR);
 
-  #if defined (Lidar2D)
+  #if defined (Lidar2D) || defined (Vicon)
     readPID(GPSROLL_PID_IDX, GPSROLL_PID_GAIN_ADR);
     readPID(GPSPITCH_PID_IDX, GPSPITCH_PID_GAIN_ADR);
     readPID(GPSYAW_PID_IDX, GPSYAW_PID_GAIN_ADR);  

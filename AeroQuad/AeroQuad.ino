@@ -561,7 +561,9 @@ void process50HzTask() {
     }
   #endif  
     #if defined(Vicon)
-      ViconRead();
+      //ViconRead();
+      ViconRead2();
+      //testLoopdeltaTime = currentTime - micros();
   #endif     
 }
 

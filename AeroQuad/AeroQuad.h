@@ -48,11 +48,8 @@
  */
 byte calibrateESC = 0;
 int testCommand = 1000;
-//////////////////////////////////////////////////////
-//////////////////////////HOKUYO TESTING///////////////
-int hokuyo_XRaw =0;   //roll
-int hokuyo_YRaw =0;  //pitch
-int count =0;
+
+
 /**
  * Flight control global declaration
  */
@@ -96,7 +93,20 @@ unsigned long hundredHZpreviousTime = 0;
 
 
 //******************test Variables*****************
-int altitudeHoldThrottleCorrectionGLOBAL =0;
+int tempintvariable = 0;
+float tempfloatvariable = 0.0;
+char tempcharvariable = '\0';
+//unsigned long hits = 0;
+//unsigned long miss = 0;
+
+
+// unsigned long testLooppreviousTime = 0;
+// unsigned long testLoopdeltaTime = 0;
+/*
+ * use this construct:
+ * testLoopdeltaTime = currentTime - testLooppreviousTime;
+ * testLooppreviousTime = currentTime 
+ * */
 //*************************************************
 //////////////////////////////////////////////////////
 
@@ -134,22 +144,36 @@ int meanAltitude;
 /////////////////////////////
 */
 // new filter variables
-#if defined (AltitudeLidar)
-//***************************************************************************
-//***************Lidar Sensor variable for altitude hold*********************
-//***************************************************************************
 
+/**
+ * Kalman filter global declaration
+ */
+ 
+#if defined (AltitudeLidar)
 //float k = 0;
 float z_est_val = 70, z_est_err = 90; // 70,90
 float velz_est_val = 70, velz_est_err = 90; 
-int tempintvariable = 0;
-float tempfloatvariable = 0.0;
 
 //********************************************************************************
 
 #endif
 
-////////////////Lidar-2D
+/**
+ * Position control global declaration
+ */
+ //****Vicon****//
+ #if defined (Vicon)
+  boolean isViconHoldInitialized = false;
+  float PositionHoldTarget_X = 0.0;  //roll
+  float PositionHoldTarget_Y = 0.0;  //pitch
+  byte PositionHoldState = OFF;
+  int HoldThrottleCorrection_pitch = 0, HoldThrottleCorrection_roll =0;
+  float prevX = 0.0, prevY = 0.0;
+  float Vx_setpoint = 0.0, Vy_setpoint = 0.0;
+  
+ #endif
+ 
+//Lidar-2D
 #if defined (Lidar2D)
   #define plus_X 0
   #define plus_Y 1
@@ -167,12 +191,60 @@ float tempfloatvariable = 0.0;
   int temphokuyoHoldThrottleCorrection_XGLOBAL =0, temphokuyoHoldThrottleCorrection_YGLOBAL=0;
   int RollVelocityDirection =0, PitchVelocityDirection =0;
   float prevRoll =0, prevPitch=0;
+  //////////////////////////////////////////////////////
+//////////////////////////HOKUYO TESTING///////////////
+int hokuyo_XRaw =0;   //roll
+int hokuyo_YRaw =0;  //pitch
+int count =0;
 #endif
 ////////////////////////////
 
 ////////////////////////////
 byte  headingHoldState    = OFF;
 void  processHeading();
+//////////////////////////////////////////////////////
+
+/**
+ * Altitude control global declaration
+ */
+#if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
+ // special state that allows immediate turn off of Altitude hold if large throttle changesa are made at the TX
+  byte altitudeHoldState = OFF;  // ON, OFF or ALTPANIC
+  int altitudeHoldBump = 90;
+  int altitudeHoldPanicStickMovement = 250;
+  int minThrottleAdjust = -50;
+  int maxThrottleAdjust = 50;
+  int altitudeHoldThrottle = 1000;
+  boolean isAltitudeHoldInitialized = false;
+
+  float velocityCompFilter1 = 1.0 / (1.0 + 0.3);
+  float velocityCompFilter2 = 1 - velocityCompFilter1;
+
+  boolean runtimaZBiasInitialized = false;  
+  float zVelocity = 0.0;
+  float estimatedZVelocity = 0.0;
+  float runtimeZBias = 0.0; 
+  float zDampeningThrottleCorrection = 0.0;
+  
+  #if defined (AltitudeLidar)
+  float estimatedAltitude = 0.0;
+  float prevAltitude = 0.0;
+  float LidarZVelSetpoint = 0.0;
+  float LidarZVelocity = 0.0;
+  //bool zDirection = 0;  //  1 = up & 0= Down
+  int LidarHoldThrottle = 0;
+  int altitudeHoldThrottleCorrectionGLOBAL =0;
+  #endif
+
+  #if defined AltitudeHoldBaro
+    float baroAltitudeToHoldTarget = 0.0;
+  #endif  
+  #if defined AltitudeHoldRangeFinder
+    float sonarAltitudeToHoldTarget = 0.0;
+  #endif
+    
+   
+#endif
 //////////////////////////////////////////////////////
 
 
@@ -223,48 +295,6 @@ void reportVehicleState();
 //////////////////////////////////////////////////////
 
 
-
-
-/**
- * Altitude control global declaration
- */
-#if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
- // special state that allows immediate turn off of Altitude hold if large throttle changesa are made at the TX
-  byte altitudeHoldState = OFF;  // ON, OFF or ALTPANIC
-  int altitudeHoldBump = 90;
-  int altitudeHoldPanicStickMovement = 250;
-  int minThrottleAdjust = -50;
-  int maxThrottleAdjust = 50;
-  int altitudeHoldThrottle = 1000;
-  boolean isAltitudeHoldInitialized = false;
-  float estimatedAltitude = 0.0;
-  float prevAltitude = 0.0;
-  float LidarZVelSetpoint = 0.0;
-  float LidarZVelocity = 0.0;
-  bool zDirection = 0;  //  1 = up & 0= Down
-
-  
-  int LidarHoldThrottle = 0;
-  
-  float velocityCompFilter1 = 1.0 / (1.0 + 0.3);
-  float velocityCompFilter2 = 1 - velocityCompFilter1;
-
-  boolean runtimaZBiasInitialized = false;  
-  float zVelocity = 0.0;
-  float estimatedZVelocity = 0.0;
-  float runtimeZBias = 0.0; 
-  float zDampeningThrottleCorrection = 0.0;
-
-  #if defined AltitudeHoldBaro
-    float baroAltitudeToHoldTarget = 0.0;
-  #endif  
-  #if defined AltitudeHoldRangeFinder
-    float sonarAltitudeToHoldTarget = 0.0;
-  #endif
-    
-   
-#endif
-//////////////////////////////////////////////////////
 
 /**
  * Auto landing feature variables
