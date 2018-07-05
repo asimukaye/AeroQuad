@@ -370,16 +370,21 @@ float getHeading()
 void sendSerialTelemetry() {
   switch (queryType) {
   case '=': // Reserved debug command to view any variable from Serial Monitor
-   PrintValueComma(tempintvariable);
-   PrintValueComma(tempcharvariable);
-   PrintValueComma(deltaTime);
-   //PrintValueComma(hits);
-   //SERIAL_PRINTLN(miss);
-   //#if defined (Vicon)
-      //PrintValueComma(viconPose.x);
-      //PrintValueComma(viconPose.y);
-      //SERIAL_PRINTLN();
-    //#endif
+   PrintValueComma(viconPose.x);
+   PrintValueComma(viconPose.y);
+   //PrintValueComma(viconPose.vx);
+   PrintValueComma(tempfloatvariable);
+   //PrintValueComma(viconPose.vy);
+   PrintValueComma(tempfloatvariable1);
+   //PrintValueComma(deltaTime);
+   /*PrintValueComma(1000000*gyroRate[XAXIS]);
+   PrintValueComma(1000000*gyroRate[YAXIS]);
+   PrintValueComma(1000000*gyroRate[ZAXIS]);
+   PrintValueComma(1000000*filteredAccel[XAXIS]);
+   PrintValueComma(1000000*filteredAccel[YAXIS]);
+   SERIAL_PRINTLN(1000000*filteredAccel[ZAXIS]);*/
+      
+    SERIAL_PRINTLN();
     break;
   
   case 'a': // Send roll and pitch rate mode PID values
@@ -474,7 +479,7 @@ void sendSerialTelemetry() {
       #else
         PrintValueComma(0);
       #endif
-    }
+    }	
     SERIAL_PRINTLN();
     break;
 
@@ -484,6 +489,7 @@ void sendSerialTelemetry() {
       PrintValueComma(getMagnetometerRawData(YAXIS));
       SERIAL_PRINTLN(getMagnetometerRawData(ZAXIS));
     #endif
+    SERIAL_PRINTLN(deltaTime);
     break;
 
   case 'k': // Send accelerometer cal values
@@ -596,10 +602,12 @@ void sendSerialTelemetry() {
     PrintValueComma(kinematicsAngle[YAXIS]);
     PrintValueComma(getHeading());
     #if defined AltitudeHoldBaro || defined AltitudeHoldRangeFinder
-      #if defined AltitudeHoldBaro
+      #if defined AltitudeHoldBaro && !defined AltitudeLidar
         PrintValueComma(getBaroAltitude());
       #elif defined AltitudeHoldRangeFinder
         PrintValueComma(rangeFinderRange[ALTITUDE_RANGE_FINDER_INDEX] != INVALID_RANGE ? rangeFinderRange[ALTITUDE_RANGE_FINDER_INDEX] : 0.0);
+      #elif defined AltitudeLidar
+      PrintValueComma(estimatedAltitude);
       #endif
       PrintValueComma((int)altitudeHoldState);
     #else
@@ -647,15 +655,10 @@ void sendSerialTelemetry() {
     #elif defined (AltitudeLidar)
       PrintValueComma(altitudeHoldState);
       PrintValueComma(baroAltitudeToHoldTarget);
-      // PrintValueComma(tempintvariable); //raw dist
       PrintValueComma(estimatedAltitude);
       PrintValueComma(LidarZVelSetpoint);
-      // PrintValueComma(tempfloatvariable); //raw_vel
       PrintValueComma(LidarZVelocity);
       PrintValueComma(altitudeHoldThrottleCorrectionGLOBAL);
-      //PrintValueComma(LidarHoldThrottle);
-      //PrintValueComma(altitudeHoldThrottle);
-      //SERIAL_PRINTLN(throttle);
       PrintValueComma(zDampeningThrottleCorrection);
       SERIAL_PRINTLN();    //Terminate CMD
    
@@ -696,14 +699,15 @@ void sendSerialTelemetry() {
       PrintValueComma(PositionHoldState);
 	  PrintValueComma(viconPose.x);
 	  PrintValueComma(PositionHoldTarget_X);
-	  PrintValueComma(viconPose.vx);
+	  PrintValueComma((viconPose.vx));
 	  PrintValueComma(Vx_setpoint);
 	  PrintValueComma(HoldThrottleCorrection_roll);
       PrintValueComma(viconPose.y);
 	  PrintValueComma(PositionHoldTarget_Y);
-	  PrintValueComma(viconPose.vy);
+	  PrintValueComma((viconPose.vy));
 	  PrintValueComma(Vy_setpoint);
 	  PrintValueComma(HoldThrottleCorrection_pitch);
+      
       
      #elif defined (Lidar2D)     
       PrintValueComma(HokuyoHoldState);

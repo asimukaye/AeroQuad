@@ -26,16 +26,11 @@
 
 
 #if defined (Lidar2D)
-  boolean isHokuyoHoldEnabledByUser() {
-    // add transmiter control code
-    if ((receiverCommand[AUX1] < 1750) && (receiverCommand[MODE] > 1500)) {
-      return true;
-     }
-      return false;
-  }
+  
 #endif
 
 #if defined (Vicon)
+
   boolean isViconHoldEnabledByUser() {
     // add transmiter control code
     if ((receiverCommand[AUX1] < 1750) && (receiverCommand[MODE] > 1500)) {
@@ -43,41 +38,86 @@
      }
       return false;
   }
-#endif
 
-// NOTE: Completely correct this function before flying in vicon mode
+  boolean isViconNavEnabledByUser() {
+    // add transmiter control code
+    if ((receiverCommand[AUX2] > 1250) && (receiverCommand[MODE] > 1500)) {
+      return true;
+     }
+      return false;
+  }
 
-#if defined (Vicon)
-  void processViconHoldStateFromReceiverCommand() {
+
+  void processViconHoldStateFromReceiverCommand(){
     if (isViconHoldEnabledByUser()) {
-      if (altitudeHoldState != ALTPANIC ) {  // check for special condition with manditory override of Altitude hold
+      if (altitudeHoldState != ALTPANIC ) { // check for special condition with manditory override of Altitude hold
+      if (PositionHoldState != POSPANIC ) { // check for position panic    
         if (!isViconHoldInitialized) {  //X and Y according to transmiter co-ordinate system
             //roll position hold
-   
-            PositionHoldTarget_X = viconPose.x;                
+            X_origin = viconPose.x;  
+            PositionHoldTarget_X = X_origin;                
             PID[GPSROLL_PID_IDX].integratedError = 0;
-            PID[GPSROLL_PID_IDX].lastError = PositionHoldTarget_X;
+            PID[ATTITUDE_XAXIS_PID_IDX].integratedError = 0;
+            //PID[GPSROLL_PID_IDX].lastError = PositionHoldTarget_X;
+            PID[GPSROLL_PID_IDX].lastError = 0;
+            HoldThrottleCorrection_roll = 0.0;
             
             //pitch position hold
-			PositionHoldTarget_Y = viconPose.y;                
+            Y_origin = viconPose.y;
+            PositionHoldTarget_Y = Y_origin;                
             PID[GPSPITCH_PID_IDX].integratedError = 0;
-            PID[GPSPITCH_PID_IDX].lastError = PositionHoldTarget_Y; 
-                
+            PID[ATTITUDE_YAXIS_PID_IDX].integratedError = 0;
+            //PID[GPSPITCH_PID_IDX].lastError = PositionHoldTarget_Y; 
+            PID[GPSPITCH_PID_IDX].lastError = 0; 
+            HoldThrottleCorrection_pitch = 0.0;
+            
             isViconHoldInitialized = true;
         }
+        if (isViconNavEnabledByUser()) {
+            if (isViconHoldInitialized) { 
+                /*PositionHoldTarget_X = X_origin + viconPose.x_sp;
+                PositionHoldTarget_Y = Y_origin + viconPose.y_sp;*/
+                PositionHoldTarget_X = viconPose.x_sp;
+                PositionHoldTarget_Y = viconPose.y_sp;
+                }
+            }     
         PositionHoldState = ON;
       }
-    } 
+    }
+    }
+/*    if (isViconNavEnabledByUser()) {
+        if (altitudeHoldState != ALTPANIC ) { // check for special condition with manditory override of Altitude hold
+            if (PositionHoldState != POSPANIC ) {
+                if (isViconHoldInitialized) { 
+                PositionHoldTarget_X = X_origin + viconPose.x_sp;
+                PositionHoldTarget_Y = Y_origin + viconPose.y_sp;
+                PositionHoldState = ON;
+                tempbool = 1;     
+                }
+            }
+        }
+    }*/
     else {
       isViconHoldInitialized = false;
       PositionHoldState = OFF;
     }
   }
+  
+  
 #endif
  
 
 #if defined (Lidar2D)
-  void processHokuyoHoldStateFromReceiverCommand() {
+
+boolean isHokuyoHoldEnabledByUser() {
+    // add transmiter control code
+    if ((receiverCommand[AUX1] < 1750) && (receiverCommand[MODE] > 1500)) {
+      return true;
+     }
+      return false;
+  }
+  
+void processHokuyoHoldStateFromReceiverCommand() {
     if (isHokuyoHoldEnabledByUser()) {
       if (altitudeHoldState != ALTPANIC ) {  // check for special condition with manditory override of Altitude hold
         if (!isHokuyoHoldInitialized) {  //X and Y according to transmiter co-ordinate system
@@ -105,8 +145,6 @@
     }
   }
 #endif
-
-
 
 
 #if defined (AltitudeHoldBaro) || defined (AltitudeHoldRangeFinder)

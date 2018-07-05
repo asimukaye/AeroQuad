@@ -93,11 +93,16 @@ unsigned long hundredHZpreviousTime = 0;
 
 
 //******************test Variables*****************
-int tempintvariable = 0;
+//int tempintvariable = 0;
+bool tempbool = 0;
 float tempfloatvariable = 0.0;
-char tempcharvariable = '\0';
-//unsigned long hits = 0;
-//unsigned long miss = 0;
+float tempfloatvariable1 = 0.0;
+/*char tempcharvariable = '\0';
+unsigned long hits = 0;
+unsigned long miss = 0;
+unsigned long readx = 0;
+unsigned long ready = 0;
+unsigned long garbage = 0;
 
 
 // unsigned long testLooppreviousTime = 0;
@@ -155,22 +160,30 @@ float z_est_val = 70, z_est_err = 90; // 70,90
 float velz_est_val = 70, velz_est_err = 90; 
 
 //********************************************************************************
-
 #endif
 
+#if defined (FilterXY)
+float x_est_val = 1, x_est_err = 1; // 70,90
+float y_est_val = 1, y_est_err = 1; // 70,90
+#endif
+//float Vroll_est_val = 0.5, Vroll_est_err = 0.5;
+//float Vpitch_est_val = 0.5, Vpitch_est_err = 0.5;
 /**
  * Position control global declaration
  */
  //****Vicon****//
  #if defined (Vicon)
+  uint8_t spi_buffer[20];
   boolean isViconHoldInitialized = false;
   float PositionHoldTarget_X = 0.0;  //roll
   float PositionHoldTarget_Y = 0.0;  //pitch
+  float X_origin = 0.0;
+  float Y_origin = 0.0;
   byte PositionHoldState = OFF;
   int HoldThrottleCorrection_pitch = 0, HoldThrottleCorrection_roll =0;
   float prevX = 0.0, prevY = 0.0;
   float Vx_setpoint = 0.0, Vy_setpoint = 0.0;
-  
+  #define POSPANIC 2
  #endif
  
 //Lidar-2D

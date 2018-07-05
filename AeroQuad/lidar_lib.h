@@ -25,7 +25,7 @@ float kal_vel(float meas_val, float q, float meas_err)
 
 float kal(float meas_val, float& est_val, float& est_err , float q, float meas_err)
 {
-    float k = ((est_err+q)/(meas_err + est_err+q));
+    float k = ((est_err+q)/(meas_err + est_err+ q));
     est_val = (1-k)*est_val + k*meas_val;
     est_err = (1-k)*est_err;
     return(est_val);}

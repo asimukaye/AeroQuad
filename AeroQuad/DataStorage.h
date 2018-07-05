@@ -221,13 +221,13 @@ void initializeEEPROM() {
   #endif
 
   #if defined (Lidar2D) || defined (Vicon)
-    PID[GPSROLL_PID_IDX].P = 0.8;
-    PID[GPSROLL_PID_IDX].I = 0.0;
-    PID[GPSROLL_PID_IDX].D = 0.0;
-    PID[GPSPITCH_PID_IDX].P = 0.8;
-    PID[GPSPITCH_PID_IDX].I = 0.0;
-    PID[GPSPITCH_PID_IDX].D = 0.0;
-    PID[GPSYAW_PID_IDX].P = 50.0;
+    PID[GPSROLL_PID_IDX].P = 15.0;
+    PID[GPSROLL_PID_IDX].I = 0.5;
+    PID[GPSROLL_PID_IDX].D = 0.05;
+    PID[GPSPITCH_PID_IDX].P = 15.0;
+    PID[GPSPITCH_PID_IDX].I = 0.5;
+    PID[GPSPITCH_PID_IDX].D = 0.05;
+    PID[GPSYAW_PID_IDX].P = 0.0;
     PID[GPSYAW_PID_IDX].I = 0.0;
     PID[GPSYAW_PID_IDX].D = 0.0;
   #endif  
@@ -447,7 +447,7 @@ void writeEEPROM(){
     writeFloat(0, RANGE_FINDER_MIN_ADR);
   #endif
 
-  #if defined (Lidar2D)
+  #if defined (Lidar2D) || defined (Vicon)
     writePID(GPSROLL_PID_IDX, GPSROLL_PID_GAIN_ADR);
     writePID(GPSPITCH_PID_IDX, GPSPITCH_PID_GAIN_ADR);
     writePID(GPSYAW_PID_IDX, GPSYAW_PID_GAIN_ADR);       

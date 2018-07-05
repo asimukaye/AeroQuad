@@ -1,34 +1,18 @@
-/*
-  AeroQuad v3.0 - May 2011
-  www.AeroQuad.com
-  Copyright (c) 2011 Ted Carancho.  All rights reserved.
-  An Open Source Arduino based multicopter.
- 
-  This program is free software: you can redistribute it and/or modify 
-  it under the terms of the GNU General Public License as published by 
-  the Free Software Foundation, either version 3 of the License, or 
-  (at your option) any later version. 
-
-  This program is distributed in the hope that it will be useful, 
-  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-  GNU General Public License for more details. 
-
-  You should have received a copy of the GNU General Public License 
-  along with this program. If not, see <http://www.gnu.org/licenses/>. 
-*/
 
 #ifndef _VICON_DATA_
 #define _VICON_DATA_
 
 #ifndef VICON_SERIAL
 #define VICON_SERIAL Serial2
-
+#define VELXY_SCALING 10.0 //This value should be roughly equal to the\
+ loop frequency of pos hold
 struct viconPose{
     float x;
     float y;
     float vx;
     float vy;
+    float x_sp;
+    float y_sp;
     };
     
 struct viconPose viconPose;
@@ -36,6 +20,153 @@ struct viconPose viconPose;
 
 void InitializeVicon(){
     VICON_SERIAL.begin(115200);
+    }
+
+void ViconWrite(){
+    VICON_SERIAL.print("a");
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(PositionHoldState);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(X_origin);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.println(Y_origin);
+    }
+    
+void Vicon_IMU_Write(){
+    VICON_SERIAL.print(1000*kinematicsAngle[XAXIS]);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(1000*kinematicsAngle[YAXIS]);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(1000*gyroHeading);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(100*gyroRate[XAXIS]);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(100*gyroRate[YAXIS]);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(100*gyroRate[ZAXIS]);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(100*filteredAccel[XAXIS]);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.print(100*filteredAccel[YAXIS]);
+    VICON_SERIAL.print(",");
+    VICON_SERIAL.println(100*filteredAccel[ZAXIS]);
+    }
+
+    
+void ViconRead(){
+  byte index = 0;
+  byte timeout = 0;
+  bool validdata = 0;
+  char check = '\0';
+  char data[10] = "";
+  data[0] = '\0';
+
+  
+    if (VICON_SERIAL.available() == 0) {
+      viconPose.x = prevX;
+      viconPose.y = prevY;
+        }
+    else{
+    do {
+        if (VICON_SERIAL.available() == 0) {
+          delay(1); 
+          timeout++;
+            }
+        else {
+        timeout = 0;
+        
+        check = VICON_SERIAL.read();            
+            if (check == 'p'){
+                index = 0;
+                validdata = 1;
+                }
+            
+            else if(check == 'q'){
+                data[index] = '\0';
+                if (validdata){
+                    viconPose.x_sp = atof(data);
+                    }
+                validdata = 1;
+                index = 0;
+                }
+               
+            else if(check == 'x'){
+                data[index] = '\0';
+                if (validdata){
+                    viconPose.y_sp = atof(data);
+                    }
+                validdata = 1;
+                index = 0;
+                }
+                         
+            else if(check == 'y'){
+                data[index] = '\0';
+                if (validdata){
+                    viconPose.x = atof(data);
+                    }
+                else{
+                    viconPose.x += viconPose.vx;
+                    } //adhoc solution to avoid data drops, quad should continue on its previous velocity
+                validdata = 1;
+                index = 0;
+                }
+                
+            /*else if(check == 'u'){
+                data[index] = '\0';
+                if (validdata){
+                    viconPose.y = atof(data);
+                    }
+                else{
+                    viconPose.y += viconPose.vy;
+                    } 
+                validdata = 1;
+                index = 0;
+                }
+            else if(check == 'v'){
+                data[index] = '\0';
+                if (validdata){
+                    viconPose.vx = atof(data);
+                    }
+                validdata = 1;
+                index = 0;
+                }*/
+                
+            else if(check == ';'){
+                data[index] = '\0';
+                if (validdata){
+                    viconPose.y = atof(data);
+                    }
+                else{
+                    viconPose.y += viconPose.vy;
+                    }
+                validdata = 0;
+                } 
+                                      
+            else if (validdata) {
+              data[index] = check;          //store as data
+              index++;
+                }      
+            }
+        }while ((index == 0 || check !=  ';') && (timeout < 10) && (index < sizeof(data)-1 ));
+        }
+
+   //viconPose.vx = viconPose.vx*VEL_SCALING;
+   //viconPose.vy = viconPose.vy*VEL_SCALING;
+    viconPose.x = constrain(viconPose.x, -6.0, 6.0);
+    viconPose.y = constrain(viconPose.y, -6.0, 6.0);
+
+   viconPose.vx = (viconPose.x - prevX)*VELXY_SCALING;
+   viconPose.vy = (viconPose.y - prevY)*VELXY_SCALING; //old vel scaling value w/o ekf  
+   
+      viconPose.vx = constrain(viconPose.vx, -5.0, 5.0);
+      viconPose.vy = constrain(viconPose.vy, -5.0, 5.0);
+    
+#if defined FilterXY
+   viconPose.vx = kal(viconPose.vx, x_est_val, x_est_err, 5.0, 10);
+   viconPose.vy = kal(viconPose.vy, y_est_val, y_est_err, 5.0, 10);
+#endif
+   prevX = viconPose.x;
+   prevY = viconPose.y;     
     }
 
 /*
@@ -101,7 +232,8 @@ void ViconRead(){
 }
 */
 
-void ViconRead2(){
+/*
+void ViconRead3(){
   byte index = 0;
   byte timeout = 0;
   bool validdata = 0;
@@ -111,60 +243,56 @@ void ViconRead2(){
 
   
    if (VICON_SERIAL.available() == 0) {
-      viconPose.x = prevX;
-      viconPose.y = prevY;
+      viconPose.x += viconPose.vx;
+      viconPose.y += viconPose.vy;
       }
     else{
-        //clear out first entry
-        
-        /*
-      do { if (VICON_SERIAL.available() == 0) {
-          delay(1);
-          timeout++;
-      }
-        else {
-        timeout = 0;
-        check = VICON_SERIAL.read();
-      }
-          }while ((check !=  'x') && (timeout < 10));*/
-          
-       //consider second entry to be data   
       do {
         if (VICON_SERIAL.available() == 0) {
           delay(1); 
           timeout++;
-          //miss++;
+          miss++;
       }
         else {
         timeout = 0;
-        //hits++;
+        hits++;
         check = VICON_SERIAL.read();            
             
-        if (check == 'x'){
+        if (check == 'y'){
             index = 0;
             validdata = 1;
             }         
-        else if(check == 'y'){
+        else if(check == 'x'){
             data[index] = '\0';
             //hits = index;
-            validdata = 1;
-            if (index < 2){
-                viconPose.x = prevX;
+            if (validdata){
+                viconPose.y = atof(data);
+                ready++;
                 }
             else{
-            viconPose.x = atof(data);} //adhoc solution to avoid data drops
+				viconPose.x += viconPose.vx;
+            } //adhoc solution to avoid data drops, quad should continue on its previous velocity
+            validdata = 1;
             index = 0;}
             
         else if(check == ';'){
             data[index] = '\0';
             //miss = index;
-            validdata = 0;
-            viconPose.y = atof(data);}
+            if (validdata){
+                viconPose.x = atof(data);
+                readx++;
+                }
+            else{
+				viconPose.y += viconPose.vy;
+            } 
+            validdata = 0;}
                       
         else if (validdata) {
           data[index] = check;          //store as data
           index++;
-        }        
+        }
+        else if (!validdata){
+			garbage++;}        
       }
       }while ((index == 0 || check !=  ';') && (timeout < 10) && (index < sizeof(data)-1 ));
       //VICON_SERIAL.flush();
@@ -172,12 +300,10 @@ void ViconRead2(){
       //tempcharvariable = check;  
     }
 
-   viconPose.vx = (viconPose.x - prevX)*10; //change this according to the POS_X_P gain values
-   viconPose.vy = (viconPose.y - prevY)*10;
+   viconPose.vx = (viconPose.x - prevX);
+   viconPose.vy = (viconPose.y - prevY); 
    prevX = viconPose.x;
    prevY = viconPose.y;     
-   
-}
-
+}*/
 #endif
 #endif

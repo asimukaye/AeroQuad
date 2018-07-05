@@ -94,15 +94,16 @@ void processAltitudeHold()
     
     
       // This below is the deadband
-      if((errorAltitude<2)&&(-2<errorAltitude)){
+      /*if((errorAltitude<2)&&(-2<errorAltitude)){
         altitudeHoldThrottleCorrection=0;
       }
       else{
           altitudeHoldThrottleCorrection = updatePID(LidarZVelSetpoint, LidarZVelocity, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);
-      }
-
+      }*/
+    altitudeHoldThrottleCorrection = updatePID(LidarZVelSetpoint, LidarZVelocity, &PID[BARO_ALTITUDE_HOLD_PID_IDX]);
       // This is the constrain on correction. Currently b/w +- 70
-      altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
+      //~altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, minThrottleAdjust, maxThrottleAdjust);
+      altitudeHoldThrottleCorrection = constrain(altitudeHoldThrottleCorrection, -70.0, 70.0);
       altitudeHoldThrottleCorrectionGLOBAL = altitudeHoldThrottleCorrection;  // passing on to global variable for access
       LidarHoldThrottle = altitudeHoldThrottle + altitudeHoldThrottleCorrection;
       

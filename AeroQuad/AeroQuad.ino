@@ -173,9 +173,7 @@
 #if defined(Lidar2D)
   #include "Hokuyo.h"
 #endif
-//~#if defined(Vicon)
-  //~#include "vicon_read.h"
-//~#endif
+
 //********************************************************
 //*************** BATTERY MONITOR DECLARATION ************
 //********************************************************
@@ -239,6 +237,7 @@
 //********************************************************
 //****************** OSD DEVICE DECLARATION **************
 //********************************************************
+
 #ifdef MAX7456_OSD     // only OSD supported for now is the MAX7456
   #include <Device_SPI.h>
   #include "OSDDisplayController.h"
@@ -283,8 +282,10 @@
 #ifdef SoftModem
   #include <AQ_SoftModem.h>
 #endif
+
 #if defined(Vicon)
   #include "vicon_read.h"
+  //#include <Device_SPI.h>
 #endif
 
 // Include this last as it contains objects from above declarations
@@ -294,6 +295,8 @@
 #include "FlightCommandProcessor.h"
 #include "HeadingHoldProcessor.h"
 #include "DataStorage.h"
+
+
 
 #if defined(UseGPS) || defined(BattMonitor)
   #include "LedStatusProcessor.h"
@@ -416,6 +419,7 @@ void setup() {
   #endif
   #if defined(Vicon)
     InitializeVicon();
+  //  device_spi.beginSlave();
   #endif
   #ifdef SlowTelemetry
      initSlowTelemetry();
@@ -562,8 +566,8 @@ void process50HzTask() {
   #endif  
     #if defined(Vicon)
       //ViconRead();
-      ViconRead2();
-      //testLoopdeltaTime = currentTime - micros();
+      Vicon_IMU_Write();
+      
   #endif     
 }
 
@@ -583,17 +587,16 @@ void process10HzTask1() {
     
   #endif
 
+  #if defined(Vicon)
+      ViconRead();
+  #endif
+
+// These functions are used only if the LIDAR is used directly without ROS
+// written by Sourabh Chourasia
+/*
   #if defined(Lidar2D)
-  
   Hokuyo_Read();
   
-   //first check weather kinematicAngles are in rads or not    --CHECKED
-  //PrintValueComma(count);
-  //distance2D[plus_X] =int(float(distance2D[plus_X])*cos(kinematicsAngle[XAXIS]));  //roll angle
-  //distance2D[minus_X] =distance2D[minus_X]*cos(kinematicsAngle[XAXIS]); //roll angle
-  //distance2D[plus_Y] =int(float(distance2D[plus_Y])*cos(kinematicsAngle[YAXIS])); //pitch angle 
-  //PrintValueComma(distance2D[plus_X]);
-  //PrintValueComma(distance2D[plus_Y]);
   hokuyo_XRaw = distance2D[plus_X];
   hokuyo_YRaw = distance2D[plus_Y];
   if(distance2D[plus_X] !=0){
@@ -602,7 +605,6 @@ void process10HzTask1() {
   else if(distance2D[plus_X] ==0){
     distance2D[plus_X] =LastNonZeroRoll;
   }
-
   if(distance2D[plus_Y] !=0){
     LastNonZeroPitch = distance2D[plus_Y];
   }
@@ -626,16 +628,8 @@ void process10HzTask1() {
     PitchVelocityDirection = 1;  // in +ver Y
   }
   prevPitch = distance2D[plus_Y];
-  
-
-  /*
-  PrintValueComma(kinematicsAngle[YAXIS]);
-  PrintValueComma(cos(kinematicsAngle[YAXIS]));
-  PrintValueComma(kinematicsAngle[XAXIS]);
-  SERIAL_PRINTLN(cos(kinematicsAngle[XAXIS])); */  
-  //SERIAL_PRINTLN(distance2D[plus_Y]);
   #endif
-
+*/
 }
 
 /*******************************************************************
@@ -648,8 +642,7 @@ void process10HzTask2() {
   #if defined(BattMonitor)
     measureBatteryVoltage(G_Dt*1000.0);
   #endif
-
-  // Listen for configuration commands and reports telemetry
+  
   readSerialCommand();
   sendSerialTelemetry();
 }
@@ -686,8 +679,10 @@ void process1HzTask() {
     G_Dt = (currentTime - oneHZpreviousTime) / 1000000.0;
     oneHZpreviousTime = currentTime;
     
-    sendSerialHeartbeat();  
+    sendSerialHeartbeat(); 
+    
   #endif
+  ViconWrite(); 
 }
 
 /*******************************************************************
