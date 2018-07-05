@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+
+<launch>
+
+<param name="/use_sim_time" value="false"/>ros
+
+<node pkg="rviz" type="rviz" name="rviz" 
+args="-d $(find myslam)/rviz_cfg.rviz"/>
+
+<node pkg="hector_imu_attitude_to_tf" type="imu_attitude_to_tf_node" name="imu_attitude_to_tf_node"    output="screen">
+    <param name="base_stabilized_frame" type="string" value="base_stabilized"/>
+    <param name="base_frame" type="string" value="base_link1"/>
+</node>
+ 
+<node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+    <rosparam command="load" file="$(find beginner_tutorials)/params/ekf_tut.yaml" />
+  </node>
+    
+<include file="$(find myslam)/launch/hector_mapping.launch"/>
+
+
+<!--
+<include file="$(find myslam)/launch/geotiff_mapper.launch"/>
+-->
+<!--
+<arg name="trajectory_source_frame_name" value="scanmatcher_frame"/> 
+</include>
+-->
+</launch>
